@@ -78,10 +78,10 @@ export default async function AppsPage({ searchParams }: AppsPageProps) {
     category_color: (app as any).category_color || '#3b82f6',
     category_slug: (app as any).category_slug || null,
     tags: [],
-  })
+  }));
 
-  const totalApps = apps.length + offset
-  const totalPages = Math.ceil(totalApps / limit)
+  const totalApps = apps.length + offset;
+  const totalPages = Math.ceil(totalApps / limit);
 
   return (
     <div className="min-h-screen">
