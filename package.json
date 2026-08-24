@@ -1,0 +1,48 @@
+{
+  "name": "yukiichii",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build --webpack",
+    "start": "next start",
+    "lint": "eslint",
+    "db:push": "tsx scripts/db-push.ts",
+    "db:seed": "tsx scripts/db-seed.ts"
+  },
+  "dependencies": {
+    "next": "16.3.2",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "@libsql/client": "^0.14.0",
+    "next-auth": "^5.0.0-beta.25",
+    "bcryptjs": "^2.4.3",
+    "@radix-ui/react-slot": "^1.1.0",
+    "@radix-ui/react-label": "^2.1.0",
+    "@radix-ui/react-dialog": "^1.1.0",
+    "@radix-ui/react-dropdown-menu": "^2.1.0",
+    "@radix-ui/react-tabs": "^1.1.0",
+    "@radix-ui/react-toast": "^1.2.0",
+    "@aws-sdk/client-s3": "^3.600.0",
+    "@aws-sdk/s3-request-presigner": "^3.600.0",
+    "clsx": "^2.1.1",
+    "tailwind-merge": "^2.3.0",
+    "lucide-react": "^0.454.0",
+    "fuse.js": "^7.0.0",
+    "class-variance-authority": "^0.7.0",
+    "next-themes": "^0.3.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@types/bcryptjs": "^2.4.6",
+    "autoprefixer": "^10.4.19",
+    "eslint": "^9",
+    "eslint-config-next": "16.3.2",
+    "postcss": "^8.4.38",
+    "tailwindcss": "^3.4.3",
+    "typescript": "^5",
+    "tsx": "^4.10.0"
+  }
+}
