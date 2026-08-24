@@ -1,10 +1,29 @@
 import { Metadata } from 'next'
 import { getApps, getCategories, getTags } from '@/lib/db/queries'
 import { AppGrid } from '@/components/app-grid'
-import { SearchFilter } from '@/components/search-filter'
 import { cn } from '@/lib/utils'
 import { unstable_noStore } from 'next/cache'
 import { AlertCircle } from 'lucide-react'
+import dynamic from 'next/dynamic'
+
+const SearchFilter = dynamic(() => import('@/components/search-filter').then(m => m.SearchFilter), {
+  ssr: false,
+  loading: () => (
+    <div className="space-y-4">
+      <div className="relative">
+        <input type="text" placeholder="Cari aplikasi..." className="pl-10 pr-10 w-full h-10 px-4 py-2 text-sm border border-gray-300 rounded-lg bg-gray-50" disabled />
+      </div>
+      <div className="space-y-2">
+        <select disabled className="w-full h-10 px-3 py-2 text-sm border border-gray-300 rounded-lg bg-gray-50">
+          <option value="">Semua Kategori</option>
+        </select>
+        <button type="button" disabled className="w-full h-10 px-3 py-2 text-sm font-medium border border-gray-300 rounded-lg bg-gray-50 justify-between">
+          <span className="flex items-center gap-2">Tag (0)</span>
+        </button>
+      </div>
+    </div>
+  )
+})
 
 export const metadata: Metadata = {
   title: 'Semua Aplikasi',
@@ -99,7 +118,9 @@ export default async function AppsPage({ searchParams }: AppsPageProps) {
                   if (searchParams.search) searchParamsObj.set('search', searchParams.search)
                   if (searchParams.category) searchParamsObj.set('category', searchParams.category)
                   if (searchParams.tags.length > 0) searchParamsObj.set('tag', searchParams.tags[0])
-                  window.location.href = `/apps?${searchParamsObj.toString()}`
+                  if (typeof window !== 'undefined') {
+                    window.location.href = `/apps?${searchParamsObj.toString()}`
+                  }
                 }}
               />
             </div>
