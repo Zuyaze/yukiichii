@@ -1,40 +1,12 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
-import { Button } from '@/components/ui/button'
-import { Search, X, Filter, ChevronDown } from 'lucide-react'
-
-interface Category { id: number; name: string; slug: string; color: string }
-interface Tag { id: number; name: string; slug: string; color: string }
+import { useState } from 'react'
+import { useSearchParams } from 'next/navigation'
 
 export default function AppsPage() {
   const [search, setSearch] = useState('')
   const [category, setCategory] = useState('')
-  const [selectedTags, setSelectedTags] = useState<string[]>([])
-  const [showTags, setShowTags] = useState(false)
   const [page, setPage] = useState(1)
-
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const timeout = setTimeout(() => setSearch(e.target.value), 300)
-    return () => clearTimeout(timeout)
-  }
-
-  const handleCategoryChange = (value: string) => {
-    setCategory(value)
-  }
-
-  const toggleTag = (tagSlug: string) => {
-    setSelectedTags(prev => prev.includes(tagSlug) ? prev.filter(t => t !== tagSlug) : [...prev, tagSlug])
-  }
-
-  const clearAll = () => {
-    setSearch('')
-    setCategory('')
-    setSelectedTags([])
-  }
-
-  const hasFilters = false
 
   return (
     <div className="min-h-screen bg-white">
@@ -56,9 +28,7 @@ export default function AppsPage() {
                 </div>
                 <div className="space-y-2">
                   <select className="w-full h-10 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"><option value="">Semua Kategori</option></select>
-                  <div>
-                    <button type="button" className="w-full justify-between h-10 px-3 py-2 text-sm font-medium border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"><span className="flex items-center gap-2">Tag (0)</span></button>
-                  </div>
+                  <button type="button" className="w-full justify-between h-10 px-3 py-2 text-sm font-medium border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"><span className="flex items-center gap-2">Tag (0)</span></button>
                 </div>
               </div>
             </div>
