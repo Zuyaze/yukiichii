@@ -80,3 +80,5 @@ export function PublicLayout({ children }: { children: ReactNode }) {
     </div>
   )
 }
+
+export default PublicLayout
