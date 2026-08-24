@@ -12,7 +12,9 @@ import { Badge } from '@/components/ui/badge'
 import { Image } from 'next/image'
 import { Upload, X, Image as ImageIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { validateImageFile, generateScreenshotKey } from '@/lib/r2'
+
+const CLOUDINARY_CLOUD_NAME = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME!
+const CLOUDINARY_UPLOAD_PRESET = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET!
 
 interface AppFormProps {
   initialData?: {
@@ -29,6 +31,21 @@ interface AppFormProps {
   tags: { id: number; name: string; slug: string; color: string }[]
   onSubmit: (data: FormData) => Promise<void>
   onCancel: () => void
+}
+
+function validateImageFile(file: File): { valid: boolean; error?: string } {
+  const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/avif']
+  const maxSize = 5 * 1024 * 1024 // 5MB
+
+  if (!allowedTypes.includes(file.type)) {
+    return { valid: false, error: 'Format tidak didukung. Gunakan JPG, PNG, WebP, atau AVIF.' }
+  }
+
+  if (file.size > maxSize) {
+    return { valid: false, error: 'Ukuran file maksimal 5MB.' }
+  }
+
+  return { valid: true }
 }
 
 export function AppForm({ initialData, categories, tags, onSubmit, onCancel }: AppFormProps) {
@@ -63,6 +80,26 @@ export function AppForm({ initialData, categories, tags, onSubmit, onCancel }: A
     }
   }
 
+  const uploadToCloudinary = async (file: File): Promise<string> => {
+    const formData = new FormData()
+    formData.append('file', file)
+    formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET)
+    formData.append('folder', 'yukiichii')
+
+    const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, {
+      method: 'POST',
+      body: formData,
+    })
+
+    if (!res.ok) {
+      const error = await res.json()
+      throw new Error(error.error?.message || 'Upload gagal')
+    }
+
+    const data = await res.json()
+    return data.secure_url
+  }
+
   const handleScreenshotUpload = async (files: FileList) => {
     const validFiles = Array.from(files).filter(file => {
       const validation = validateImageFile(file)
@@ -81,26 +118,11 @@ export function AppForm({ initialData, categories, tags, onSubmit, onCancel }: A
     try {
       for (let i = 0; i < validFiles.length; i++) {
         const file = validFiles[i]
-        const ext = file.type.split('/')[1]
-        const key = generateScreenshotKey(formData.slug || 'temp', Date.now() + i, ext)
-
-        const formDataUpload = new FormData()
-        formDataUpload.append('file', file)
-        formDataUpload.append('key', key)
-
-        const res = await fetch('/api/upload', {
-          method: 'POST',
-          body: formDataUpload,
-        })
-
-        if (!res.ok) throw new Error('Upload gagal')
-
-        const { publicUrl } = await res.json()
+        const url = await uploadToCloudinary(file)
         setFormData(prev => ({
           ...prev,
-          screenshots: [...prev.screenshots, publicUrl],
+          screenshots: [...prev.screenshots, url],
         }))
-
         setUploadProgress(((i + 1) / validFiles.length) * 100)
       }
     } catch (error) {
