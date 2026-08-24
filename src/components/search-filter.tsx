@@ -62,15 +62,21 @@ export function SearchFilter({ categories, tags, initialSearch, initialCategory,
           <Input placeholder="Cari aplikasi..." className="pl-10 pr-10" disabled />
         </div>
         <div className="space-y-2">
-          <Select disabled className="w-full">
+          <select disabled className="w-full h-10 px-3 py-2 text-sm border border-gray-300 rounded-lg bg-gray-50">
             <option value="">Semua Kategori</option>
-          </Select>
+          </select>
           <Button type="button" variant="outline" size="sm" className="w-full justify-between" disabled>
             <span className="flex items-center gap-2">Tag (0)</span>
           </Button>
         </div>
       </div>
     )
+  }
+
+  const handleSearch = (params: { search: string; category: string; tags: string[] }) => {
+    if (typeof window !== 'undefined') {
+      onSearch(params)
+    }
   }
 
   return (
@@ -97,16 +103,16 @@ export function SearchFilter({ categories, tags, initialSearch, initialCategory,
       </div>
 
       <div className="space-y-2">
-        <Select
+        <select
           value={category}
-          onValueChange={setCategory}
-          className="w-full"
+          onChange={e => setCategory(e.target.value)}
+          className="w-full h-10 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
         >
           <option value="">Semua Kategori</option>
           {categories.map(cat => (
             <option key={cat.slug} value={cat.slug}>{cat.name}</option>
           ))}
-        </Select>
+        </select>
 
         <div>
           <Button
