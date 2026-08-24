@@ -22,17 +22,26 @@ export function SearchFilter({ categories, tags, initialSearch, initialCategory,
   const [category, setCategory] = useState(initialCategory || '')
   const [selectedTags, setSelectedTags] = useState<string[]>(initialTags || [])
   const [showTags, setShowTags] = useState(false)
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const debouncedSearch = useCallback(
     debounce((params: { search: string; category: string; tags: string[] }) => {
-      onSearch(params)
+      if (mounted) {
+        onSearch(params)
+      }
     }, 300),
-    [onSearch]
+    [onSearch, mounted]
   )
 
   useEffect(() => {
-    debouncedSearch({ search, category, tags: selectedTags })
-  }, [search, category, selectedTags, debouncedSearch])
+    if (mounted) {
+      debouncedSearch({ search, category, tags: selectedTags })
+    }
+  }, [search, category, selectedTags, debouncedSearch, mounted])
 
   const toggleTag = (tagSlug: string) => {
     setSelectedTags(prev => prev.includes(tagSlug) ? prev.filter(t => t !== tagSlug) : [...prev, tagSlug])
@@ -45,6 +54,24 @@ export function SearchFilter({ categories, tags, initialSearch, initialCategory,
   }
 
   const hasFilters = search || category || selectedTags.length > 0
+
+  if (!mounted) {
+    return (
+      <div className="space-y-4">
+        <div className="relative">
+          <Input placeholder="Cari aplikasi..." className="pl-10 pr-10" disabled />
+        </div>
+        <div className="space-y-2">
+          <Select disabled className="w-full">
+            <option value="">Semua Kategori</option>
+          </Select>
+          <Button type="button" variant="outline" size="sm" className="w-full justify-between" disabled>
+            <span className="flex items-center gap-2">Tag (0)</span>
+          </Button>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-4">
