@@ -4,11 +4,14 @@ import { AppGrid } from '@/components/app-grid'
 import { SearchFilter } from '@/components/search-filter'
 import { cn } from '@/lib/utils'
 import { unstable_noStore } from 'next/cache'
+import { AlertCircle } from 'lucide-react'
 
 export const metadata: Metadata = {
   title: 'Semua Aplikasi',
   description: 'Jelajahi semua aplikasi dan tools yang tersedia di YukiiChii.',
 }
+
+export const dynamic = 'force-dynamic'
 
 interface AppsPageProps {
   searchParams: Promise<{ search?: string; category?: string; tag?: string; page?: string }>
@@ -63,6 +66,17 @@ export default async function AppsPage({ searchParams }: AppsPageProps) {
 
   return (
     <div className="min-h-screen">
+      {dbError && (
+        <div className="bg-yellow-50 border-y border-yellow-200 px-4 py-3 text-center">
+          <div className="flex items-center justify-center gap-2 text-yellow-700 text-sm">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+            <span>Database sedang bermasalah, menampilkan tampilan default.</span>
+          </div>
+        </div>
+      )}
+
       <div className="bg-muted/30 py-8 sm:py-12">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <h1 className="text-3xl font-bold text-foreground sm:text-4xl">Semua Aplikasi</h1>
