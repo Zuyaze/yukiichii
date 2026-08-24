@@ -4,11 +4,15 @@ import { getApps, getCategories } from '@/lib/db/queries'
 import { AppGrid } from '@/components/app-grid'
 import { Button } from '@/components/ui/button'
 import { ArrowRight, Download, Smartphone, Monitor, Gamepad2, FileCode } from 'lucide-react'
+import { unstable_noStore } from 'next/cache'
 
 export const metadata: Metadata = {
   title: 'Kumpulan Aplikasi & Tools Gratis',
   description: 'Download berbagai aplikasi dan tools gratis untuk Android, Windows, dan Web. Cepat, aman, dan mudah.',
 }
+
+// Force dynamic rendering - don't statically generate
+export const dynamic = 'force-dynamic'
 
 const categoryIcons: Record<string, React.ComponentType<{ className?: string }>> = {
   android: Smartphone,
@@ -19,6 +23,7 @@ const categoryIcons: Record<string, React.ComponentType<{ className?: string }>>
 }
 
 export default async function HomePage() {
+  unstable_noStore()
   const [apps, categories] = await Promise.all([
     getApps({ limit: 12 }),
     getCategories(),
