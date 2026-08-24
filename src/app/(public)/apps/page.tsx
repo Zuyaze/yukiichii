@@ -6,7 +6,7 @@ import { unstable_noStore } from 'next/cache'
 import { AlertCircle } from 'lucide-react'
 import dynamic from 'next/dynamic'
 
-const SearchFilter = dynamic(() => import('@/components/search-filter').then(m => m.SearchFilter), {
+const SearchFilter = dynamic(() => import('@/components/search-filter').then(m => ({ SearchFilter: m.SearchFilter })), {
   ssr: false,
   loading: () => (
     <div className="space-y-4">
@@ -78,7 +78,7 @@ export default async function AppsPage({ searchParams }: AppsPageProps) {
     category_color: (app as any).category_color || '#3b82f6',
     category_slug: (app as any).category_slug || null,
     tags: [],
-  }))
+  })
 
   const totalApps = apps.length + offset
   const totalPages = Math.ceil(totalApps / limit)
