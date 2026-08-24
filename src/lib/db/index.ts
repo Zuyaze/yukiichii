@@ -1,24 +1,31 @@
 import { createClient } from '@libsql/client'
 
-const isBuildTime = process.env.NEXT_PHASE === 'phase-production-build' || process.env.NODE_ENV === 'production' && !process.env.TURSO_DATABASE_URL
-
 let db: ReturnType<typeof createClient> | null = null
 
-if (!isBuildTime) {
-  const url = process.env.TURSO_DATABASE_URL!
-  const authToken = process.env.TURSO_AUTH_TOKEN!
-  db = createClient({ url, authToken })
+function getEnv() {
+  return {
+    url: process.env.TURSO_DATABASE_URL,
+    authToken: process.env.TURSO_AUTH_TOKEN,
+  }
 }
 
-export const getDb = () => {
-  if (!db) {
+function getClient() {
+  if (db) return db
+  
+  const { url, authToken } = getEnv()
+  
+  if (!url || !authToken) {
     throw new Error('Database not initialized. Please set TURSO_DATABASE_URL and TURSO_AUTH_TOKEN environment variables.')
   }
+  
+  db = createClient({ url, authToken })
   return db
 }
 
+export const getDb = () => getClient()
+
 export async function initDb() {
-  const database = getDb()
+  const database = getClient()
   await database.batch([
     `CREATE TABLE IF NOT EXISTS categories (
       id INTEGER PRIMARY KEY AUTOINCREMENT,

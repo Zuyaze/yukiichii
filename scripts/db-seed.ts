@@ -1,5 +1,8 @@
-import { db } from '../src/lib/db'
+import 'dotenv/config'
+import { getDb } from '../src/lib/db'
 import bcrypt from 'bcryptjs'
+
+const db = getDb()
 
 async function main() {
   console.log('Seeding database...')

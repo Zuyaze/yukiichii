@@ -1,3 +1,4 @@
+import 'dotenv/config'
 import { initDb } from '../src/lib/db'
 
 async function main() {
