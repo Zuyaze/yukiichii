@@ -119,16 +119,11 @@ export default function LoginForm() {
   )
 }
 
-function handleSubmit(e: React.FormEvent) {
-  // This will be replaced by the actual handler
+async function handleSubmit(e: React.FormEvent) {
   e.preventDefault()
+  const formData = new FormData(e.currentTarget)
+  const email = formData.get('email')
+  const password = formData.get('password')
+  
+  // This will be replaced by the actual handler
 }
-
-const [email, setEmail] = ['', () => {}] as any
-const [password, setPassword] = ['', () => {}] as any
-const [loading, setLoading] = [false, () => {}] as any
-const [formError, setFormError] = ['', () => {}] as any
-const router = { push: () => {}, refresh: () => {} } as any
-const callbackUrl = '/dashboard'
-const error = ''
-const formError = ''
