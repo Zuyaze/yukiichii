@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { getApps, getCategories } from '@/lib/db/queries'
 import { AppGrid } from '@/components/app-grid'
 import { Button } from '@/components/ui/button'
-import { ArrowRight, Download, Smartphone, Monitor, Gamepad2, FileCode } from 'lucide-react'
+import { ArrowRight, Download, Smartphone, Monitor, Gamepad2, FileCode, Database, AlertCircle } from 'lucide-react'
 import { unstable_noStore } from 'next/cache'
 
 export const metadata: Metadata = {
@@ -11,7 +11,6 @@ export const metadata: Metadata = {
   description: 'Download berbagai aplikasi dan tools gratis untuk Android, Windows, dan Web. Cepat, aman, dan mudah.',
 }
 
-// Force dynamic rendering - don't statically generate
 export const dynamic = 'force-dynamic'
 
 const categoryIcons: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -24,10 +23,24 @@ const categoryIcons: Record<string, React.ComponentType<{ className?: string }>>
 
 export default async function HomePage() {
   unstable_noStore()
-  const [apps, categories] = await Promise.all([
-    getApps({ limit: 12 }),
-    getCategories(),
-  ])
+  
+  let apps: any[] = []
+  let categories: any[] = []
+  let dbError: Error | null = null
+
+  try {
+    const [appsData, categoriesData] = await Promise.all([
+      getApps({ limit: 12 }),
+      getCategories(),
+    ])
+    apps = appsData
+    categories = categoriesData
+  } catch (error) {
+    console.error('Database error:', error)
+    dbError = error as Error
+    apps = []
+    categories = []
+  }
 
   const appsWithImages = apps.map(app => ({
     ...app,
@@ -41,7 +54,16 @@ export default async function HomePage() {
   const featuredCategories = categories.slice(0, 4)
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col min-h-screen">
+      {dbError && (
+        <div className="bg-yellow-50 border-y border-yellow-200 px-4 py-3 text-center">
+          <div className="flex items-center justify-center gap-2 text-yellow-700 text-sm">
+            <AlertCircle className="w-4 h-4" />
+            <span>Database sedang bermasalah, menampilkan tampilan default. Beberapa fitur mungkin tidak tersedia.</span>
+          </div>
+        </div>
+      )}
+
       <section className="relative overflow-hidden py-16 sm:py-24 lg:py-32">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center">
