@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Upload, X } from 'lucide-react'
+import { Upload, X, Loader2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const CLOUDINARY_CLOUD_NAME = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME
@@ -21,6 +21,7 @@ export interface AppFormData {
   category_id: number | null
   tag_ids: number[]
   screenshots: string[]
+  icon_url?: string | null
 }
 
 interface AppFormProps {
@@ -56,9 +57,11 @@ export function AppForm({ initialData, categories, tags }: AppFormProps) {
     category_id: initialData?.category_id?.toString() || '',
     tag_ids: initialData?.tag_ids?.map(String) || [],
     screenshots: initialData?.screenshots || [],
+    icon_url: initialData?.icon_url || '',
   })
 
   const [uploading, setUploading] = useState(false)
+  const [uploadingLogo, setUploadingLogo] = useState(false)
   const [uploadProgress, setUploadProgress] = useState(0)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
@@ -156,6 +159,7 @@ export function AppForm({ initialData, categories, tags }: AppFormProps) {
         category_id: formData.category_id ? parseInt(formData.category_id) : null,
         tag_ids: formData.tag_ids.map(Number),
         screenshots: formData.screenshots,
+        icon_url: formData.icon_url || null,
       }
 
       const res = await fetch(
@@ -306,6 +310,80 @@ export function AppForm({ initialData, categories, tags }: AppFormProps) {
               </div>
             </div>
           )}
+
+          <div className="space-y-2">
+            <Label>Logo Aplikasi *</Label>
+            <div className="flex items-start gap-4">
+              {/* Preview / placeholder */}
+              <div className="relative w-28 h-28 flex-shrink-0 rounded-2xl overflow-hidden border-2 border-dashed border-border bg-muted/50">
+                {formData.icon_url ? (
+                  <>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={formData.icon_url}
+                      alt="Logo aplikasi"
+                      className="absolute inset-0 w-full h-full object-cover"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setFormData(prev => ({ ...prev, icon_url: '' }))}
+                      className="absolute top-1 right-1 w-6 h-6 rounded-full bg-destructive text-white flex items-center justify-center hover:bg-destructive/80"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </>
+                ) : (
+                  <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
+                    <ImageIcon className="w-8 h-8 mb-1" />
+                    <span className="text-[10px]">Logo</span>
+                  </div>
+                )}
+                {uploadingLogo && (
+                  <div className="absolute inset-0 bg-background/80 flex items-center justify-center">
+                    <Loader2 className="w-6 h-6 animate-spin text-primary" />
+                  </div>
+                )}
+              </div>
+
+              {/* Upload button */}
+              <div className="flex-1">
+                <input
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  onChange={async e => {
+                    const file = e.target.files?.[0]
+                    if (!file) return
+                    const validation = validateImageFile(file)
+                    if (!validation.valid) {
+                      alert(validation.error)
+                      return
+                    }
+                    setUploadingLogo(true)
+                    try {
+                      const url = await uploadToCloudinary(file)
+                      setFormData(prev => ({ ...prev, icon_url: url }))
+                    } catch (err) {
+                      alert('Gagal upload logo: ' + (err as Error).message)
+                    } finally {
+                      setUploadingLogo(false)
+                      e.target.value = ''
+                    }
+                  }}
+                  className="hidden"
+                  id="logo-upload"
+                />
+                <label htmlFor="logo-upload">
+                  <span className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium border border-input rounded-lg cursor-pointer hover:bg-accent transition-colors">
+                    <Upload className="w-4 h-4" />
+                    Pilih Logo
+                  </span>
+                </label>
+                <p className="text-xs text-muted-foreground mt-2">
+                  Ikon aplikasi asli (kotak). Tampil sebagai thumbnail di grid. Maks 5MB.
+                </p>
+              </div>
+            </div>
+          </div>
 
           <div className="space-y-2">
             <Label>Screenshot (16:9 landscape, maks 5MB per file)</Label>

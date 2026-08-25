@@ -44,7 +44,8 @@ export default async function HomePage() {
 
   const appsWithImages = apps.map(app => ({
     ...app,
-    screenshot_url: null,
+    screenshot_url: (app as any).screenshots?.[0] ?? null,
+    icon_url: (app as any).icon_url ?? null,
     category_name: (app as any).category_name || null,
     category_color: (app as any).category_color || '#3b82f6',
     category_slug: (app as any).category_slug || null,

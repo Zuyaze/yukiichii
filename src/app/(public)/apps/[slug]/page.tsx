@@ -48,25 +48,35 @@ export default async function AppDetailPage({ params }: AppDetailPageProps) {
           </Link>
 
           <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
-            <div>
-              {(app as any).category_name && (
-                <Link
-                  href={`/apps?category=${(app as any).category_slug}`}
-                  className="inline-block mb-2"
-                >
-                  <Badge
-                    variant="secondary"
-                    className="text-sm"
-                    style={{
-                      backgroundColor: `${(app as any).category_color}20`,
-                      color: (app as any).category_color,
-                    }}
-                  >
-                    {(app as any).category_name}
-                  </Badge>
-                </Link>
+            <div className="flex items-start gap-3 sm:gap-4">
+              {(app as any).icon_url && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={(app as any).icon_url}
+                  alt={app.title}
+                  className="w-14 h-14 sm:w-20 sm:h-20 rounded-2xl object-cover ring-1 ring-border flex-shrink-0"
+                />
               )}
-              <h1 className="text-3xl font-bold text-foreground sm:text-4xl">{app.title}</h1>
+              <div>
+                {(app as any).category_name && (
+                  <Link
+                    href={`/apps?category=${(app as any).category_slug}`}
+                    className="inline-block mb-2"
+                  >
+                    <Badge
+                      variant="secondary"
+                      className="text-xs"
+                      style={{
+                        backgroundColor: `${(app as any).category_color}20`,
+                        color: (app as any).category_color,
+                      }}
+                    >
+                      {(app as any).category_name}
+                    </Badge>
+                  </Link>
+                )}
+                <h1 className="text-2xl font-bold text-foreground sm:text-3xl">{app.title}</h1>
+              </div>
             </div>
             <a href={app.download_url} target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto">
               <Button size="lg" className="w-full sm:w-auto gap-2">

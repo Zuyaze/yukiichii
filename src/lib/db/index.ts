@@ -85,6 +85,7 @@ const SCHEMA_STATEMENTS = [
   )`,
   // Migration for existing databases
   `ALTER TABLE apps ADD COLUMN IF NOT EXISTS screenshots JSONB NOT NULL DEFAULT '[]'::jsonb`,
+  `ALTER TABLE apps ADD COLUMN IF NOT EXISTS icon_url TEXT`,
   `CREATE TABLE IF NOT EXISTS app_tags (
     app_id INTEGER NOT NULL REFERENCES apps(id) ON DELETE CASCADE,
     tag_id INTEGER NOT NULL REFERENCES tags(id) ON DELETE CASCADE,
@@ -149,6 +150,7 @@ export type App = {
   download_url: string
   category_id: number | null
   screenshots: string[] | null
+  icon_url: string | null
   created_at: string
   updated_at: string
 }

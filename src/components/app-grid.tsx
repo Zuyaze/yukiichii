@@ -6,7 +6,8 @@ interface AppGridProps {
     title: string
     description?: string | null
     download_url?: string
-    screenshot_url: string | null
+    screenshot_url?: string | null
+    icon_url?: string | null
     category_name?: string | null
     category_color?: string
     category_slug?: string | null
@@ -28,7 +29,7 @@ export function AppGrid({ apps, emptyMessage = 'Belum ada aplikasi' }: AppGridPr
   }
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-x-3 gap-y-5 sm:gap-x-4 sm:gap-y-6">
+    <div className="grid grid-cols-3 gap-x-2 gap-y-4 sm:grid-cols-4 sm:gap-x-3 sm:gap-y-5 md:grid-cols-6 lg:grid-cols-7 xl:grid-cols-8">
       {apps.map(app => (
         <AppCard key={app.slug} {...app} />
       ))}

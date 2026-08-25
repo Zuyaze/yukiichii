@@ -44,7 +44,7 @@ export async function POST(request: Request) {
   try {
     await ensureSchema()
     const body = await request.json()
-    const { slug, title, description, download_url, category_id, tag_ids, screenshots } = body
+    const { slug, title, description, download_url, category_id, tag_ids, screenshots, icon_url } = body
 
     if (!slug || !title || !download_url) {
       return Response.json({ error: 'Slug, judul, dan link download wajib diisi' }, { status: 400 })
@@ -64,6 +64,7 @@ export async function POST(request: Request) {
         download_url,
         category_id ?? null,
         JSON.stringify(screenshots ?? []),
+      icon_url ?? null,
       ],
     })
     const appId = (result.rows[0] as any).id as number

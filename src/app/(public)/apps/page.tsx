@@ -44,6 +44,7 @@ export default async function AppsPage({ searchParams }: AppsPageProps) {
     description: app.description,
     download_url: app.download_url,
     screenshot_url: (app as any).screenshots?.[0] ?? null,
+    icon_url: (app as any).icon_url ?? null,
     category_name: (app as any).category_name || null,
     category_color: (app as any).category_color || '#3b82f6',
     category_slug: (app as any).category_slug || null,

@@ -8,7 +8,8 @@ interface AppCardProps {
   title: string
   description?: string | null
   download_url?: string
-  screenshot_url: string | null
+  screenshot_url?: string | null
+  icon_url?: string | null
   category_name?: string | null
   category_color?: string
   category_slug?: string | null
@@ -18,32 +19,37 @@ interface AppCardProps {
 export function AppCard({
   slug,
   title,
+  icon_url,
   screenshot_url,
   category_name,
   category_color,
 }: AppCardProps) {
+  const image = icon_url || screenshot_url
+
   return (
     <Link href={`/apps/${slug}`} className="group block">
-      {/* Image */}
-      <div className="relative aspect-square rounded-xl overflow-hidden bg-muted">
-        {screenshot_url ? (
+      {/* Logo */}
+      <div className="relative aspect-square rounded-2xl overflow-hidden bg-muted ring-1 ring-border group-hover:ring-primary/50 transition-all">
+        {image ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
-            src={screenshot_url}
+            src={image}
             alt={title}
             loading="lazy"
-            className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+            className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
           />
         ) : (
-          <div className="flex items-center justify-center h-full">
-            <Download className="w-8 h-8 text-muted-foreground/40" />
+          <div className="flex items-center justify-center h-full bg-gradient-to-br from-primary/15 to-primary/5">
+            <span className="text-2xl font-bold text-primary/60">
+              {title.charAt(0).toUpperCase()}
+            </span>
           </div>
         )}
 
         {/* Category badge */}
         {category_name && (
           <span
-            className="absolute top-1.5 left-1.5 px-1.5 py-0.5 text-[10px] font-semibold rounded-md backdrop-blur-sm"
+            className="absolute top-1 left-1 px-1.5 py-0.5 text-[9px] font-bold rounded-md"
             style={{
               backgroundColor: `${category_color || '#3b82f6'}E6`,
               color: '#fff',
@@ -54,24 +60,19 @@ export function AppCard({
         )}
 
         {/* Free pill */}
-        <span className="absolute bottom-1.5 right-1.5 px-1.5 py-0.5 text-[10px] font-bold rounded-md bg-green-500 text-white">
+        <span className="absolute bottom-1 left-1 px-1.5 py-0.5 text-[8px] font-black rounded bg-green-500 text-white tracking-wide">
           FREE
         </span>
-
-        {/* Hover overlay */}
-        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors" />
       </div>
 
       {/* Title */}
-      <div className="mt-2 px-0.5">
-        <h3 className="text-sm font-medium text-foreground line-clamp-2 leading-snug group-hover:text-primary transition-colors">
-          {title}
-        </h3>
-        <p className="text-xs text-muted-foreground mt-0.5 flex items-center gap-1">
-          <Download className="w-3 h-3" />
-          Mod · Gratis
-        </p>
-      </div>
+      <h3 className="mt-1.5 text-xs font-medium text-foreground line-clamp-2 leading-tight group-hover:text-primary transition-colors">
+        {title}
+      </h3>
+      <p className="text-[10px] text-green-600 dark:text-green-400 font-semibold mt-0.5 flex items-center gap-0.5">
+        <Download className="w-2.5 h-2.5" />
+        GRATIS
+      </p>
     </Link>
   )
 }

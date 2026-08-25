@@ -131,12 +131,13 @@ export async function createApp(data: {
   category_id: number | null
   tag_ids: number[]
   screenshots?: string[]
+  icon_url?: string | null
 }): Promise<number> {
   const db = getDb()
   const result = await db.execute({
     sql: `
-      INSERT INTO apps (slug, title, description, download_url, category_id, screenshots)
-      VALUES (?, ?, ?, ?, ?, ?::jsonb)
+      INSERT INTO apps (slug, title, description, download_url, category_id, screenshots, icon_url)
+      VALUES (?, ?, ?, ?, ?, ?::jsonb, ?)
       RETURNING id
     `,
     args: [
@@ -146,6 +147,7 @@ export async function createApp(data: {
       data.download_url,
       data.category_id,
       JSON.stringify(data.screenshots ?? []),
+      data.icon_url ?? null,
     ],
   })
   const appId = (result.rows[0] as any).id as number
@@ -170,12 +172,13 @@ export async function updateApp(
     category_id: number | null
     tag_ids: number[]
     screenshots?: string[]
+  icon_url?: string | null
   }
 ): Promise<void> {
   const db = getDb()
   await db.execute({
     sql: `
-      UPDATE apps SET slug = ?, title = ?, description = ?, download_url = ?, category_id = ?, screenshots = ?::jsonb, updated_at = CURRENT_TIMESTAMP
+      UPDATE apps SET slug = ?, title = ?, description = ?, download_url = ?, category_id = ?, screenshots = ?::jsonb, icon_url = ?, updated_at = CURRENT_TIMESTAMP
       WHERE id = ?
     `,
     args: [
