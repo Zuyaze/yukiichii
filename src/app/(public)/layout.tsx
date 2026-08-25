@@ -1,29 +1,34 @@
 'use client'
 
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import { ReactNode } from 'react'
-import { Menu, X, Sun, Moon } from 'lucide-react'
+import { Menu, X, Sun, Moon, Home, LayoutGrid, FolderOpen, LogIn } from 'lucide-react'
 import { useTheme } from 'next-themes'
 import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
 
 export default function PublicLayout({ children }: { children: ReactNode }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [mounted, setMounted] = useState(false)
   const { resolvedTheme, setTheme } = useTheme()
+  const pathname = usePathname()
 
   useEffect(() => setMounted(true), [])
 
+  useEffect(() => {
+    setMobileMenuOpen(false)
+  }, [pathname])
+
   const isDark = mounted && resolvedTheme === 'dark'
 
-  const navLinks = (
-    <>
-      <Link href="/" className="text-sm font-medium text-foreground/70 hover:text-foreground transition-colors">Beranda</Link>
-      <Link href="/apps" className="text-sm font-medium text-foreground/70 hover:text-foreground transition-colors">Aplikasi</Link>
-      <Link href="/categories" className="text-sm font-medium text-foreground/70 hover:text-foreground transition-colors">Kategori</Link>
-      <Link href="/login" className="text-sm font-medium text-foreground/70 hover:text-foreground transition-colors">Admin</Link>
-    </>
-  )
+  const menuItems = [
+    { href: '/', label: 'Beranda', icon: Home },
+    { href: '/apps', label: 'Aplikasi', icon: LayoutGrid },
+    { href: '/categories', label: 'Kategori', icon: FolderOpen },
+    { href: '/login', label: 'Admin', icon: LogIn },
+  ]
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
@@ -34,7 +39,23 @@ export default function PublicLayout({ children }: { children: ReactNode }) {
             <span className="text-xl font-bold text-foreground">Chii</span>
           </Link>
 
-          <div className="hidden md:flex md:items-center md:gap-6">{navLinks}</div>
+          {/* Desktop nav */}
+          <div className="hidden md:flex md:items-center md:gap-6">
+            {menuItems.map(item => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={cn(
+                  'text-sm font-medium transition-colors',
+                  pathname === item.href
+                    ? 'text-primary'
+                    : 'text-foreground/70 hover:text-foreground'
+                )}
+              >
+                {item.label}
+              </Link>
+            ))}
+          </div>
 
           <div className="flex items-center gap-1 sm:gap-2">
             <Button
@@ -66,9 +87,45 @@ export default function PublicLayout({ children }: { children: ReactNode }) {
           </div>
         </nav>
 
+        {/* Mobile menu */}
         {mobileMenuOpen && (
-          <div className="md:hidden border-t border-border bg-background shadow-lg py-4 px-4 space-y-2 flex flex-col">
-            {navLinks}
+          <div className="md:hidden absolute inset-x-0 top-full bg-background border-b border-border shadow-xl">
+            <nav className="px-3 py-3 space-y-1">
+              {menuItems.map(item => {
+                const active =
+                  item.href === '/'
+                    ? pathname === '/'
+                    : pathname.startsWith(item.href)
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className={cn(
+                      'flex items-center gap-3.5 px-4 py-3.5 rounded-xl text-base font-semibold transition-colors',
+                      active
+                        ? 'bg-primary/10 text-primary'
+                        : 'text-foreground/80 hover:bg-muted hover:text-foreground'
+                    )}
+                  >
+                    <item.icon className="w-5 h-5 flex-shrink-0" />
+                    {item.label}
+                    {active && (
+                      <span className="ml-auto w-2 h-2 rounded-full bg-primary flex-shrink-0" />
+                    )}
+                  </Link>
+                )
+              })}
+
+              {/* Theme toggle inside menu */}
+              <button
+                onClick={() => setTheme(isDark ? 'light' : 'dark')}
+                className="flex w-full items-center gap-3.5 px-4 py-3.5 rounded-xl text-base font-semibold text-foreground/80 hover:bg-muted transition-colors"
+              >
+                {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+                {isDark ? 'Mode Terang' : 'Mode Gelap'}
+              </button>
+            </nav>
           </div>
         )}
       </header>
