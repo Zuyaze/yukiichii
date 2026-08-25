@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 import { Plus, Box, Tag, FolderOpen, TrendingUp, ArrowRight } from 'lucide-react'
+import { ChangePasswordCard } from '@/components/change-password-card'
 
 export default async function DashboardPage() {
   const [categories, tags, appsWithStats] = await Promise.all([
@@ -102,6 +103,7 @@ export default async function DashboardPage() {
             </tbody>
           </table>
         </div>
+        <ChangePasswordCard />
       </div>
     </div>
   )

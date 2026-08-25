@@ -50,6 +50,14 @@ export async function POST(request: Request) {
       return Response.json({ error: 'Slug, judul, dan link download wajib diisi' }, { status: 400 })
     }
 
+    const isHttpsUrl = (u) => typeof u === 'string' && u.startsWith('https://')
+    if (!isHttpsUrl(download_url)) {
+      return Response.json({ error: 'Link download harus dimulai dengan https://' }, { status: 400 })
+    }
+    if ((screenshots ?? []).some((s) => !isHttpsUrl(s)) || (icon_url && !isHttpsUrl(icon_url))) {
+      return Response.json({ error: 'URL gambar tidak valid' }, { status: 400 })
+    }
+
     const db = getDb()
     const result = await db.execute({
       sql: `

@@ -79,6 +79,14 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
       )
     }
 
+    const isHttpsUrl = (u: unknown) => typeof u === 'string' && u.startsWith('https://')
+    if (!isHttpsUrl(download_url)) {
+      return Response.json({ error: 'Link download harus dimulai dengan https://' }, { status: 400 })
+    }
+    if ((screenshots ?? []).some((s: string) => !isHttpsUrl(s)) || (icon_url && !isHttpsUrl(icon_url))) {
+      return Response.json({ error: 'URL gambar tidak valid' }, { status: 400 })
+    }
+
     const db = getDb()
     await db.execute({
       sql: `
