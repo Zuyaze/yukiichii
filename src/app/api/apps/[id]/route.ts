@@ -1,6 +1,57 @@
 import { getDb, ensureSchema } from '@/lib/db'
 import { auth } from '@/lib/auth'
 
+export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
+  const appId = parseInt(id)
+
+  if (isNaN(appId)) {
+    return Response.json({ error: 'ID tidak valid' }, { status: 400 })
+  }
+
+  try {
+    const db = getDb()
+
+    const appResult = await db.execute({
+      sql: `
+        SELECT a.*, c.name as category_name, c.slug as category_slug, c.color as category_color
+        FROM apps a
+        LEFT JOIN categories c ON a.category_id = c.id
+        WHERE a.id = ?
+      `,
+      args: [appId],
+    })
+
+    if (appResult.rows.length === 0) {
+      return Response.json({ error: 'Aplikasi tidak ditemukan' }, { status: 404 })
+    }
+
+    const app = appResult.rows[0]
+
+    const tagsResult = await db.execute({
+      sql: `
+        SELECT t.* FROM tags t
+        JOIN app_tags at ON t.id = at.tag_id
+        WHERE at.app_id = ?
+      `,
+      args: [appId],
+    })
+
+    return Response.json({
+      app: {
+        ...app,
+        tags: tagsResult.rows,
+      },
+    })
+  } catch (error) {
+    console.error('Get app error:', error)
+    return Response.json(
+      { error: error instanceof Error ? error.message : String(error) },
+      { status: 500 }
+    )
+  }
+}
+
 export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth()
   if (!session?.user) {
@@ -18,10 +69,14 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     await ensureSchema()
 
     const body = await request.json()
-    const { slug, title, description, download_url, category_id, tag_ids, screenshots, icon_url } = body
+    const { slug, title, description, download_url, category_id, tag_ids, screenshots, icon_url } =
+      body
 
     if (!slug || !title || !download_url) {
-      return Response.json({ error: 'Slug, judul, dan link download wajib diisi' }, { status: 400 })
+      return Response.json(
+        { error: 'Slug, judul, dan link download wajib diisi' },
+        { status: 400 }
+      )
     }
 
     const db = getDb()
@@ -64,7 +119,10 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
   }
 }
 
-export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
+export async function DELETE(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
   const session = await auth()
   if (!session?.user) {
     return Response.json({ error: 'Unauthorized' }, { status: 401 })
