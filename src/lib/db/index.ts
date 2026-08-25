@@ -1,86 +1,100 @@
-import { createClient } from '@libsql/client'
+import { neon } from '@neondatabase/serverless'
+import { drizzle } from 'drizzle-orm/neon-http'
+import * as schema from './schema'
 
-let db: ReturnType<typeof createClient> | null = null
+// Create Neon HTTP client
+const sql = neon(process.env.DATABASE_URL!)
 
-function getEnv() {
-  return {
-    url: process.env.TURSO_DATABASE_URL,
-    authToken: process.env.TURSO_AUTH_TOKEN,
+export const getDb = () => {
+  if (!process.env.DATABASE_URL) {
+    throw new Error('Database not initialized. Please set DATABASE_URL environment variable.')
   }
+  return neon(process.env.DATABASE_URL!)
 }
 
-function getClient() {
-  if (db) return db
-  
-  const { url, authToken } = getEnv()
-  
-  if (!url || !authToken) {
-    throw new Error('Database not initialized. Please set TURSO_DATABASE_URL and TURSO_AUTH_TOKEN environment variables.')
-  }
-  
-  db = createClient({ url, authToken })
-  return db
-}
-
-export const getDb = () => getClient()
+export const db = neon(process.env.DATABASE_URL!)
 
 export async function initDb() {
-  const database = getClient()
-  await database.batch([
-    `CREATE TABLE IF NOT EXISTS categories (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
+  const sql = neon(process.env.DATABASE_URL!)
+  
+  await sql`
+    CREATE TABLE IF NOT EXISTS categories (
+      id SERIAL PRIMARY KEY,
       name TEXT NOT NULL,
       slug TEXT NOT NULL UNIQUE,
       color TEXT DEFAULT '#3b82f6',
       icon TEXT,
       sort_order INTEGER DEFAULT 0,
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-    )`,
-    `CREATE TABLE IF NOT EXISTS tags (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+  `
+  
+  await sql`
+    CREATE TABLE IF NOT EXISTS tags (
+      id SERIAL PRIMARY KEY,
       name TEXT NOT NULL,
       slug TEXT NOT NULL UNIQUE,
       color TEXT DEFAULT '#6b7280',
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-    )`,
-    `CREATE TABLE IF NOT EXISTS apps (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+  `
+  
+  await sql`
+    CREATE TABLE IF NOT EXISTS apps (
+      id SERIAL PRIMARY KEY,
       slug TEXT NOT NULL UNIQUE,
       title TEXT NOT NULL,
       description TEXT,
       download_url TEXT NOT NULL,
-      category_id INTEGER,
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE SET NULL
-    )`,
-    `CREATE TABLE IF NOT EXISTS app_tags (
-      app_id INTEGER NOT NULL,
-      tag_id INTEGER NOT NULL,
-      PRIMARY KEY (app_id, tag_id),
-      FOREIGN KEY (app_id) REFERENCES apps(id) ON DELETE CASCADE,
-      FOREIGN KEY (tag_id) REFERENCES tags(id) ON DELETE CASCADE
-    )`,
-    `CREATE TABLE IF NOT EXISTS admins (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      category_id INTEGER REFERENCES categories(id) ON DELETE SET NULL,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+  `
+  
+  await sql`
+    CREATE TABLE IF NOT EXISTS app_tags (
+      app_id INTEGER NOT NULL REFERENCES apps(id) ON DELETE CASCADE,
+      tag_id INTEGER NOT NULL REFERENCES tags(id) ON DELETE CASCADE,
+      PRIMARY KEY (app_id, tag_id)
+    )
+  `
+  
+  await sql`
+    CREATE TABLE IF NOT EXISTS admins (
+      id SERIAL PRIMARY KEY,
       email TEXT NOT NULL UNIQUE,
       password_hash TEXT NOT NULL,
       role TEXT DEFAULT 'admin',
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-    )`,
-    `CREATE TABLE IF NOT EXISTS clicks (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      app_id INTEGER NOT NULL,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+  `
+  
+  await sql`
+    CREATE TABLE IF NOT EXISTS clicks (
+      id SERIAL PRIMARY KEY,
+      app_id INTEGER NOT NULL REFERENCES apps(id) ON DELETE CASCADE,
       referrer TEXT,
       user_agent TEXT,
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      FOREIGN KEY (app_id) REFERENCES apps(id) ON DELETE CASCADE
-    )`,
-    `CREATE INDEX IF NOT EXISTS idx_apps_category ON apps(category_id)`,
-    `CREATE INDEX IF NOT EXISTS idx_apps_slug ON apps(slug)`,
-    `CREATE INDEX IF NOT EXISTS idx_clicks_app ON clicks(app_id)`,
-    `CREATE INDEX IF NOT EXISTS idx_clicks_created ON clicks(created_at)`,
-  ])
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+  `
+  
+  await sql`
+    CREATE INDEX IF NOT EXISTS idx_apps_category ON apps(category_id)
+  `
+  
+  await sql`
+    CREATE INDEX IF NOT EXISTS idx_apps_slug ON apps(slug)
+  `
+  
+  await sql`
+    CREATE INDEX IF NOT EXISTS idx_clicks_app ON clicks(app_id)
+  `
+  
+  await sql`
+    CREATE INDEX IF NOT EXISTS idx_clicks_created ON clicks(created_at)
+  `
 }
 
 export type App = {
@@ -128,5 +142,4 @@ export type Click = {
   created_at: string
 }
 
-// Export db for backwards compatibility (will throw if accessed at build time)
-export { db }
+export { neon } from '@neondatabase/serverless'
