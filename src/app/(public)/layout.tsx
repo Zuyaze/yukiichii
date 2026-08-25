@@ -31,8 +31,17 @@ export default function PublicLayout({ children }: { children: ReactNode }) {
   ]
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
-      <header className="relative w-full h-16 border-b border-border bg-background">
+    <div className="min-h-screen flex flex-col bg-white dark:bg-[#020617]">
+      {/* Mobile menu backdrop - blocks clicks on page content behind */}
+      {mobileMenuOpen && (
+        <div
+          className="md:hidden fixed inset-0 z-40 bg-black/50"
+          onClick={() => setMobileMenuOpen(false)}
+          aria-hidden="true"
+        />
+      )}
+
+      <header className="relative w-full h-16 border-b border-border bg-white dark:bg-[#020617]">
         <nav className="h-full mx-auto flex max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8" aria-label="Main navigation">
           <Link href="/" className="flex items-center gap-2" aria-label="YukiiChii Home">
             <span className="text-xl font-bold text-primary">Yukii</span>
@@ -89,7 +98,7 @@ export default function PublicLayout({ children }: { children: ReactNode }) {
 
         {/* Mobile menu */}
         {mobileMenuOpen && (
-          <div className="md:hidden absolute inset-x-0 top-full bg-background border-b border-border shadow-xl">
+          <div className="md:hidden absolute inset-x-0 top-full z-50 bg-white dark:bg-[#020617] border-b border-border shadow-2xl rounded-b-2xl overflow-hidden">
             <nav className="px-3 py-3 space-y-1">
               {menuItems.map(item => {
                 const active =
