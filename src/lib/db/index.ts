@@ -2,12 +2,6 @@ import { neon } from '@neondatabase/serverless'
 import { Pool } from 'pg'
 
 // Create Neon HTTP client for template literal queries
-const sql = neon(process.env.DATABASE_URL!)
-
-// Create a pg Pool for parameterized queries
-const pool = new Pool({ connectionString: process.env.DATABASE_URL })
-
-// Export the raw sql template literal for initDb and seed
 export const sql = neon(process.env.DATABASE_URL!)
 
 // Create a pg Pool for parameterized queries
