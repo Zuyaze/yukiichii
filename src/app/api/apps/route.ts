@@ -53,8 +53,8 @@ export async function POST(request: Request) {
     const db = getDb()
     const result = await db.execute({
       sql: `
-        INSERT INTO apps (slug, title, description, download_url, category_id, screenshots)
-        VALUES (?, ?, ?, ?, ?, ?::jsonb)
+        INSERT INTO apps (slug, title, description, download_url, category_id, screenshots, icon_url)
+        VALUES (?, ?, ?, ?, ?, ?::jsonb, ?)
         RETURNING id
       `,
       args: [
@@ -64,7 +64,7 @@ export async function POST(request: Request) {
         download_url,
         category_id ?? null,
         JSON.stringify(screenshots ?? []),
-      icon_url ?? null,
+        icon_url ?? null,
       ],
     })
     const appId = (result.rows[0] as any).id as number

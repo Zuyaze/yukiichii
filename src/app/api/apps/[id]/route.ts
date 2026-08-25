@@ -27,7 +27,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     const db = getDb()
     await db.execute({
       sql: `
-        UPDATE apps SET slug = ?, title = ?, description = ?, download_url = ?, category_id = ?, screenshots = ?::jsonb, updated_at = CURRENT_TIMESTAMP
+        UPDATE apps SET slug = ?, title = ?, description = ?, download_url = ?, category_id = ?, screenshots = ?::jsonb, icon_url = ?, updated_at = CURRENT_TIMESTAMP
         WHERE id = ?
       `,
       args: [
