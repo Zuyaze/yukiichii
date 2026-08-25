@@ -357,13 +357,3 @@ export type Click = {
   user_agent: string | null
   created_at: string
 }
-
-export type Tag = {
-  id: number
-  name: string
-  slug: string
-  color: string
-  created_at: string
-}
-
-export const sql = neon(process.env.DATABASE_URL!)
