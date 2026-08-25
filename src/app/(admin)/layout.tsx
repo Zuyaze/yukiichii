@@ -6,6 +6,7 @@ import { cn } from '@/lib/utils'
 import { LayoutDashboard, Box, Tag, Users, Settings, LogOut, Menu, X, ChevronDown } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator } from '@/components/ui/dropdown-menu'
+import { AdminThemeToggle } from '@/components/admin-theme-toggle'
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
@@ -84,6 +85,7 @@ export default async function AdminLayout({ children }: { children: ReactNode })
             <h1 className="text-lg font-semibold text-foreground">Admin Dashboard</h1>
             <div className="flex items-center gap-4">
               <Link href="/" className="text-sm text-muted-foreground hover:text-foreground">Lihat Website</Link>
+              <AdminThemeToggle />
             </div>
           </div>
         </header>
