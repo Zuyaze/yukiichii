@@ -29,12 +29,8 @@ async function main() {
 
   // Create default categories
   const defaultCategories = [
-    { name: 'Android', slug: 'android', color: '#10b981', icon: '📱', sort_order: 1 },
-    { name: 'Windows', slug: 'windows', color: '#3b82f6', icon: '💻', sort_order: 2 },
-    { name: 'Game', slug: 'game', color: '#f59e0b', icon: '🎮', sort_order: 3 },
-    { name: 'Developer Tools', slug: 'dev', color: '#8b5cf6', icon: '⚙️', sort_order: 4 },
-    { name: 'Multimedia', slug: 'multimedia', color: '#ec4899', icon: '🎬', sort_order: 5 },
-    { name: 'Utilitas', slug: 'utilitas', color: '#6b7280', icon: '🔧', sort_order: 6 },
+    { name: 'Mod Apk', slug: 'mod-apk', color: '#2563eb', icon: '📱', sort_order: 1 },
+    { name: 'Loader', slug: 'loader', color: '#f97316', icon: '🔑', sort_order: 2 },
   ]
 
   for (const cat of defaultCategories) {
