@@ -1,18 +1,36 @@
 import { neon } from '@neondatabase/serverless'
-import { drizzle } from 'drizzle-orm/neon-http'
-import * as schema from './schema'
 
 // Create Neon HTTP client
-const sql = neon(process.env.DATABASE_URL!)
+function createDbClient() {
+  const sql = neon(process.env.DATABASE_URL!)
+  
+  return {
+    async execute({ sql: query, args = [] }: { sql: string; args?: any[] }) {
+      // Convert ? placeholders to $1, $2, etc. for PostgreSQL
+      let paramIndex = 0
+      const convertedQuery = query.replace(/\?/g, () => `$${++paramIndex}`)
+      
+      // Execute using neon template literal with parameters
+      const result = await neon(process.env.DATABASE_URL!)(convertedQuery, ...args)
+      return { rows: result }
+    },
+    
+    async batch(queries: Array<{ sql: string; args?: any[] }>) {
+      for (const q of queries) {
+        let paramIndex = 0
+        const convertedQuery = q.sql.replace(/\?/g, () => `$${++paramIndex}`)
+        await neon(process.env.DATABASE_URL!)(convertedQuery, ...(q.args || []))
+      }
+    }
+  }
+}
 
 export const getDb = () => {
   if (!process.env.DATABASE_URL) {
     throw new Error('Database not initialized. Please set DATABASE_URL environment variable.')
   }
-  return neon(process.env.DATABASE_URL!)
+  return createDbClient()
 }
-
-export const db = neon(process.env.DATABASE_URL!)
 
 export async function initDb() {
   const sql = neon(process.env.DATABASE_URL!)
@@ -141,5 +159,3 @@ export type Click = {
   user_agent: string | null
   created_at: string
 }
-
-export { neon } from '@neondatabase/serverless'

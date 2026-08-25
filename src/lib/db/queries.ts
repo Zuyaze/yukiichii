@@ -28,8 +28,8 @@ export async function getApps(options?: {
   }
 
   if (options?.search) {
-    query += ` AND (a.title LIKE $${params.length + 1} OR a.description LIKE $${params.length + 2})`
-    params.push(`%${options.search}%`, `%${options.search}%`)
+    query += ` AND (a.title ILIKE $${params.length + 1} OR a.description ILIKE $${params.length + 1})`
+    params.push(`%${options.search}%`)
   }
 
   query += ` ORDER BY a.created_at DESC`
@@ -57,7 +57,7 @@ export async function getAppBySlug(slug: string): Promise<(App & { category_name
     WHERE a.slug = ${slug}
   `
 
-  if (appResult.length === 0) return null
+  if (!appResult || appResult.length === 0) return null
 
   const app = appResult[0] as unknown as App & { category_name: string; category_slug: string; category_color: string }
 
@@ -128,7 +128,7 @@ export async function createApp(data: {
     }
   }
 
-  return result[0].id as number
+  return appId
 }
 
 export async function updateApp(id: number, data: {
@@ -139,17 +139,20 @@ export async function updateApp(id: number, data: {
   category_id: number | null
   tag_ids: number[]
 }): Promise<void> {
-  const sql = getDb()
-  await sql`
+  await getDb()`
     UPDATE apps SET slug = ${data.slug}, title = ${data.title}, description = ${data.description}, download_url = ${data.download_url}, category_id = ${data.category_id}, updated_at = CURRENT_TIMESTAMP
     WHERE id = ${id}
   `
 
-  await sql`DELETE FROM app_tags WHERE app_id = ${id}`
+  await getDb()`
+    DELETE FROM app_tags WHERE app_id = ${id}
+  `
 
   if (data.tag_ids.length > 0) {
     for (const tagId of data.tag_ids) {
-      await sql`INSERT INTO app_tags (app_id, tag_id) VALUES (${id}, ${tagId})`
+      await getDb()`
+        INSERT INTO app_tags (app_id, tag_id) VALUES (${id}, ${tagId})
+      `
     }
   }
 }
@@ -207,20 +210,16 @@ export async function recordClick(appId: number, referrer: string | null, userAg
 }
 
 export async function getClickStats(appId?: number): Promise<{ app_id: number; count: number }[]> {
-  let query = `SELECT app_id, COUNT(*) as count FROM clicks`
-  const params: (string | number)[] = []
-
-  if (appId) {
-    params.push(appId)
-  }
-
-  // Use parameterized query for conditional
   const sql = getDb()
   if (appId) {
-    const result = await sql`SELECT app_id, COUNT(*) as count FROM clicks WHERE app_id = ${appId} GROUP BY app_id ORDER BY count DESC`
+    const result = await sql`
+      SELECT app_id, COUNT(*) as count FROM clicks WHERE app_id = ${appId} GROUP BY app_id ORDER BY count DESC
+    `
     return result as unknown as { app_id: number; count: number }[]
   } else {
-    const result = await sql`SELECT app_id, COUNT(*) as count FROM clicks GROUP BY app_id ORDER BY count DESC`
+    const result = await sql`
+      SELECT app_id, COUNT(*) as count FROM clicks GROUP BY app_id ORDER BY count DESC
+    `
     return result as unknown as { app_id: number; count: number }[]
   }
 }
