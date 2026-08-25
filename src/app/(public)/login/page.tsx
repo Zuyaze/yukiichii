@@ -44,7 +44,7 @@ export default function LoginPage() {
       <div className="w-full max-w-md">
         <div className="bg-card rounded-xl shadow-sm border border-border p-8">
           <div className="text-center mb-8">
-            <Link href="/" className="inline-flex items-center gap-2 mb-4">
+            <Link href="/" className="inline-flex items-center mb-4">
               <span className="text-2xl font-bold text-primary">Yukii</span>
               <span className="text-2xl font-bold text-foreground">Chii</span>
             </Link>

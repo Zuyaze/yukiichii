@@ -4,7 +4,7 @@ import { ReactNode, useEffect, useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
-import { LayoutDashboard, Box, Tag, LogOut, Menu, X, ChevronDown } from 'lucide-react'
+import { LayoutDashboard, Box, Tag, LogOut, Menu, X, ChevronDown, ArrowLeft } from 'lucide-react'
 import { signOut } from 'next-auth/react'
 import { Button } from '@/components/ui/button'
 import {
@@ -58,7 +58,7 @@ export function AdminShell({ email, children }: AdminShellProps) {
       >
         <div className="flex flex-col h-full">
           <div className="flex items-center justify-between h-16 px-6 border-b border-border">
-            <Link href="/dashboard" className="flex items-center gap-2">
+            <Link href="/dashboard" className="flex items-center">
               <span className="text-xl font-bold text-primary">Yukii</span>
               <span className="text-xl font-bold text-foreground">Chii</span>
             </Link>
@@ -137,9 +137,10 @@ export function AdminShell({ email, children }: AdminShellProps) {
             <div className="flex items-center gap-2 sm:gap-4">
               <Link
                 href="/"
-                className="hidden sm:block text-sm text-muted-foreground hover:text-foreground"
+                className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
               >
-                Lihat Website
+                <ArrowLeft className="w-4 h-4" />
+                Situs
               </Link>
               <AdminThemeToggle />
             </div>

@@ -43,7 +43,7 @@ export default function PublicLayout({ children }: { children: ReactNode }) {
 
       <header className="relative w-full h-16 border-b border-border bg-white dark:bg-[#020617]">
         <nav className="h-full mx-auto flex max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8" aria-label="Main navigation">
-          <Link href="/" className="flex items-center gap-2" aria-label="YukiiChii Home">
+          <Link href="/" className="flex items-center" aria-label="YukiiChii Home">
             <span className="text-xl font-bold text-primary">Yukii</span>
             <span className="text-xl font-bold text-foreground">Chii</span>
           </Link>
@@ -136,7 +136,7 @@ export default function PublicLayout({ children }: { children: ReactNode }) {
       <footer className="border-t border-border bg-muted/50">
         <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
           <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center">
               <span className="text-lg font-bold text-primary">Yukii</span>
               <span className="text-lg font-bold text-foreground">Chii</span>
             </div>

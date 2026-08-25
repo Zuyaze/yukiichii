@@ -60,8 +60,8 @@ export function AppCard({
         )}
 
         {/* Free pill */}
-        <span className="absolute bottom-1 left-1 px-1.5 py-0.5 text-[8px] font-black rounded bg-green-500 text-white tracking-wide">
-          FREE
+        <span className="absolute bottom-1 left-1 px-1.5 py-0.5 text-[8px] font-bold rounded bg-green-500 text-white tracking-wide">
+          GRATIS
         </span>
       </div>
 
