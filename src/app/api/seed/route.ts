@@ -1,12 +1,10 @@
-import { getDb } from '@/lib/db'
+import { sql } from '@/lib/db'
 import bcrypt from 'bcryptjs'
 
 export async function GET() {
   try {
-    const sql = getDb()
-    
     // Create tables using Neon SQL template literals (PostgreSQL syntax)
-    await getDb()`
+    await sql`
       CREATE TABLE IF NOT EXISTS categories (
         id SERIAL PRIMARY KEY,
         name TEXT NOT NULL,
@@ -18,7 +16,7 @@ export async function GET() {
       )
     `
     
-    await getDb()`
+    await sql`
       CREATE TABLE IF NOT EXISTS tags (
         id SERIAL PRIMARY KEY,
         name TEXT NOT NULL,
@@ -28,7 +26,7 @@ export async function GET() {
       )
     `
     
-    await getDb()`
+    await sql`
       CREATE TABLE IF NOT EXISTS apps (
         id SERIAL PRIMARY KEY,
         slug TEXT NOT NULL UNIQUE,
@@ -41,7 +39,7 @@ export async function GET() {
       )
     `
     
-    await getDb()`
+    await sql`
       CREATE TABLE IF NOT EXISTS app_tags (
         app_id INTEGER NOT NULL REFERENCES apps(id) ON DELETE CASCADE,
         tag_id INTEGER NOT NULL REFERENCES tags(id) ON DELETE CASCADE,
@@ -49,7 +47,7 @@ export async function GET() {
       )
     `
     
-    await getDb()`
+    await sql`
       CREATE TABLE IF NOT EXISTS admins (
         id SERIAL PRIMARY KEY,
         email TEXT NOT NULL UNIQUE,
@@ -59,7 +57,7 @@ export async function GET() {
       )
     `
     
-    await getDb()`
+    await sql`
       CREATE TABLE IF NOT EXISTS clicks (
         id SERIAL PRIMARY KEY,
         app_id INTEGER NOT NULL REFERENCES apps(id) ON DELETE CASCADE,
@@ -69,19 +67,19 @@ export async function GET() {
       )
     `
     
-    await getDb()`
+    await sql`
       CREATE INDEX IF NOT EXISTS idx_apps_category ON apps(category_id)
     `
     
-    await getDb()`
+    await sql`
       CREATE INDEX IF NOT EXISTS idx_apps_slug ON apps(slug)
     `
     
-    await getDb()`
+    await sql`
       CREATE INDEX IF NOT EXISTS idx_clicks_app ON clicks(app_id)
     `
     
-    await getDb()`
+    await sql`
       CREATE INDEX IF NOT EXISTS idx_clicks_created ON clicks(created_at)
     `
     
@@ -96,7 +94,7 @@ export async function GET() {
     ]
     
     for (const cat of defaultCategories) {
-      await getDb()`
+      await sql`
         INSERT INTO categories (name, slug, color, icon, sort_order)
         VALUES (${cat.name}, ${cat.slug}, ${cat.color}, ${cat.icon}, ${cat.sort_order})
         ON CONFLICT (slug) DO NOTHING
@@ -114,7 +112,7 @@ export async function GET() {
     ]
     
     for (const tag of defaultTags) {
-      await getDb()`
+      await sql`
         INSERT INTO tags (name, slug, color)
         VALUES (${tag.name}, ${tag.slug}, ${tag.color})
         ON CONFLICT (slug) DO NOTHING
@@ -125,14 +123,14 @@ export async function GET() {
     const adminEmail = 'admin@yukiichii.com'
     const adminPassword = 'yukiichii123'
     
-    const existingAdmin = await getDb()`
+    const existingAdmin = await sql`
       SELECT * FROM admins WHERE email = ${'admin@yukiichii.com'}
     `
     
     if (existingAdmin.length === 0) {
-      const passwordHash = await bcrypt.hash('yukiichii123', 12)
-      await getDb()`
-        INSERT INTO admins (email, password_hash) VALUES (${adminEmail}, ${passwordHash})
+      const passwordHash = await require('bcryptjs').hash('yukiichii123', 12)
+      await sql`
+        INSERT INTO admins (email, password_hash) VALUES (${'admin@yukiichii.com'}, ${await require('bcryptjs').hash('yukiichii123', 12)})
       `
     }
     
