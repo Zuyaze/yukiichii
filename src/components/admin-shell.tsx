@@ -51,9 +51,9 @@ export function AdminShell({ email, children }: AdminShellProps) {
       {/* Sidebar */}
       <aside
         className={cn(
-          'fixed inset-y-0 left-0 z-50 w-64 bg-background border-r border-border transform transition-transform duration-200 ease-in-out',
+          'fixed inset-y-0 left-0 z-50 w-64 bg-background border-r border-border shadow-xl transform transition-transform duration-200 ease-in-out',
           open ? 'translate-x-0' : '-translate-x-full',
-          'lg:translate-x-0'
+          'lg:translate-x-0 lg:shadow-none'
         )}
       >
         <div className="flex flex-col h-full">

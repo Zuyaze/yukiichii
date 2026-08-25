@@ -27,7 +27,7 @@ export default function PublicLayout({ children }: { children: ReactNode }) {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      <header className="sticky top-0 z-40 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <header className="sticky top-0 z-40 w-full border-b border-border bg-background">
         <nav className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8" aria-label="Main navigation">
           <Link href="/" className="flex items-center gap-2" aria-label="YukiiChii Home">
             <span className="text-xl font-bold text-primary">Yukii</span>
@@ -67,7 +67,7 @@ export default function PublicLayout({ children }: { children: ReactNode }) {
         </nav>
 
         {mobileMenuOpen && (
-          <div className="md:hidden border-t border-border py-4 px-4 space-y-2 flex flex-col">
+          <div className="md:hidden border-t border-border bg-background shadow-lg py-4 px-4 space-y-2 flex flex-col">
             {navLinks}
           </div>
         )}
