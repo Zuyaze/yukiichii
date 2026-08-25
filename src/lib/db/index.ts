@@ -27,6 +27,9 @@ export const getDb = () => {
 
 // Export the raw sql template literal for initDb and seed
 export const sql = neon(process.env.DATABASE_URL!)
+
+export async function initDb() {
+  const sql = neon(process.env.DATABASE_URL!)
   
   await sql`
     CREATE TABLE IF NOT EXISTS categories (
@@ -261,3 +264,5 @@ export type Tag = {
   color: string
   created_at: string
 }
+
+export const sql = neon(process.env.DATABASE_URL!)

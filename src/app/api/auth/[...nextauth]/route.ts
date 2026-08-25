@@ -21,7 +21,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
         const sql = neon(process.env.DATABASE_URL!)
         const result = await sql`
-          SELECT * FROM admins WHERE email = ${credentials.email}
+          SELECT * FROM admins WHERE email = ${credentials?.email}
         `
         
         const admin = result[0]
@@ -29,7 +29,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           throw new Error('Akun tidak ditemukan')
         }
 
-        const isValid = await bcrypt.compare(credentials.password, admin.password_hash)
+        const isValid = await bcrypt.compare(credentials?.password ?? '', admin.password_hash)
         if (!isValid) {
           throw new Error('Password salah')
         }
@@ -63,4 +63,4 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     maxAge: 30 * 24 * 60 * 60,
   },
   secret: process.env.NEXTAUTH_SECRET,
-}
+})
