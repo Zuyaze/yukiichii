@@ -1,5 +1,10 @@
+import dynamic from 'next/dynamic'
 import { Suspense } from 'react'
-import LoginForm from './LoginForm'
+
+const LoginForm = dynamic(() => import('./LoginForm').then(m => m.default), {
+  ssr: false,
+  loading: () => <div className="min-h-screen flex items-center justify-center">Memuat...</div>
+})
 
 export default function LoginPage() {
   return (
