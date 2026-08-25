@@ -1,8 +1,16 @@
 import { neon } from '@neondatabase/serverless'
+import { Pool } from 'pg'
 
-// Create Neon HTTP client
-function createDbClient() {
-  const sql = neon(process.env.DATABASE_URL!)
+// Create Neon HTTP client for template literal queries
+const sql = neon(process.env.DATABASE_URL!)
+
+// Create a pg Pool for parameterized queries
+const pool = new Pool({ connectionString: process.env.DATABASE_URL })
+
+export const getDb = () => {
+  if (!process.env.DATABASE_URL) {
+    throw new Error('Database not initialized. Please set DATABASE_URL environment variable.')
+  }
   
   return {
     async execute({ sql: query, args = [] }: { sql: string; args?: any[] }) {
@@ -10,26 +18,11 @@ function createDbClient() {
       let paramIndex = 0
       const convertedQuery = query.replace(/\?/g, () => `$${++paramIndex}`)
       
-      // Execute using neon template literal with parameters
-      const result = await neon(process.env.DATABASE_URL!)(convertedQuery, ...args)
-      return { rows: result }
-    },
-    
-    async batch(queries: Array<{ sql: string; args?: any[] }>) {
-      for (const q of queries) {
-        let paramIndex = 0
-        const convertedQuery = q.sql.replace(/\?/g, () => `$${++paramIndex}`)
-        await neon(process.env.DATABASE_URL!)(convertedQuery, ...(q.args || []))
-      }
+      // Use pg Pool for parameterized queries
+      const result = await pool.query(convertedQuery, args)
+      return { rows: result.rows }
     }
   }
-}
-
-export const getDb = () => {
-  if (!process.env.DATABASE_URL) {
-    throw new Error('Database not initialized. Please set DATABASE_URL environment variable.')
-  }
-  return createDbClient()
 }
 
 export async function initDb() {
@@ -157,5 +150,13 @@ export type Click = {
   app_id: number
   referrer: string | null
   user_agent: string | null
+  created_at: string
+}
+
+export type Tag = {
+  id: number
+  name: string
+  slug: string
+  color: string
   created_at: string
 }
