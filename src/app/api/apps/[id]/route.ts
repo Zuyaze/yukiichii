@@ -43,11 +43,16 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
 
     await db.execute({ sql: 'DELETE FROM app_tags WHERE app_id = ?', args: [appId] })
 
+    // Tags are best-effort: main update already succeeded
     for (const tagId of (tag_ids ?? []) as number[]) {
-      await db.execute({
-        sql: 'INSERT INTO app_tags (app_id, tag_id) VALUES (?, ?)',
-        args: [appId, tagId],
-      })
+      try {
+        await db.execute({
+          sql: 'INSERT INTO app_tags (app_id, tag_id) VALUES (?, ?)',
+          args: [appId, tagId],
+        })
+      } catch (tagErr) {
+        console.error(`Tag link failed (app ${appId}, tag ${tagId}):`, tagErr)
+      }
     }
 
     return Response.json({ success: true })

@@ -1,13 +1,14 @@
 export const dynamic = 'force-dynamic'
 
 import { Metadata } from 'next'
-import { getApps, getCategories, getTags, deleteApp } from '@/lib/db/queries'
+import { getApps, getCategories } from '@/lib/db/queries'
 import { Button } from '@/components/ui/button'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
 import Link from 'next/link'
 import { Plus, Edit, Trash2 } from 'lucide-react'
 import { formatDate } from '@/lib/utils'
+import { DeleteAppButton } from '@/components/delete-app-button'
 
 export const metadata: Metadata = {
   title: 'Kelola Aplikasi',
@@ -39,7 +40,6 @@ export default async function AppsListPage() {
             <tr>
               <TableHead>Judul</TableHead>
               <TableHead>Kategori</TableHead>
-              <TableHead>Link Download</TableHead>
               <TableHead>Dibuat</TableHead>
               <TableHead className="w-32 text-right">Aksi</TableHead>
             </tr>
@@ -62,9 +62,6 @@ export default async function AppsListPage() {
                       <span className="text-muted-foreground">-</span>
                     )}
                   </TableCell>
-                  <TableCell className="max-w-xs truncate text-sm text-muted-foreground">
-                    {app.download_url}
-                  </TableCell>
                   <TableCell className="text-sm text-muted-foreground">{formatDate(app.created_at)}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-2">
@@ -73,20 +70,7 @@ export default async function AppsListPage() {
                           <Edit className="w-4 h-4" />
                         </Button>
                       </Link>
-                      <form
-                        action={`/api/apps/${app.id}`}
-                        method="POST"
-                        onSubmit={async e => {
-                          e.preventDefault()
-                          if (!confirm('Yakin hapus aplikasi ini?')) return
-                          await fetch(`/api/apps/${app.id}`, { method: 'DELETE' })
-                          window.location.reload()
-                        }}
-                      >
-                        <Button variant="ghost" size="icon" type="submit" title="Hapus" className="text-muted-foreground hover:text-destructive">
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </form>
+                      <DeleteAppButton id={app.id} title={app.title} />
                     </div>
                   </TableCell>
                 </TableRow>
@@ -94,7 +78,7 @@ export default async function AppsListPage() {
             })}
             {apps.length === 0 && (
               <TableRow>
-                <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+                <TableCell colSpan={4} className="text-center py-8 text-muted-foreground">
                   Belum ada aplikasi.{' '}
                   <Link href="/dashboard/apps/new" className="text-primary hover:underline">
                     Tambah yang pertama

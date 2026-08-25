@@ -68,11 +68,16 @@ export async function POST(request: Request) {
     })
     const appId = (result.rows[0] as any).id as number
 
+    // Tags are best-effort: don't fail the whole save if tag linking errors
     for (const tagId of (tag_ids ?? []) as number[]) {
-      await db.execute({
-        sql: 'INSERT INTO app_tags (app_id, tag_id) VALUES (?, ?)',
-        args: [appId, tagId],
-      })
+      try {
+        await db.execute({
+          sql: 'INSERT INTO app_tags (app_id, tag_id) VALUES (?, ?)',
+          args: [appId, tagId],
+        })
+      } catch (tagErr) {
+        console.error(`Tag link failed (app ${appId}, tag ${tagId}):`, tagErr)
+      }
     }
 
     return Response.json({ success: true, id: appId })
