@@ -1,4 +1,4 @@
-import { getDb } from '@/lib/db'
+import { getDb, ensureSchema } from '@/lib/db'
 import { auth } from '@/lib/auth'
 
 export async function GET(request: Request) {
@@ -42,6 +42,7 @@ export async function POST(request: Request) {
   }
 
   try {
+    await ensureSchema()
     const body = await request.json()
     const { slug, title, description, download_url, category_id, tag_ids, screenshots } = body
 

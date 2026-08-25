@@ -117,6 +117,30 @@ export async function initDb() {
   }
 }
 
+declare global {
+  // eslint-disable-next-line no-var
+  var __schemaReady: boolean | undefined
+}
+
+/**
+ * Idempotent schema migration - runs once per serverless instance.
+ * Safe to call before any write operation.
+ */
+export async function ensureSchema(): Promise<void> {
+  if (!process.env.DATABASE_URL) {
+    throw new Error(
+      'Database not initialized. Please set DATABASE_URL environment variable.'
+    )
+  }
+  if (global.__schemaReady) return
+
+  const pool = getPool()
+  for (const statement of SCHEMA_STATEMENTS) {
+    await pool.query(statement)
+  }
+  global.__schemaReady = true
+}
+
 export type App = {
   id: number
   slug: string

@@ -1,4 +1,4 @@
-import { getDb } from '@/lib/db'
+import { getDb, ensureSchema } from '@/lib/db'
 import { auth } from '@/lib/auth'
 
 export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -15,6 +15,8 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
   }
 
   try {
+    await ensureSchema()
+
     const body = await request.json()
     const { slug, title, description, download_url, category_id, tag_ids, screenshots } = body
 
@@ -70,6 +72,8 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
   }
 
   try {
+    await ensureSchema()
+
     const db = getDb()
     await db.execute({ sql: 'DELETE FROM app_tags WHERE app_id = ?', args: [appId] })
     await db.execute({ sql: 'DELETE FROM clicks WHERE app_id = ?', args: [appId] })
@@ -77,9 +81,7 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
     return Response.json({ success: true })
   } catch (error) {
     console.error('Delete app error:', error)
-    return Response.json(
-      { error: error instanceof Error ? error.message : String(error) },
-      { status: 500 }
-    )
+    const msg = error instanceof Error ? error.message : String(error)
+    return Response.json({ error: msg }, { status: 500 })
   }
 }
