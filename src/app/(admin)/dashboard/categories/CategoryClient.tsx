@@ -76,18 +76,18 @@ export function CategoryClient({ categories }: CategoryClientProps) {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Kelola Kategori</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Kelola Kategori</h1>
           <p className="text-muted-foreground mt-1">Tambah, edit, dan hapus kategori aplikasi</p>
         </div>
-        <Button onClick={() => handleOpen()} className="gap-2">
+        <Button onClick={() => handleOpen()} className="gap-2 w-full sm:w-auto">
           <Plus className="w-4 h-4" />
           Tambah Kategori
         </Button>
       </div>
 
-      <div className="rounded-lg border border-border bg-background overflow-hidden">
+      <div className="rounded-lg border border-border bg-background overflow-x-auto">
         <Table>
           <TableHeader>
             <tr>

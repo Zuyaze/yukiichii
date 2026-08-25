@@ -132,7 +132,7 @@ export function AdminShell({ email, children }: AdminShellProps) {
               >
                 <Menu className="w-6 h-6" />
               </button>
-              <h1 className="text-lg font-semibold text-foreground">Admin Dashboard</h1>
+              <h1 className="text-base sm:text-lg font-semibold text-foreground whitespace-nowrap">Admin Dashboard</h1>
             </div>
             <div className="flex items-center gap-2 sm:gap-4">
               <Link
