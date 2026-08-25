@@ -27,7 +27,7 @@ export default function PublicLayout({ children }: { children: ReactNode }) {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      <header className="w-full border-b border-border bg-background">
+      <header className="w-full h-16 border-b border-border bg-background">
         <nav className="h-full mx-auto flex max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8" aria-label="Main navigation">
           <Link href="/" className="flex items-center gap-2" aria-label="YukiiChii Home">
             <span className="text-xl font-bold text-primary">Yukii</span>
