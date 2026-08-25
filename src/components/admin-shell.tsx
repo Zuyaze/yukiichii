@@ -121,8 +121,8 @@ export function AdminShell({ email, children }: AdminShellProps) {
       </aside>
 
       {/* Main area */}
-      <div className="lg:pl-64 flex flex-col min-h-screen">
-        <header className="sticky top-0 z-30 bg-background border-b border-border">
+      <div className="lg:pl-64 flex flex-col min-h-screen pt-16">
+        <header className="fixed top-0 inset-x-0 lg:left-64 z-30 h-16 bg-background border-b border-border">
           <div className="flex items-center justify-between h-16 px-4 sm:px-6 lg:px-8">
             <div className="flex items-center gap-2">
               <button
