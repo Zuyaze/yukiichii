@@ -1,6 +1,5 @@
 'use client'
 
-import Image from 'next/image'
 import Link from 'next/link'
 import { cn } from '@/lib/utils'
 import { Download } from 'lucide-react'
@@ -35,12 +34,12 @@ export function AppCard({
     <Card className="overflow-hidden h-full flex flex-col hover:shadow-md transition-shadow">
       <Link href={`/apps/${slug}`} className="block relative aspect-video overflow-hidden bg-gray-100 dark:bg-gray-800">
         {screenshot_url ? (
-          <Image
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
             src={screenshot_url}
             alt={title}
-            fill
-            className="object-cover transition-transform duration-300 hover:scale-105"
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+            loading="lazy"
           />
         ) : (
           <div className="flex items-center justify-center h-full text-gray-400">

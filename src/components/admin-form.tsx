@@ -8,7 +8,6 @@ import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Upload, X } from 'lucide-react'
-import Image from 'next/image'
 import { cn } from '@/lib/utils'
 
 const CLOUDINARY_CLOUD_NAME = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME
@@ -356,7 +355,8 @@ export function AppForm({ initialData, categories, tags }: AppFormProps) {
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
                 {formData.screenshots.map((url, index) => (
                   <div key={index} className="relative aspect-video rounded-lg overflow-hidden border border-border">
-                    <Image src={url} alt={`Screenshot ${index + 1}`} fill className="object-cover" sizes="200px" />
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={url} alt={`Screenshot ${index + 1}`} className="absolute inset-0 w-full h-full object-cover" />
                     <button
                       type="button"
                       onClick={() => removeScreenshot(url)}
