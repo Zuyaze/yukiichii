@@ -2,6 +2,8 @@ import { Metadata } from 'next'
 import { getCategories } from '@/lib/db/queries'
 import { CategoryClient } from './CategoryClient'
 
+export const dynamic = 'force-dynamic'
+
 export const metadata: Metadata = {
   title: 'Kelola Kategori',
 }

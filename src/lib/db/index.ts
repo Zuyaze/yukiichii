@@ -1,316 +1,117 @@
-import { neon } from '@neondatabase/serverless'
 import { Pool } from 'pg'
 
-// Create Neon HTTP client for template literal queries
-export const sql = neon(process.env.DATABASE_URL!)
+declare global {
+  // eslint-disable-next-line no-var
+  var __pgPool: Pool | undefined
+}
 
-// Create a pg Pool for parameterized queries
-const pool = new Pool({ connectionString: process.env.DATABASE_URL })
-
-export const getDb = () => {
+function getPool(): Pool {
   if (!process.env.DATABASE_URL) {
-    throw new Error('Database not initialized. Please set DATABASE_URL environment variable.')
+    throw new Error(
+      'Database not initialized. Please set DATABASE_URL environment variable.'
+    )
   }
-  
+  // Reuse pool across serverless invocations
+  if (!global.__pgPool) {
+    global.__pgPool = new Pool({
+      connectionString: process.env.DATABASE_URL,
+      max: 1,
+    })
+  }
+  return global.__pgPool
+}
+
+function convertPlaceholders(query: string): string {
+  let i = 0
+  return query.replace(/\?/g, () => `$${++i}`)
+}
+
+export interface DbClient {
+  execute(args: { sql: string; args?: any[] }): Promise<{ rows: any[] }>
+}
+
+export const getDb = (): DbClient => {
+  const pool = getPool()
+
   return {
-    async execute({ sql: query, args = [] }: { sql: string; args?: any[] }) {
-      // Convert ? placeholders to $1, $2, etc. for PostgreSQL
-      let paramIndex = 0
-      const convertedQuery = query.replace(/\?/g, () => `$${++paramIndex}`)
-      
-      // Use pg Pool for parameterized queries
-      const result = await pool.query(convertedQuery, args)
+    async execute({ sql: text, args = [] }: { sql: string; args?: any[] }) {
+      const converted = convertPlaceholders(text)
+      const result = await pool.query(converted, args)
       return { rows: result.rows }
-    }
+    },
   }
 }
 
-// Export the raw sql template literal for initDb and seed
-export const sql = neon(process.env.DATABASE_URL!)
+export type QueryResult<T = any> = { rows: T[] }
+
+/** Raw parameterized query helper */
+export async function query<T = any>(
+  text: string,
+  params?: any[]
+): Promise<QueryResult<T>> {
+  const pool = getPool()
+  const converted = convertPlaceholders(text)
+  const result = await pool.query(converted, params ?? [])
+  return { rows: result.rows as T[] }
+}
+
+const SCHEMA_STATEMENTS = [
+  `CREATE TABLE IF NOT EXISTS categories (
+    id SERIAL PRIMARY KEY,
+    name TEXT NOT NULL,
+    slug TEXT NOT NULL UNIQUE,
+    color TEXT DEFAULT '#3b82f6',
+    icon TEXT,
+    sort_order INTEGER DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  )`,
+  `CREATE TABLE IF NOT EXISTS tags (
+    id SERIAL PRIMARY KEY,
+    name TEXT NOT NULL,
+    slug TEXT NOT NULL UNIQUE,
+    color TEXT DEFAULT '#6b7280',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  )`,
+  `CREATE TABLE IF NOT EXISTS apps (
+    id SERIAL PRIMARY KEY,
+    slug TEXT NOT NULL UNIQUE,
+    title TEXT NOT NULL,
+    description TEXT,
+    download_url TEXT NOT NULL,
+    category_id INTEGER REFERENCES categories(id) ON DELETE SET NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  )`,
+  `CREATE TABLE IF NOT EXISTS app_tags (
+    app_id INTEGER NOT NULL REFERENCES apps(id) ON DELETE CASCADE,
+    tag_id INTEGER NOT NULL REFERENCES tags(id) ON DELETE CASCADE,
+    PRIMARY KEY (app_id, tag_id)
+  )`,
+  `CREATE TABLE IF NOT EXISTS admins (
+    id SERIAL PRIMARY KEY,
+    email TEXT NOT NULL UNIQUE,
+    password_hash TEXT NOT NULL,
+    role TEXT DEFAULT 'admin',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  )`,
+  `CREATE TABLE IF NOT EXISTS clicks (
+    id SERIAL PRIMARY KEY,
+    app_id INTEGER NOT NULL REFERENCES apps(id) ON DELETE CASCADE,
+    referrer TEXT,
+    user_agent TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  )`,
+  `CREATE INDEX IF NOT EXISTS idx_apps_category ON apps(category_id)`,
+  `CREATE INDEX IF NOT EXISTS idx_apps_slug ON apps(slug)`,
+  `CREATE INDEX IF NOT EXISTS idx_clicks_app ON clicks(app_id)`,
+  `CREATE INDEX IF NOT EXISTS idx_clicks_created ON clicks(created_at)`,
+]
 
 export async function initDb() {
-  const db = neon(process.env.DATABASE_URL!)
-  
-  await db`
-    CREATE TABLE IF NOT EXISTS categories (
-      id SERIAL PRIMARY KEY,
-      name TEXT NOT NULL,
-      slug TEXT NOT NULL UNIQUE,
-      color TEXT DEFAULT '#3b82f6',
-      icon TEXT,
-      sort_order INTEGER DEFAULT 0,
-      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    )
-  `
-  
-  await db`
-    CREATE TABLE IF NOT EXISTS tags (
-      id SERIAL PRIMARY KEY,
-      name TEXT NOT NULL,
-      slug TEXT NOT NULL UNIQUE,
-      color TEXT DEFAULT '#6b7280',
-      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    )
-  `
-  
-  await db`
-    CREATE TABLE IF NOT EXISTS apps (
-      id SERIAL PRIMARY KEY,
-      slug TEXT NOT NULL UNIQUE,
-      title TEXT NOT NULL,
-      description TEXT,
-      download_url TEXT NOT NULL,
-      category_id INTEGER REFERENCES categories(id) ON DELETE SET NULL,
-      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    )
-  `
-  
-  await db`
-    CREATE TABLE IF NOT EXISTS app_tags (
-      app_id INTEGER NOT NULL REFERENCES apps(id) ON DELETE CASCADE,
-      tag_id INTEGER NOT NULL REFERENCES tags(id) ON DELETE CASCADE,
-      PRIMARY KEY (app_id, tag_id)
-    )
-  `
-  
-  await db`
-    CREATE TABLE IF NOT EXISTS admins (
-      id SERIAL PRIMARY KEY,
-      email TEXT NOT NULL UNIQUE,
-      password_hash TEXT NOT NULL,
-      role TEXT DEFAULT 'admin',
-      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    )
-  `
-  
-  await db`
-    CREATE TABLE IF NOT EXISTS clicks (
-      id SERIAL PRIMARY KEY,
-      app_id INTEGER NOT NULL REFERENCES apps(id) ON DELETE CASCADE,
-      referrer TEXT,
-      user_agent TEXT,
-      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    )
-  `
-  
-  await db`
-    CREATE INDEX IF NOT EXISTS idx_apps_category ON apps(category_id)
-  `
-  
-  await db`
-    CREATE INDEX IF NOT EXISTS idx_apps_slug ON apps(slug)
-  `
-  
-  await db`
-    CREATE INDEX IF NOT EXISTS idx_clicks_app ON clicks(app_id)
-  `
-  
-  await db`
-    CREATE INDEX IF NOT EXISTS idx_clicks_created ON clicks(created_at)
-  `
-}
-
-export const getDb = () => {
-  if (!process.env.DATABASE_URL) {
-    throw new Error('Database not initialized. Please set DATABASE_URL environment variable.')
+  const pool = getPool()
+  for (const statement of SCHEMA_STATEMENTS) {
+    await pool.query(statement)
   }
-  
-  return {
-    async execute({ sql: query, args = [] }: { sql: string; args?: any[] }) {
-      // Convert ? placeholders to $1, $2, etc. for PostgreSQL
-      let paramIndex = 0
-      const convertedQuery = query.replace(/\?/g, () => `$${++paramIndex}`)
-      
-      // Use pg Pool for parameterized queries
-      const result = await pool.query(convertedQuery, args)
-      return { rows: result.rows }
-    }
-  }
-}
-
-export async function initDb() {
-  const db = neon(process.env.DATABASE_URL!)
-  
-  await db`
-    CREATE TABLE IF NOT EXISTS categories (
-      id SERIAL PRIMARY KEY,
-      name TEXT NOT NULL,
-      slug TEXT NOT NULL UNIQUE,
-      color TEXT DEFAULT '#3b82f6',
-      icon TEXT,
-      sort_order INTEGER DEFAULT 0,
-      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    )
-  `
-  
-  await db`
-    CREATE TABLE IF NOT EXISTS tags (
-      id SERIAL PRIMARY KEY,
-      name TEXT NOT NULL,
-      slug TEXT NOT NULL UNIQUE,
-      color TEXT DEFAULT '#6b7280',
-      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    )
-  `
-  
-  await db`
-    CREATE TABLE IF NOT EXISTS apps (
-      id SERIAL PRIMARY KEY,
-      slug TEXT NOT NULL UNIQUE,
-      title TEXT NOT NULL,
-      description TEXT,
-      download_url TEXT NOT NULL,
-      category_id INTEGER REFERENCES categories(id) ON DELETE SET NULL,
-      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    )
-  `
-  
-  await db`
-    CREATE TABLE IF NOT EXISTS app_tags (
-      app_id INTEGER NOT NULL REFERENCES apps(id) ON DELETE CASCADE,
-      tag_id INTEGER NOT NULL REFERENCES tags(id) ON DELETE CASCADE,
-      PRIMARY KEY (app_id, tag_id)
-    )
-  `
-  
-  await db`
-    CREATE TABLE IF NOT EXISTS admins (
-      id SERIAL PRIMARY KEY,
-      email TEXT NOT NULL UNIQUE,
-      password_hash TEXT NOT NULL,
-      role TEXT DEFAULT 'admin',
-      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    )
-  `
-  
-  await db`
-    CREATE TABLE IF NOT EXISTS clicks (
-      id SERIAL PRIMARY KEY,
-      app_id INTEGER NOT NULL REFERENCES apps(id) ON DELETE CASCADE,
-      referrer TEXT,
-      user_agent TEXT,
-      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    )
-  `
-  
-  await db`
-    CREATE INDEX IF NOT EXISTS idx_apps_category ON apps(category_id)
-  `
-  
-  await db`
-    CREATE INDEX IF NOT EXISTS idx_apps_slug ON apps(slug)
-  `
-  
-  await db`
-    CREATE INDEX IF NOT EXISTS idx_clicks_app ON clicks(app_id)
-  `
-  
-  await db`
-    CREATE INDEX IF NOT EXISTS idx_clicks_created ON clicks(created_at)
-  `
-}
-
-export const getDb = () => {
-  if (!process.env.DATABASE_URL) {
-    throw new Error('Database not initialized. Please set DATABASE_URL environment variable.')
-  }
-  
-  return {
-    async execute({ sql: query, args = [] }: { sql: string; args?: any[] }) {
-      // Convert ? placeholders to $1, $2, etc. for PostgreSQL
-      let paramIndex = 0
-      const convertedQuery = query.replace(/\?/g, () => `$${++paramIndex}`)
-      
-      // Use pg Pool for parameterized queries
-      const result = await pool.query(convertedQuery, args)
-      return { rows: result.rows }
-    }
-  }
-}
-
-export async function initDb() {
-  const db = neon(process.env.DATABASE_URL!)
-  
-  await db`
-    CREATE TABLE IF NOT EXISTS categories (
-      id SERIAL PRIMARY KEY,
-      name TEXT NOT NULL,
-      slug TEXT NOT NULL UNIQUE,
-      color TEXT DEFAULT '#3b82f6',
-      icon TEXT,
-      sort_order INTEGER DEFAULT 0,
-      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    )
-  `
-  
-  await db`
-    CREATE TABLE IF NOT EXISTS tags (
-      id SERIAL PRIMARY KEY,
-      name TEXT NOT NULL,
-      slug TEXT NOT NULL UNIQUE,
-      color TEXT DEFAULT '#6b7280',
-      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    )
-  `
-  
-  await db`
-    CREATE TABLE IF NOT EXISTS apps (
-      id SERIAL PRIMARY KEY,
-      slug TEXT NOT NULL UNIQUE,
-      title TEXT NOT NULL,
-      description TEXT,
-      download_url TEXT NOT NULL,
-      category_id INTEGER REFERENCES categories(id) ON DELETE SET NULL,
-      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    )
-  `
-  
-  await db`
-    CREATE TABLE IF NOT EXISTS app_tags (
-      app_id INTEGER NOT NULL REFERENCES apps(id) ON DELETE CASCADE,
-      tag_id INTEGER NOT NULL REFERENCES tags(id) ON DELETE CASCADE,
-      PRIMARY KEY (app_id, tag_id)
-    )
-  `
-  
-  await db`
-    CREATE TABLE IF NOT EXISTS admins (
-      id SERIAL PRIMARY KEY,
-      email TEXT NOT NULL UNIQUE,
-      password_hash TEXT NOT NULL,
-      role TEXT DEFAULT 'admin',
-      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    )
-  `
-  
-  await db`
-    CREATE TABLE IF NOT EXISTS clicks (
-      id SERIAL PRIMARY KEY,
-      app_id INTEGER NOT NULL REFERENCES apps(id) ON DELETE CASCADE,
-      referrer TEXT,
-      user_agent TEXT,
-      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    )
-  `
-  
-  await db`
-    CREATE INDEX IF NOT EXISTS idx_apps_category ON apps(category_id)
-  `
-  
-  await db`
-    CREATE INDEX IF NOT EXISTS idx_apps_slug ON apps(slug)
-  `
-  
-  await db`
-    CREATE INDEX IF NOT EXISTS idx_clicks_app ON clicks(app_id)
-  `
-  
-  await db`
-    CREATE INDEX IF NOT EXISTS idx_clicks_created ON clicks(created_at)
-  `
 }
 
 export type App = {

@@ -7,6 +7,8 @@ import Link from 'next/link'
 import { Plus, Edit, Trash2, Search, Filter } from 'lucide-react'
 import { formatDate } from '@/lib/utils'
 
+export const dynamic = 'force-dynamic'
+
 export const metadata: Metadata = {
   title: 'Kelola Aplikasi',
 }

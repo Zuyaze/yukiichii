@@ -4,11 +4,9 @@ import { Button } from '@/components/ui/button'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Badge } from '@/components/ui/badge'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog'
 import { Plus, Edit, Trash2 } from 'lucide-react'
 import { useState } from 'react'
-import { getCategories, createCategory, updateCategory, deleteCategory } from '@/lib/db/queries'
 
 interface CategoryClientProps {
   categories: any[]
@@ -18,6 +16,7 @@ export function CategoryClient({ categories }: CategoryClientProps) {
   const [open, setOpen] = useState(false)
   const [editing, setEditing] = useState<any>(null)
   const [formData, setFormData] = useState({ name: '', slug: '', color: '#3b82f6', icon: '', sort_order: 0 })
+  const [saving, setSaving] = useState(false)
 
   const handleOpen = (category?: any) => {
     if (category) {
@@ -38,23 +37,37 @@ export function CategoryClient({ categories }: CategoryClientProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setSaving(true)
     try {
       if (editing) {
-        await updateCategory(editing.id, formData)
+        const res = await fetch(`/api/categories/${editing.id}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData),
+        })
+        if (!res.ok) throw new Error('Update gagal')
       } else {
-        await createCategory(formData)
+        const res = await fetch('/api/categories', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData),
+        })
+        if (!res.ok) throw new Error('Create gagal')
       }
       setOpen(false)
       window.location.reload()
     } catch (error) {
       alert('Gagal menyimpan kategori')
+    } finally {
+      setSaving(false)
     }
   }
 
   const handleDelete = async (id: number) => {
     if (!confirm('Yakin hapus kategori ini?')) return
     try {
-      await deleteCategory(id)
+      const res = await fetch(`/api/categories/${id}`, { method: 'DELETE' })
+      if (!res.ok) throw new Error('Delete gagal')
       window.location.reload()
     } catch (error) {
       alert('Gagal menghapus kategori')
@@ -148,7 +161,7 @@ export function CategoryClient({ categories }: CategoryClientProps) {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="icon">Icon (Emoji)</Label>
-                <Input id="icon" name="icon" value={formData.icon} onChange={e => setFormData({ ...formData, icon: e.target.value })} placeholder="📱" maxLength={2} />
+                <Input id="icon" name="icon" value={formData.icon} onChange={e => setFormData({ ...formData, icon: e.target.value })} placeholder="📱" maxLength={4} />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="sort_order">Urutan</Label>
@@ -157,7 +170,7 @@ export function CategoryClient({ categories }: CategoryClientProps) {
             </div>
             <DialogFooter>
               <Button type="button" variant="outline" onClick={() => setOpen(false)}>Batal</Button>
-              <Button type="submit">{editing ? 'Update' : 'Simpan'}</Button>
+              <Button type="submit" disabled={saving}>{saving ? 'Menyimpan...' : editing ? 'Update' : 'Simpan'}</Button>
             </DialogFooter>
           </form>
         </DialogContent>

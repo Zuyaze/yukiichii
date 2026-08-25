@@ -1,3 +1,5 @@
+﻿export const dynamic = 'force-dynamic'
+
 import { Metadata } from 'next'
 import { getCategories, getTags, createApp } from '@/lib/db/queries'
 import { AppForm } from '@/components/admin-form'

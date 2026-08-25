@@ -1,14 +1,17 @@
-import { auth } from '@/lib/auth'
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
-export async function middleware(request: NextRequest) {
-  const session = await auth()
+export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
+
+  // Check session cookie presence only (full validation happens server-side)
+  const hasSessionCookie =
+    request.cookies.has('authjs.session-token') ||
+    request.cookies.has('__Secure-authjs.session-token')
 
   // Protect admin routes
   if (pathname.startsWith('/dashboard')) {
-    if (!session?.user) {
+    if (!hasSessionCookie) {
       const loginUrl = new URL('/login', request.url)
       loginUrl.searchParams.set('callbackUrl', pathname)
       return NextResponse.redirect(loginUrl)
@@ -16,7 +19,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // Redirect authenticated users away from login
-  if (pathname === '/login' && session?.user) {
+  if (pathname === '/login' && hasSessionCookie) {
     return NextResponse.redirect(new URL('/dashboard', request.url))
   }
 

@@ -7,7 +7,6 @@ import { Label } from '@/components/ui/label'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog'
 import { Plus, Edit, Trash2 } from 'lucide-react'
 import { useState } from 'react'
-import { getTags, createTag, updateTag, deleteTag } from '@/lib/db/queries'
 
 interface TagClientProps {
   tags: any[]
@@ -17,6 +16,7 @@ export function TagClient({ tags }: TagClientProps) {
   const [open, setOpen] = useState(false)
   const [editing, setEditing] = useState<any>(null)
   const [formData, setFormData] = useState({ name: '', slug: '', color: '#6b7280' })
+  const [saving, setSaving] = useState(false)
 
   const handleOpen = (tag?: any) => {
     if (tag) {
@@ -31,23 +31,37 @@ export function TagClient({ tags }: TagClientProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setSaving(true)
     try {
       if (editing) {
-        await updateTag(editing.id, formData)
+        const res = await fetch(`/api/tags/${editing.id}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData),
+        })
+        if (!res.ok) throw new Error('Update gagal')
       } else {
-        await createTag(formData)
+        const res = await fetch('/api/tags', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData),
+        })
+        if (!res.ok) throw new Error('Create gagal')
       }
       setOpen(false)
       window.location.reload()
     } catch (error) {
       alert('Gagal menyimpan tag')
+    } finally {
+      setSaving(false)
     }
   }
 
   const handleDelete = async (id: number) => {
     if (!confirm('Yakin hapus tag ini?')) return
     try {
-      await deleteTag(id)
+      const res = await fetch(`/api/tags/${id}`, { method: 'DELETE' })
+      if (!res.ok) throw new Error('Delete gagal')
       window.location.reload()
     } catch (error) {
       alert('Gagal menghapus tag')

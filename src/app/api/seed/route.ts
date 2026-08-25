@@ -1,88 +1,13 @@
-import { sql } from '@/lib/db'
+import { getDb, initDb } from '@/lib/db'
 import bcrypt from 'bcryptjs'
 
 export async function GET() {
   try {
-    // Create tables using Neon SQL template literals (PostgreSQL syntax)
-    await sql`
-      CREATE TABLE IF NOT EXISTS categories (
-        id SERIAL PRIMARY KEY,
-        name TEXT NOT NULL,
-        slug TEXT NOT NULL UNIQUE,
-        color TEXT DEFAULT '#3b82f6',
-        icon TEXT,
-        sort_order INTEGER DEFAULT 0,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      )
-    `
-    
-    await sql`
-      CREATE TABLE IF NOT EXISTS tags (
-        id SERIAL PRIMARY KEY,
-        name TEXT NOT NULL,
-        slug TEXT NOT NULL UNIQUE,
-        color TEXT DEFAULT '#6b7280',
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      )
-    `
-    
-    await sql`
-      CREATE TABLE IF NOT EXISTS apps (
-        id SERIAL PRIMARY KEY,
-        slug TEXT NOT NULL UNIQUE,
-        title TEXT NOT NULL,
-        description TEXT,
-        download_url TEXT NOT NULL,
-        category_id INTEGER REFERENCES categories(id) ON DELETE SET NULL,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      )
-    `
-    
-    await sql`
-      CREATE TABLE IF NOT EXISTS app_tags (
-        app_id INTEGER NOT NULL REFERENCES apps(id) ON DELETE CASCADE,
-        tag_id INTEGER NOT NULL REFERENCES tags(id) ON DELETE CASCADE,
-        PRIMARY KEY (app_id, tag_id)
-      )
-    `
-    
-    await sql`
-      CREATE TABLE IF NOT EXISTS admins (
-        id SERIAL PRIMARY KEY,
-        email TEXT NOT NULL UNIQUE,
-        password_hash TEXT NOT NULL,
-        role TEXT DEFAULT 'admin',
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      )
-    `
-    
-    await sql`
-      CREATE TABLE IF NOT EXISTS clicks (
-        id SERIAL PRIMARY KEY,
-        app_id INTEGER NOT NULL REFERENCES apps(id) ON DELETE CASCADE,
-        referrer TEXT,
-        user_agent TEXT,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      )
-    `
-    
-    await sql`
-      CREATE INDEX IF NOT EXISTS idx_apps_category ON apps(category_id)
-    `
-    
-    await sql`
-      CREATE INDEX IF NOT EXISTS idx_apps_slug ON apps(slug)
-    `
-    
-    await sql`
-      CREATE INDEX IF NOT EXISTS idx_clicks_app ON clicks(app_id)
-    `
-    
-    await sql`
-      CREATE INDEX IF NOT EXISTS idx_clicks_created ON clicks(created_at)
-    `
-    
+    const db = getDb()
+
+    // Create tables
+    await initDb()
+
     // Seed categories
     const defaultCategories = [
       { name: 'Android', slug: 'android', color: '#10b981', icon: '📱', sort_order: 1 },
@@ -92,15 +17,18 @@ export async function GET() {
       { name: 'Multimedia', slug: 'multimedia', color: '#ec4899', icon: '🎬', sort_order: 5 },
       { name: 'Utilitas', slug: 'utilitas', color: '#6b7280', icon: '🔧', sort_order: 6 },
     ]
-    
+
     for (const cat of defaultCategories) {
-      await sql`
-        INSERT INTO categories (name, slug, color, icon, sort_order)
-        VALUES (${cat.name}, ${cat.slug}, ${cat.color}, ${cat.icon}, ${cat.sort_order})
-        ON CONFLICT (slug) DO NOTHING
-      `
+      await db.execute({
+        sql: `
+          INSERT INTO categories (name, slug, color, icon, sort_order)
+          VALUES (?, ?, ?, ?, ?)
+          ON CONFLICT (slug) DO NOTHING
+        `,
+        args: [cat.name, cat.slug, cat.color, cat.icon, cat.sort_order],
+      })
     }
-    
+
     // Seed tags
     const defaultTags = [
       { name: 'Gratis', slug: 'gratis', color: '#10b981' },
@@ -110,33 +38,40 @@ export async function GET() {
       { name: 'Portable', slug: 'portable', color: '#ec4899' },
       { name: 'No Ads', slug: 'no-ads', color: '#06b6d4' },
     ]
-    
+
     for (const tag of defaultTags) {
-      await sql`
-        INSERT INTO tags (name, slug, color)
-        VALUES (${tag.name}, ${tag.slug}, ${tag.color})
-        ON CONFLICT (slug) DO NOTHING
-      `
+      await db.execute({
+        sql: `
+          INSERT INTO tags (name, slug, color)
+          VALUES (?, ?, ?)
+          ON CONFLICT (slug) DO NOTHING
+        `,
+        args: [tag.name, tag.slug, tag.color],
+      })
     }
-    
+
     // Create default admin
     const adminEmail = 'admin@yukiichii.com'
-    const adminPassword = 'yukiichii123'
-    
-    const existingAdmin = await sql`
-      SELECT * FROM admins WHERE email = ${'admin@yukiichii.com'}
-    `
-    
-    if (existingAdmin.length === 0) {
-      const passwordHash = await require('bcryptjs').hash('yukiichii123', 12)
-      await sql`
-        INSERT INTO admins (email, password_hash) VALUES (${'admin@yukiichii.com'}, ${await require('bcryptjs').hash('yukiichii123', 12)})
-      `
+
+    const existing = await db.execute({
+      sql: 'SELECT id FROM admins WHERE email = ?',
+      args: [adminEmail],
+    })
+
+    if (existing.rows.length === 0) {
+      const passwordHash = await bcrypt.hash('yukiichii123', 12)
+      await db.execute({
+        sql: 'INSERT INTO admins (email, password_hash) VALUES (?, ?)',
+        args: [adminEmail, passwordHash],
+      })
     }
-    
+
     return Response.json({ success: true, message: 'Database seeded successfully' })
   } catch (error) {
     console.error('Seed error:', error)
-    return Response.json({ success: false, error: String(error) }, { status: 500 })
+    return Response.json(
+      { success: false, error: error instanceof Error ? error.message : String(error) },
+      { status: 500 }
+    )
   }
 }
