@@ -18,8 +18,8 @@ export const metadata: Metadata = {
     default: 'YukiiChii - Kumpulan Aplikasi & Tools',
     template: '%s | YukiiChii',
   },
-  description: 'Kumpulan aplikasi dan tools gratis untuk berbagai kebutuhan. Download mudah, cepat, dan aman.',
-  keywords: ['aplikasi', 'tools', 'download', 'gratis', 'android', 'windows', 'software'],
+  description: 'Kumpulan Mod Apk & Loader gratis terbaru. Game dan aplikasi mod premium siap download — cepat, aman, tanpa ribet.',
+  keywords: ['mod apk', 'apk mod', 'mod game', 'loader', 'download mod', 'premium unlock', 'mod android'],
   authors: [{ name: 'YukiiChii' }],
   creator: 'YukiiChii',
   publisher: 'YukiiChii',
@@ -29,8 +29,8 @@ export const metadata: Metadata = {
     locale: 'id_ID',
     url: 'https://yukiichii.netlify.app',
     siteName: 'YukiiChii',
-    title: 'YukiiChii - Kumpulan Aplikasi & Tools',
-    description: 'Kumpulan aplikasi dan tools gratis untuk berbagai kebutuhan.',
+    title: 'YukiiChii - Kumpulan Mod Apk & Loader',
+    description: 'Kumpulan Mod Apk & Loader gratis terbaru.',
     images: [
       {
         url: '/og-image.svg',
@@ -43,7 +43,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'YukiiChii',
-    description: 'Kumpulan aplikasi dan tools gratis.',
+    description: 'Kumpulan Mod Apk & Loader gratis terbaru.',
     images: ['/og-image.svg'],
   },
   icons: {

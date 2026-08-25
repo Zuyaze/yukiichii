@@ -8,7 +8,7 @@ import { unstable_noStore } from 'next/cache'
 
 export const metadata: Metadata = {
   title: 'Kumpulan Aplikasi & Tools Gratis',
-  description: 'Download berbagai aplikasi dan tools gratis untuk Android, Windows, dan Web. Cepat, aman, dan mudah.',
+  description: 'Kumpulan Mod Apk & Loader gratis terbaru. Download cepat, aman, dan tanpa ribet.',
 }
 
 export const dynamic = 'force-dynamic'
@@ -72,8 +72,8 @@ export default async function HomePage() {
               <span className="text-primary">Yukii</span>Chii
             </h1>
             <p className="mt-6 text-lg text-muted-foreground sm:text-xl max-w-3xl mx-auto">
-              Kumpulan aplikasi & tools gratis untuk berbagai kebutuhan.
-              Download cepat, aman, dan tanpa ribet.
+              Kumpulan Mod Apk & Loader gratis terbaru.
+              Game dan aplikasi mod premium, langsung download tanpa ribet.
             </p>
             <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
               <Link href="/apps">
@@ -132,7 +132,7 @@ export default async function HomePage() {
       <section className="py-16 sm:py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl font-bold text-foreground">Semua Kategori</h2>
-          <p className="text-muted-foreground mt-1 max-w-2xl mx-auto">Temukan aplikasi sesuai kebutuhanmu</p>
+          <p className="text-muted-foreground mt-1 max-w-2xl mx-auto">Temukan mod sesuai kebutuhanmu</p>
           <div className="mt-10 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
             {categories.map(cat => {
               const Icon = categoryIcons[cat.slug] || categoryIcons.default

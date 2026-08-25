@@ -110,7 +110,7 @@ export default async function AppDetailPage({ params }: AppDetailPageProps) {
 
           {/* Right sidebar */}
           <div className="space-y-6">
-            <div className="rounded-xl border border-border bg-card p-6 space-y-4 lg:sticky lg:top-24">
+            <div className="rounded-xl border border-border bg-card p-6 space-y-4">
               <h3 className="text-lg font-semibold text-foreground">Download</h3>
               <p className="text-sm text-muted-foreground">
                 Gratis 100%. Klik tombol di bawah untuk mengunduh.
