@@ -117,14 +117,6 @@ export default function PublicLayout({ children }: { children: ReactNode }) {
                 )
               })}
 
-              {/* Theme toggle inside menu */}
-              <button
-                onClick={() => setTheme(isDark ? 'light' : 'dark')}
-                className="flex w-full items-center gap-3.5 px-4 py-3.5 rounded-xl text-base font-semibold text-foreground/80 hover:bg-muted transition-colors"
-              >
-                {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-                {isDark ? 'Mode Terang' : 'Mode Gelap'}
-              </button>
             </nav>
           </div>
         )}
