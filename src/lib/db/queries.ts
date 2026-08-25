@@ -271,3 +271,34 @@ export async function getAllAppsWithStats(): Promise<
   })
   return result.rows as unknown as (App & { click_count: number; category_name: string })[]
 }
+
+export async function getAppById(
+  id: number
+): Promise<(App & { category_name: string; category_slug: string; category_color: string; tags: Tag[] }) | null> {
+  const db = getDb()
+
+  const appResult = await db.execute({
+    sql: `
+      SELECT a.*, c.name as category_name, c.slug as category_slug, c.color as category_color
+      FROM apps a
+      LEFT JOIN categories c ON a.category_id = c.id
+      WHERE a.id = ?
+    `,
+    args: [id],
+  })
+
+  if (appResult.rows.length === 0) return null
+
+  const app = appResult.rows[0] as unknown as App & {
+    category_name: string
+    category_slug: string
+    category_color: string
+  }
+
+  const tagsResult = await db.execute({
+    sql: 'SELECT t.* FROM tags t JOIN app_tags at ON t.id = at.tag_id WHERE at.app_id = ?',
+    args: [app.id],
+  })
+
+  return { ...app, tags: tagsResult.rows as unknown as Tag[] }
+}
