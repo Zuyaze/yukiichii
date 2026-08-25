@@ -1,9 +1,9 @@
 export const dynamic = 'force-dynamic'
 
 import { Metadata } from 'next'
-import { getCategories, getTags, getAppById, updateApp } from '@/lib/db/queries'
+import { getCategories, getTags, getAppById } from '@/lib/db/queries'
 import { AppForm } from '@/components/admin-form'
-import { redirect } from 'next/navigation'
+import { notFound } from 'next/navigation'
 
 interface EditAppPageProps {
   params: Promise<{ id: string }>
@@ -17,7 +17,7 @@ export default async function EditAppPage({ params }: EditAppPageProps) {
   const { id } = await params
   const appId = parseInt(id)
 
-  if (isNaN(appId)) redirect('/dashboard/apps')
+  if (isNaN(appId)) notFound()
 
   const [categories, tags, app] = await Promise.all([
     getCategories(),
@@ -25,20 +25,7 @@ export default async function EditAppPage({ params }: EditAppPageProps) {
     getAppById(appId),
   ])
 
-  if (!app) redirect('/dashboard/apps')
-
-  const handleSubmit = async (formData: FormData) => {
-    'use server'
-    const slug = formData.get('slug') as string
-    const title = formData.get('title') as string
-    const description = (formData.get('description') as string) || null
-    const download_url = formData.get('download_url') as string
-    const category_id = formData.get('category_id') ? parseInt(formData.get('category_id') as string) : null
-    const tag_ids = formData.getAll('tag_ids').map(v => parseInt(v as string))
-
-    await updateApp(appId, { slug, title, description, download_url, category_id, tag_ids })
-    redirect('/dashboard/apps')
-  }
+  if (!app) notFound()
 
   return (
     <div className="max-w-4xl mx-auto">
@@ -56,15 +43,10 @@ export default async function EditAppPage({ params }: EditAppPageProps) {
           download_url: app.download_url,
           category_id: app.category_id,
           tag_ids: app.tags?.map(t => t.id) || [],
-          screenshots: [],
+          screenshots: (app as any).screenshots || [],
         }}
         categories={categories.map(c => ({ id: c.id, name: c.name, slug: c.slug }))}
         tags={tags.map(t => ({ id: t.id, name: t.name, slug: t.slug, color: t.color }))}
-        onSubmit={async (data: FormData) => {
-          'use server'
-          await handleSubmit(data)
-        }}
-        onCancel={() => redirect('/dashboard/apps')}
       />
     </div>
   )

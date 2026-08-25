@@ -130,15 +130,23 @@ export async function createApp(data: {
   download_url: string
   category_id: number | null
   tag_ids: number[]
+  screenshots?: string[]
 }): Promise<number> {
   const db = getDb()
   const result = await db.execute({
     sql: `
-      INSERT INTO apps (slug, title, description, download_url, category_id)
-      VALUES (?, ?, ?, ?, ?)
+      INSERT INTO apps (slug, title, description, download_url, category_id, screenshots)
+      VALUES (?, ?, ?, ?, ?, ?::jsonb)
       RETURNING id
     `,
-    args: [data.slug, data.title, data.description, data.download_url, data.category_id],
+    args: [
+      data.slug,
+      data.title,
+      data.description,
+      data.download_url,
+      data.category_id,
+      JSON.stringify(data.screenshots ?? []),
+    ],
   })
   const appId = (result.rows[0] as any).id as number
 
@@ -161,15 +169,24 @@ export async function updateApp(
     download_url: string
     category_id: number | null
     tag_ids: number[]
+    screenshots?: string[]
   }
 ): Promise<void> {
   const db = getDb()
   await db.execute({
     sql: `
-      UPDATE apps SET slug = ?, title = ?, description = ?, download_url = ?, category_id = ?, updated_at = CURRENT_TIMESTAMP
+      UPDATE apps SET slug = ?, title = ?, description = ?, download_url = ?, category_id = ?, screenshots = ?::jsonb, updated_at = CURRENT_TIMESTAMP
       WHERE id = ?
     `,
-    args: [data.slug, data.title, data.description, data.download_url, data.category_id, id],
+    args: [
+      data.slug,
+      data.title,
+      data.description,
+      data.download_url,
+      data.category_id,
+      JSON.stringify(data.screenshots ?? []),
+      id,
+    ],
   })
 
   await db.execute({ sql: 'DELETE FROM app_tags WHERE app_id = ?', args: [id] })

@@ -6,31 +6,28 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
-import { Select } from '@/components/ui/select'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Image } from 'next/image'
-import { Upload, X, Image as ImageIcon } from 'lucide-react'
+import { Upload, X } from 'lucide-react'
+import Image from 'next/image'
 import { cn } from '@/lib/utils'
 
-const CLOUDINARY_CLOUD_NAME = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME!
-const CLOUDINARY_UPLOAD_PRESET = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET!
+const CLOUDINARY_CLOUD_NAME = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME
+const CLOUDINARY_UPLOAD_PRESET = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET
+
+export interface AppFormData {
+  slug: string
+  title: string
+  description: string
+  download_url: string
+  category_id: number | null
+  tag_ids: number[]
+  screenshots: string[]
+}
 
 interface AppFormProps {
-  initialData?: {
-    id: number
-    slug: string
-    title: string
-    description: string
-    download_url: string
-    category_id: number | null
-    tag_ids: number[]
-    screenshots: string[]
-  } | null
+  initialData?: (AppFormData & { id: number }) | null
   categories: { id: number; name: string; slug: string }[]
   tags: { id: number; name: string; slug: string; color: string }[]
-  onSubmit: (data: FormData) => Promise<void>
-  onCancel: () => void
 }
 
 function validateImageFile(file: File): { valid: boolean; error?: string } {
@@ -48,7 +45,7 @@ function validateImageFile(file: File): { valid: boolean; error?: string } {
   return { valid: true }
 }
 
-export function AppForm({ initialData, categories, tags, onSubmit, onCancel }: AppFormProps) {
+export function AppForm({ initialData, categories, tags }: AppFormProps) {
   const router = useRouter()
   const isEditing = !!initialData
 
@@ -64,8 +61,12 @@ export function AppForm({ initialData, categories, tags, onSubmit, onCancel }: A
 
   const [uploading, setUploading] = useState(false)
   const [uploadProgress, setUploadProgress] = useState(0)
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState('')
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => {
     const { name, value, type } = e.target
     if (type === 'checkbox') {
       const checked = (e.target as HTMLInputElement).checked
@@ -81,19 +82,19 @@ export function AppForm({ initialData, categories, tags, onSubmit, onCancel }: A
   }
 
   const uploadToCloudinary = async (file: File): Promise<string> => {
-    const formData = new FormData()
-    formData.append('file', file)
-    formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET)
-    formData.append('folder', 'yukiichii')
+    const fd = new FormData()
+    fd.append('file', file)
+    fd.append('upload_preset', CLOUDINARY_UPLOAD_PRESET!)
+    fd.append('folder', 'yukiichii')
 
-    const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, {
-      method: 'POST',
-      body: formData,
-    })
+    const res = await fetch(
+      `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
+      { method: 'POST', body: fd }
+    )
 
     if (!res.ok) {
-      const error = await res.json()
-      throw new Error(error.error?.message || 'Upload gagal')
+      const err = await res.json().catch(() => ({}))
+      throw new Error(err.error?.message || 'Upload gagal')
     }
 
     const data = await res.json()
@@ -117,16 +118,12 @@ export function AppForm({ initialData, categories, tags, onSubmit, onCancel }: A
 
     try {
       for (let i = 0; i < validFiles.length; i++) {
-        const file = validFiles[i]
-        const url = await uploadToCloudinary(file)
-        setFormData(prev => ({
-          ...prev,
-          screenshots: [...prev.screenshots, url],
-        }))
+        const url = await uploadToCloudinary(validFiles[i])
+        setFormData(prev => ({ ...prev, screenshots: [...prev.screenshots, url] }))
         setUploadProgress(((i + 1) / validFiles.length) * 100)
       }
-    } catch (error) {
-      alert('Gagal upload screenshot: ' + (error as Error).message)
+    } catch (err) {
+      alert('Gagal upload screenshot: ' + (err as Error).message)
     } finally {
       setUploading(false)
       setUploadProgress(0)
@@ -144,24 +141,55 @@ export function AppForm({ initialData, categories, tags, onSubmit, onCancel }: A
     e.preventDefault()
 
     if (!formData.slug || !formData.title || !formData.download_url) {
-      alert('Slug, judul, dan link download wajib diisi')
+      setError('Slug, judul, dan link download wajib diisi')
       return
     }
 
-    const submitData = new FormData()
-    Object.entries(formData).forEach(([key, value]) => {
-      if (Array.isArray(value)) {
-        value.forEach(v => submitData.append(key, v))
-      } else {
-        submitData.append(key, value)
-      }
-    })
+    setSaving(true)
+    setError('')
 
-    await onSubmit(submitData)
+    try {
+      const payload = {
+        slug: formData.slug,
+        title: formData.title,
+        description: formData.description || null,
+        download_url: formData.download_url,
+        category_id: formData.category_id ? parseInt(formData.category_id) : null,
+        tag_ids: formData.tag_ids.map(Number),
+        screenshots: formData.screenshots,
+      }
+
+      const res = await fetch(
+        isEditing ? `/api/apps/${initialData!.id}` : '/api/apps',
+        {
+          method: isEditing ? 'PUT' : 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        }
+      )
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}))
+        throw new Error(err.error || 'Gagal menyimpan aplikasi')
+      }
+
+      router.push('/dashboard/apps')
+      router.refresh()
+    } catch (err) {
+      setError((err as Error).message)
+    } finally {
+      setSaving(false)
+    }
   }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
+      {error && (
+        <div className="p-3 rounded-lg text-sm bg-destructive/10 text-destructive border border-destructive/20">
+          {error}
+        </div>
+      )}
+
       <Card>
         <CardHeader>
           <CardTitle>{isEditing ? 'Edit Aplikasi' : 'Tambah Aplikasi Baru'}</CardTitle>
@@ -169,17 +197,19 @@ export function AppForm({ initialData, categories, tags, onSubmit, onCancel }: A
         <CardContent className="space-y-6">
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="slug">Slug (URL)</Label>
+              <Label htmlFor="slug">Slug (URL) *</Label>
               <Input
                 id="slug"
                 name="slug"
                 value={formData.slug}
                 onChange={handleChange}
-                placeholder="contoh: video-editor-pro"
+                placeholder="contoh: ml-mod-v18"
                 required
                 disabled={isEditing}
               />
-              <p className="text-xs text-gray-500">Hanya huruf kecil, angka, dan tanda hubung. Tidak bisa diubah setelah dibuat.</p>
+              <p className="text-xs text-muted-foreground">
+                Huruf kecil, angka, dan tanda hubung. Tidak bisa diubah setelah dibuat.
+              </p>
             </div>
 
             <div className="space-y-2">
@@ -189,7 +219,7 @@ export function AppForm({ initialData, categories, tags, onSubmit, onCancel }: A
                 name="title"
                 value={formData.title}
                 onChange={handleChange}
-                placeholder="Nama aplikasi"
+                placeholder="Nama mod / versi"
                 required
               />
             </div>
@@ -202,7 +232,7 @@ export function AppForm({ initialData, categories, tags, onSubmit, onCancel }: A
               name="description"
               value={formData.description}
               onChange={handleChange}
-              placeholder="Deskripsi singkat tentang aplikasi..."
+              placeholder="Fitur mod, cara install, catatan versi..."
               rows={3}
             />
           </div>
@@ -220,60 +250,78 @@ export function AppForm({ initialData, categories, tags, onSubmit, onCancel }: A
             />
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-2">
-              <Label htmlFor="category_id">Kategori</Label>
-              <Select
-                id="category_id"
-                name="category_id"
-                value={formData.category_id}
-                onValueChange={value => setFormData(prev => ({ ...prev, category_id: value }))}
-              >
-                <option value="">Pilih kategori (opsional)</option>
-                {categories.map(cat => (
-                  <option key={cat.id} value={cat.id.toString()}>{cat.name}</option>
-                ))}
-              </Select>
-            </div>
+          <div className="space-y-2">
+            <Label htmlFor="category_id">Kategori</Label>
+            <select
+              id="category_id"
+              name="category_id"
+              value={formData.category_id}
+              onChange={handleChange}
+              className="w-full h-10 px-3 py-2 text-sm bg-background text-foreground border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50"
+            >
+              <option value="">Pilih kategori (opsional)</option>
+              {categories.map(cat => (
+                <option key={cat.id} value={cat.id.toString()}>
+                  {cat.name}
+                </option>
+              ))}
+            </select>
+          </div>
 
+          {tags.length > 0 && (
             <div className="space-y-2">
               <Label>Tag</Label>
               <div className="flex flex-wrap gap-2">
-                {tags.map(tag => (
-                  <label
-                    key={tag.id}
-                    className={cn(
-                      'inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-xs cursor-pointer transition-colors border',
-                      formData.tag_ids.includes(tag.id.toString())
-                        ? 'bg-blue-100 text-blue-800 border-blue-300 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-700'
-                        : 'bg-gray-100 text-gray-600 border-gray-200 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700'
-                    )}
-                    style={formData.tag_ids.includes(tag.id.toString()) ? { backgroundColor: `${tag.color}20`, color: tag.color, borderColor: `${tag.color}40` } : {}}
-                  >
-                    <input
-                      type="checkbox"
-                      name="tag_ids"
-                      value={tag.id.toString()}
-                      checked={formData.tag_ids.includes(tag.id.toString())}
-                      onChange={handleChange}
-                      className="sr-only"
-                    />
-                    {tag.name}
-                  </label>
-                ))}
+                {tags.map(tag => {
+                  const active = formData.tag_ids.includes(tag.id.toString())
+                  return (
+                    <label
+                      key={tag.id}
+                      className={cn(
+                        'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs cursor-pointer transition-colors border',
+                        active
+                          ? 'font-medium border-transparent'
+                          : 'bg-muted text-muted-foreground border-border hover:bg-accent'
+                      )}
+                      style={
+                        active
+                          ? {
+                              backgroundColor: `${tag.color}25`,
+                              color: tag.color,
+                              borderColor: `${tag.color}60`,
+                            }
+                          : {}
+                      }
+                    >
+                      <input
+                        type="checkbox"
+                        value={tag.id.toString()}
+                        checked={active}
+                        onChange={handleChange}
+                        className="sr-only"
+                      />
+                      {tag.name}
+                    </label>
+                  )
+                })}
               </div>
             </div>
-          </div>
+          )}
 
           <div className="space-y-2">
             <Label>Screenshot (16:9 landscape, maks 5MB per file)</Label>
             <div
               className={cn(
                 'border-2 border-dashed rounded-lg p-6 text-center transition-colors',
-                uploading ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' : 'border-gray-300 hover:border-blue-400 dark:border-gray-600'
+                uploading
+                  ? 'border-primary bg-primary/5'
+                  : 'border-border hover:border-primary/50'
               )}
               onDragOver={e => e.preventDefault()}
-              onDrop={e => { e.preventDefault(); handleScreenshotUpload(e.dataTransfer.files) }}
+              onDrop={e => {
+                e.preventDefault()
+                handleScreenshotUpload(e.dataTransfer.files)
+              }}
             >
               <input
                 type="file"
@@ -283,54 +331,54 @@ export function AppForm({ initialData, categories, tags, onSubmit, onCancel }: A
                 className="hidden"
                 id="screenshot-upload"
               />
-              <label htmlFor="screenshot-upload" className="cursor-pointer">
-                <Upload className="w-8 h-8 mx-auto text-gray-400 mb-2" />
-                <p className="text-gray-600 dark:text-gray-400">Klik atau drag & drop untuk upload screenshot</p>
-                <p className="text-xs text-gray-400 mt-1">Format: JPG, PNG, WebP, AVIF | Maks 5MB per file</p>
+              <label htmlFor="screenshot-upload" className="cursor-pointer block">
+                <Upload className="w-8 h-8 mx-auto text-muted-foreground mb-2" />
+                <p className="text-sm text-foreground">Klik atau drag & drop untuk upload screenshot</p>
+                <p className="text-xs text-muted-foreground mt-1">JPG, PNG, WebP, AVIF · Maks 5MB</p>
               </label>
 
               {uploading && (
-                <div className="mt-4">
-                  <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+                <div className="mt-4 max-w-xs mx-auto">
+                  <div className="h-2 bg-muted rounded-full overflow-hidden">
                     <div
-                      className="h-full bg-blue-600 transition-all duration-300"
+                      className="h-full bg-primary transition-all duration-300"
                       style={{ width: `${uploadProgress}%` }}
                     />
                   </div>
-                  <p className="text-sm text-gray-500 mt-1">Mengupload... {Math.round(uploadProgress)}%</p>
-                </div>
-              )}
-
-              {formData.screenshots.length > 0 && (
-                <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
-                  {formData.screenshots.map((url, index) => (
-                    <div key={index} className="relative aspect-video rounded overflow-hidden border">
-                      <Image
-                        src={url}
-                        alt={`Screenshot ${index + 1}`}
-                        fill
-                        className="object-cover"
-                        sizes="100px"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => removeScreenshot(url)}
-                        className="absolute top-1 right-1 w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center hover:bg-red-600"
-                      >
-                        <X className="w-3 h-3" />
-                      </button>
-                    </div>
-                  ))}
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Mengupload... {Math.round(uploadProgress)}%
+                  </p>
                 </div>
               )}
             </div>
+
+            {formData.screenshots.length > 0 && (
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
+                {formData.screenshots.map((url, index) => (
+                  <div key={index} className="relative aspect-video rounded-lg overflow-hidden border border-border">
+                    <Image src={url} alt={`Screenshot ${index + 1}`} fill className="object-cover" sizes="200px" />
+                    <button
+                      type="button"
+                      onClick={() => removeScreenshot(url)}
+                      className="absolute top-1 right-1 w-6 h-6 rounded-full bg-destructive text-white flex items-center justify-center hover:bg-destructive/80"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>
 
-      <div className="flex justify-end gap-4">
-        <Button type="button" variant="outline" onClick={onCancel}>Batal</Button>
-        <Button type="submit" disabled={uploading}>{isEditing ? 'Update' : 'Simpan'}</Button>
+      <div className="flex justify-end gap-3">
+        <Button type="button" variant="outline" onClick={() => router.push('/dashboard/apps')}>
+          Batal
+        </Button>
+        <Button type="submit" disabled={saving || uploading}>
+          {saving ? 'Menyimpan...' : isEditing ? 'Update' : 'Simpan'}
+        </Button>
       </div>
     </form>
   )
