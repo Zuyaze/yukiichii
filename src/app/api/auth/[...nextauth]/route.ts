@@ -20,7 +20,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         }
 
         const sql = neon(process.env.DATABASE_URL!)
-        const result = await neon(process.env.DATABASE_URL!)`
+        const result = await sql`
           SELECT * FROM admins WHERE email = ${credentials.email}
         `
         

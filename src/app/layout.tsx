@@ -27,13 +27,13 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'id_ID',
-    url: 'https://yukiichii.vercel.app',
+    url: 'https://yukiichii.netlify.app',
     siteName: 'YukiiChii',
     title: 'YukiiChii - Kumpulan Aplikasi & Tools',
     description: 'Kumpulan aplikasi dan tools gratis untuk berbagai kebutuhan.',
     images: [
       {
-        url: '/og-image.png',
+        url: '/og-image.svg',
         width: 1200,
         height: 630,
         alt: 'YukiiChii',
@@ -44,7 +44,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'YukiiChii',
     description: 'Kumpulan aplikasi dan tools gratis.',
-    images: ['/og-image.png'],
+    images: ['/og-image.svg'],
   },
   icons: {
     icon: '/favicon.svg',
