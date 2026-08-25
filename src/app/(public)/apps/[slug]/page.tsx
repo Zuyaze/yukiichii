@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { getAppBySlug, recordClick } from '@/lib/db/queries'
 import { Badge } from '@/components/ui/badge'
-import { ArrowLeft, Calendar, ShieldCheck, Zap } from 'lucide-react'
+import { Download, ArrowLeft, Calendar, ShieldCheck, Zap } from 'lucide-react'
 import { formatDate } from '@/lib/utils'
 import { ScreenshotGallery } from '@/components/screenshot-gallery'
 
@@ -115,11 +115,18 @@ export default async function AppDetailPage({ params }: AppDetailPageProps) {
         )}
 
         {/* ===== Single Download Box ===== */}
-        <section className="mt-6 rounded-2xl border border-border bg-card p-5 sm:p-6">
-          <a href={app.download_url} target="_blank" rel="noopener noreferrer" className="block">
-            <button className="w-full h-14 bg-gradient-to-r from-primary to-blue-500 text-white font-bold text-lg rounded-xl shadow-lg shadow-primary/30 hover:shadow-primary/50 hover:brightness-110 active:scale-[0.99] transition-all flex items-center justify-center gap-3 cursor-pointer border-0">
-              <DownloadIcon />
-              DOWNLOAD
+        <section className="mt-6 rounded-2xl border border-green-500/30 bg-gradient-to-b from-green-500/10 to-transparent p-5 sm:p-6">
+          <a href={app.download_url} target="_blank" rel="noopener noreferrer" className="block group/dl">
+            <button className="relative w-full min-h-[72px] py-4 bg-gradient-to-b from-green-500 to-emerald-600 text-white rounded-2xl shadow-lg shadow-green-500/40 hover:shadow-xl hover:shadow-green-500/50 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all cursor-pointer border-0 overflow-hidden">
+              {/* shine effect */}
+              <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/25 to-transparent -translate-x-full group-hover/dl:translate-x-full transition-transform duration-700" />
+              <span className="relative flex items-center justify-center gap-3">
+                <Download className="w-7 h-7" />
+                <span className="text-xl sm:text-2xl font-extrabold tracking-wide">DOWNLOAD</span>
+              </span>
+              <span className="relative block text-xs font-medium text-green-100 mt-0.5">
+                {app.title}
+              </span>
             </button>
           </a>
           <div className="grid grid-cols-3 gap-2 mt-4 text-center text-[11px] sm:text-xs text-muted-foreground">
@@ -181,10 +188,3 @@ export default async function AppDetailPage({ params }: AppDetailPageProps) {
   )
 }
 
-function DownloadIcon() {
-  return (
-    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 10v6m0 0l-3-3m3 3l3-3M2 17l.621 2.485A2 2 0 004.561 21h12.878a2 2 0 001.94-1.515L22 13H2zM2 11h20M6 11V7a2 2 0 012-2h8a2 2 0 012 2v4" />
-    </svg>
-  )
-}
