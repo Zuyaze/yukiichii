@@ -1,59 +1,54 @@
 import { Metadata } from 'next'
 import Link from 'next/link'
 import { getApps, getCategories } from '@/lib/db/queries'
-import { AppGrid } from '@/components/app-grid'
 import { Button } from '@/components/ui/button'
-import { ArrowRight, Download, Smartphone, Monitor, Gamepad2, FileCode, Database, AlertCircle } from 'lucide-react'
+import { Download, AlertCircle, ArrowRight } from 'lucide-react'
 import { unstable_noStore } from 'next/cache'
 import { SearchBar } from '@/components/search-bar'
 
 export const metadata: Metadata = {
-  title: 'Kumpulan Aplikasi & Tools Gratis',
+  title: 'Kumpulan Mod Apk & Loader Gratis',
   description: 'Kumpulan Mod Apk & Loader gratis terbaru. Download cepat, aman, dan tanpa ribet.',
 }
 
 export const dynamic = 'force-dynamic'
 
-const categoryIcons: Record<string, React.ComponentType<{ className?: string }>> = {
-  android: Smartphone,
-  windows: Monitor,
-  game: Gamepad2,
-  dev: FileCode,
-  default: Download,
-}
-
 export default async function HomePage() {
   unstable_noStore()
-  
-  let apps: any[] = []
+
   let categories: any[] = []
   let dbError: Error | null = null
 
   try {
-    const [appsData, categoriesData] = await Promise.all([
-      getApps({ limit: 12 }),
-      getCategories(),
-    ])
-    apps = appsData
-    categories = categoriesData
+    categories = await getCategories()
   } catch (error) {
     console.error('Database error:', error)
     dbError = error as Error
-    apps = []
     categories = []
   }
 
-  const appsWithImages = apps.map(app => ({
-    ...app,
-    screenshot_url: (app as any).screenshots?.[0] ?? null,
-    icon_url: (app as any).icon_url ?? null,
-    category_name: (app as any).category_name || null,
-    category_color: (app as any).category_color || '#3b82f6',
-    category_slug: (app as any).category_slug || null,
-    tags: [],
-  }))
-
-  const featuredCategories = categories.slice(0, 4)
+  // Fetch apps per category (max 10 each)
+  const categorySections = await Promise.all(
+    categories.map(async cat => {
+      try {
+        const apps = await getApps({ category: cat.slug, limit: 10 })
+        return {
+          ...cat,
+          apps: apps.map(app => ({
+            slug: app.slug,
+            title: app.title,
+            screenshot_url: (app as any).screenshots?.[0] ?? null,
+            icon_url: (app as any).icon_url ?? null,
+            category_name: cat.name,
+            category_color: cat.color,
+            category_slug: cat.slug,
+          })),
+        }
+      } catch {
+        return { ...cat, apps: [] }
+      }
+    })
+  )
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -73,11 +68,14 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="relative overflow-hidden py-16 sm:py-24 lg:py-32">
+      {/* Hero Section */}
+      <section className="relative overflow-hidden py-16 sm:py-20 lg:py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <h1 className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl md:text-6xl lg:text-7xl">
               <span className="text-primary">Yukii</span>Chii
+              <span className="mx-2 text-lg font-light text-muted-foreground/60 align-middle">×</span>
+              <span className="text-emerald-500">Zuyaze</span>
             </h1>
             <p className="mt-6 text-lg text-muted-foreground sm:text-xl max-w-3xl mx-auto">
               Kumpulan Mod Apk & Loader gratis terbaru.
@@ -85,7 +83,7 @@ export default async function HomePage() {
             </p>
             <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
               <Link href="/apps">
-                <Button size="lg" className="w-full sm:w-auto gap-2" size="lg">
+                <Button size="lg" className="w-full sm:w-auto gap-2">
                   <Download className="w-5 h-5" />
                   Jelajahi Aplikasi
                 </Button>
@@ -97,69 +95,102 @@ export default async function HomePage() {
               </Link>
             </div>
           </div>
-
-          <div className="mt-16 grid grid-cols-2 gap-4 sm:grid-cols-4">
-            {featuredCategories.map((cat, index) => {
-              const Icon = categoryIcons[cat.slug] || categoryIcons.default
-              return (
-                <Link
-                  key={cat.id}
-                  href={`/apps?category=${cat.slug}`}
-                  className="group flex flex-col items-center p-6 rounded-xl border border-border bg-background hover:border-primary/50 hover:bg-primary/5 transition-all"
-                >
-                  <div className="w-14 h-14 rounded-xl flex items-center justify-center mb-4 transition-colors group-hover:bg-primary/10" style={{ backgroundColor: `${cat.color}20` }}>
-                    <Icon className="w-7 h-7" style={{ color: cat.color }} />
-                  </div>
-                  <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors">{cat.name}</h3>
-                  <p className="text-sm text-muted-foreground mt-1">Lihat aplikasi</p>
-                </Link>
-              )
-            })}
-          </div>
         </div>
       </section>
 
-      <section className="py-16 sm:py-24 bg-muted/30">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between mb-8">
-            <div>
-              <h2 className="text-3xl font-bold text-foreground">Aplikasi Terbaru</h2>
-              <p className="text-muted-foreground mt-1">Update terbaru dari koleksi kami</p>
-            </div>
-            <Link href="/apps">
-              <Button variant="ghost" size="lg" className="gap-2">
+      {/* Per-Category Sections */}
+      {categorySections.map(section => (
+        <section key={section.id} className="py-8 border-t border-border first:border-t-0">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            {/* Section header */}
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl sm:text-2xl font-bold text-foreground flex items-center gap-2">
+                {section.icon && <span>{section.icon}</span>}
+                {section.name}
+              </h2>
+              <Link
+                href={`/apps?category=${section.slug}`}
+                className="text-sm font-medium text-primary hover:underline flex items-center gap-1"
+              >
                 Lihat Semua
                 <ArrowRight className="w-4 h-4" />
-              </Button>
-            </Link>
-          </div>
-          <AppGrid apps={appsWithImages} emptyMessage="Belum ada aplikasi tersedia" />
-        </div>
-      </section>
+              </Link>
+            </div>
 
-      <section className="py-16 sm:py-24">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl font-bold text-foreground">Semua Kategori</h2>
-          <p className="text-muted-foreground mt-1 max-w-2xl mx-auto">Temukan mod sesuai kebutuhanmu</p>
-          <div className="mt-10 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-            {categories.map(cat => {
-              const Icon = categoryIcons[cat.slug] || categoryIcons.default
-              return (
+            {/* Horizontal scrollable tiles */}
+            {section.apps.length > 0 ? (
+              <div className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 sm:mx-0 sm:px-0 scrollbar-thin">
+                {section.apps.map(app => (
+                  <Link
+                    key={app.slug}
+                    href={`/apps/${app.slug}`}
+                    className="group block flex-shrink-0 w-32 sm:w-36"
+                  >
+                    {/* Logo/Image */}
+                    <div className="relative aspect-square rounded-xl overflow-hidden bg-muted ring-1 ring-border group-hover:ring-primary/50 transition-all">
+                      {(app.icon_url || app.screenshot_url) ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={app.icon_url || app.screenshot_url}
+                          alt={app.title}
+                          loading="lazy"
+                          className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                        />
+                      ) : (
+                        <div className="flex items-center justify-center h-full bg-gradient-to-br from-primary/15 to-primary/5">
+                          <span className="text-2xl font-bold text-primary/60">
+                            {app.title.charAt(0).toUpperCase()}
+                          </span>
+                        </div>
+                      )}
+
+                      {/* Category badge */}
+                      <span
+                        className="absolute top-1 left-1 px-1.5 py-0.5 text-[9px] font-bold rounded-md"
+                        style={{
+                          backgroundColor: `${section.color}E6`,
+                          color: '#fff',
+                        }}
+                      >
+                        {section.name}
+                      </span>
+
+                      {/* Free pill */}
+                      <span className="absolute bottom-1 left-1 px-1.5 py-0.5 text-[8px] font-black rounded bg-green-500 text-white tracking-wide">
+                        FREE
+                      </span>
+                    </div>
+
+                    {/* Title */}
+                    <h3 className="mt-1.5 text-xs font-medium text-foreground line-clamp-2 leading-tight group-hover:text-primary transition-colors">
+                      {app.title}
+                    </h3>
+                    <p className="text-[10px] text-green-600 dark:text-green-400 font-semibold mt-0.5 flex items-center gap-0.5">
+                      <Download className="w-2.5 h-2.5" />
+                      GRATIS
+                    </p>
+                  </Link>
+                ))}
+
+                {/* "Lihat Semua" tile at the end */}
                 <Link
-                  key={cat.id}
-                  href={`/apps?category=${cat.slug}`}
-                  className="group flex flex-col items-center p-6 rounded-xl border border-border bg-background hover:border-primary/50 hover:bg-primary/5 transition-all"
+                  href={`/apps?category=${section.slug}`}
+                  className="group flex-shrink-0 w-32 sm:w-36 flex items-center justify-center rounded-xl border-2 border-dashed border-primary/30 hover:border-primary hover:bg-primary/5 transition-all cursor-pointer"
                 >
-                  <div className="w-12 h-12 rounded-lg flex items-center justify-center mb-3 transition-colors group-hover:bg-primary/10" style={{ backgroundColor: `${cat.color}20` }}>
-                    <Icon className="w-6 h-6" style={{ color: cat.color }} />
-                  </div>
-                  <h3 className="font-medium text-foreground group-hover:text-primary transition-colors text-center">{cat.name}</h3>
+                  <span className="flex flex-col items-center gap-1 text-primary">
+                    <ArrowRight className="w-6 h-6 group-hover:translate-x-1 transition-transform" />
+                    <span className="text-xs font-semibold">Lihat Semua</span>
+                  </span>
                 </Link>
-              )
-            })}
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground py-4">
+                Belum ada mod di kategori ini.
+              </p>
+            )}
           </div>
-        </div>
-      </section>
+        </section>
+      ))}
     </div>
   )
 }
