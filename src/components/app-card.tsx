@@ -69,10 +69,6 @@ export function AppCard({
       <h3 className="mt-1.5 text-xs font-medium text-foreground line-clamp-2 leading-tight group-hover:text-primary transition-colors">
         {title}
       </h3>
-      <p className="text-[10px] text-green-600 dark:text-green-400 font-semibold mt-0.5 flex items-center gap-0.5">
-        <Download className="w-2.5 h-2.5" />
-        GRATIS
-      </p>
     </Link>
   )
 }

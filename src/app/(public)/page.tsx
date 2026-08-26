@@ -153,7 +153,7 @@ export default async function HomePage() {
                     {/* GRATIS pill */}
                     <span className="absolute bottom-1 left-1 px-1.5 py-0.5 text-[8px] font-black rounded bg-green-500 text-white">GRATIS</span>
                   </div>
-                  <p className="mt-1.5 text-xs font-medium text-foreground line-clamp-1 leading-snug group-hover:text-primary transition-colors">
+                  <p className="mt-1.5 text-xs font-medium text-foreground line-clamp-2 leading-snug group-hover:text-primary transition-colors">
                     {app.title}
                   </p>
                 </Link>
@@ -219,7 +219,7 @@ export default async function HomePage() {
                       {/* GRATIS pill */}
                       <span className="absolute bottom-1 left-1 px-1.5 py-0.5 text-[8px] font-black rounded bg-green-500 text-white">GRATIS</span>
                     </div>
-                    <p className="mt-1.5 text-xs font-medium text-foreground line-clamp-1 leading-snug group-hover:text-primary transition-colors">
+                    <p className="mt-1.5 text-xs font-medium text-foreground line-clamp-2 leading-snug group-hover:text-primary transition-colors">
                       {app.title}
                     </p>
                   </Link>
