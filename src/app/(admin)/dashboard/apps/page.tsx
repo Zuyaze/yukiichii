@@ -95,11 +95,9 @@ export default async function AppsListPage({ searchParams }: AppsListPageProps) 
       </div>
 
       {/* Search + Filter + Sort */}
-      <div className="flex flex-col sm:flex-row gap-3">
+      <form action="/dashboard/apps" method="GET" className="flex flex-col sm:flex-row gap-3">
         {/* Search */}
-        <form action="/dashboard/apps" method="GET" className="relative flex-1">
-          {categoryFilter && <input type="hidden" name="category" value={categoryFilter} />}
-          {sortBy !== 'newest' && <input type="hidden" name="sort" value={sortBy} />}
+        <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
           <input
             type="text"
@@ -108,41 +106,36 @@ export default async function AppsListPage({ searchParams }: AppsListPageProps) 
             placeholder="Cari judul atau slug..."
             className="w-full h-10 pl-10 pr-4 text-sm bg-background text-foreground border border-input rounded-lg placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/40 focus:border-primary"
           />
-        </form>
+        </div>
 
         {/* Category filter */}
-        <form action="/dashboard/apps" method="GET" className="sm:w-48">
-          {query && <input type="hidden" name="q" value={query} />}
-          {sortBy !== 'newest' && <input type="hidden" name="sort" value={sortBy} />}
-          <select
-            name="category"
-            defaultValue={categoryFilter}
-            onChange={e => e.currentTarget.form?.submit()}
-            className="w-full h-10 px-3 text-sm bg-background text-foreground border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring/40"
-          >
-            <option value="">Semua Kategori</option>
-            {categories.map(c => (
-              <option key={c.id} value={c.id}>{c.name}</option>
-            ))}
-          </select>
-        </form>
+        <select
+          name="category"
+          defaultValue={categoryFilter}
+          className="sm:w-48 h-10 px-3 text-sm bg-background text-foreground border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring/40"
+        >
+          <option value="">Semua Kategori</option>
+          {categories.map(c => (
+            <option key={c.id} value={c.id}>{c.name}</option>
+          ))}
+        </select>
 
         {/* Sort */}
-        <form action="/dashboard/apps" method="GET" className="sm:w-40">
-          {query && <input type="hidden" name="q" value={query} />}
-          {categoryFilter && <input type="hidden" name="category" value={categoryFilter} />}
-          <select
-            name="sort"
-            defaultValue={sortBy}
-            onChange={e => e.currentTarget.form?.submit()}
-            className="w-full h-10 px-3 text-sm bg-background text-foreground border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring/40"
-          >
-            <option value="newest">Terbaru</option>
-            <option value="oldest">Terlama</option>
-            <option value="name">Nama A-Z</option>
-          </select>
-        </form>
-      </div>
+        <select
+          name="sort"
+          defaultValue={sortBy}
+          className="sm:w-40 h-10 px-3 text-sm bg-background text-foreground border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring/40"
+        >
+          <option value="newest">Terbaru</option>
+          <option value="oldest">Terlama</option>
+          <option value="name">Nama A-Z</option>
+        </select>
+
+        {/* Apply button */}
+        <Button type="submit" variant="outline" size="sm" className="h-10">
+          Terapkan
+        </Button>
+      </form>
 
       {/* Table */}
       <div className="rounded-lg border border-border bg-background overflow-x-auto">
