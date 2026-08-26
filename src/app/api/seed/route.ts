@@ -1,5 +1,4 @@
 import { getDb, initDb } from '@/lib/db'
-import bcrypt from 'bcryptjs'
 import { auth } from '@/lib/auth'
 
 export async function GET() {
@@ -52,8 +51,9 @@ export async function GET() {
       })
     }
 
-    // Create default admin
-    const adminEmail = 'admin@yukiichii.com'
+    // Create default admin (only if no admin exists)
+    const adminEmail = process.env.ADMIN_EMAIL || 'admin@yukiichii.com'
+    const adminPassword = process.env.ADMIN_PASSWORD || 'ChangeMe2026!'
 
     const existing = await db.execute({
       sql: 'SELECT id FROM admins WHERE email = ?',
@@ -61,7 +61,8 @@ export async function GET() {
     })
 
     if (existing.rows.length === 0) {
-      const passwordHash = await bcrypt.hash('yukiichii123', 12)
+      const bcrypt = await import('bcryptjs')
+      const passwordHash = await bcrypt.hash(adminPassword, 12)
       await db.execute({
         sql: 'INSERT INTO admins (email, password_hash) VALUES (?, ?)',
         args: [adminEmail, passwordHash],

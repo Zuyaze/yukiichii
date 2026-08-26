@@ -4,25 +4,26 @@ import bcrypt from 'bcryptjs'
 
 const db = getDb()
 
+// Credentials from environment variables (never hardcode!)
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'admin@yukiichii.com'
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'yukiichii123'
+
 async function main() {
   console.log('Seeding database...')
 
   // Create default admin
-  const adminEmail = 'admin@yukiichii.com'
-  const adminPassword = 'yukiichii123'
-
   const existingAdmin = await db.execute({
     sql: `SELECT * FROM admins WHERE email = ?`,
-    args: [adminEmail],
+    args: [ADMIN_EMAIL],
   })
 
   if (existingAdmin.rows.length === 0) {
-    const passwordHash = await bcrypt.hash(adminPassword, 12)
+    const passwordHash = await bcrypt.hash(ADMIN_PASSWORD, 12)
     await db.execute({
       sql: `INSERT INTO admins (email, password_hash) VALUES (?, ?)`,
-      args: [adminEmail, passwordHash],
+      args: [ADMIN_EMAIL, passwordHash],
     })
-    console.log(`Created admin: ${adminEmail} / ${adminPassword}`)
+    console.log(`Created admin: ${ADMIN_EMAIL}`)
   } else {
     console.log('Admin already exists')
   }
@@ -50,11 +51,11 @@ async function main() {
   // Create default tags
   const defaultTags = [
     { name: 'Gratis', slug: 'gratis', color: '#10b981' },
-    { name: 'Open Source', slug: 'open-source', color: '#3b82f6' },
-    { name: 'Offline', slug: 'offline', color: '#f59e0b' },
-    { name: 'Ringan', slug: 'ringan', color: '#8b5cf6' },
-    { name: 'Portable', slug: 'portable', color: '#ec4899' },
     { name: 'No Ads', slug: 'no-ads', color: '#06b6d4' },
+    { name: 'Premium', slug: 'premium', color: '#8b5cf6' },
+    { name: 'Anti Ban', slug: 'anti-ban', color: '#ef4444' },
+    { name: 'Unlimited', slug: 'unlimited', color: '#f59e0b' },
+    { name: 'Mod Menu', slug: 'mod-menu', color: '#ec4899' },
   ]
 
   for (const tag of defaultTags) {
