@@ -6,6 +6,7 @@ import { BackButton } from '@/components/back-button'
 import { SearchBar } from '@/components/search-bar'
 import { unstable_noStore } from 'next/cache'
 import { cn } from '@/lib/utils'
+import { Button } from '@/components/ui/button'
 
 export const metadata: Metadata = {
   title: 'Semua Aplikasi',
@@ -13,8 +14,10 @@ export const metadata: Metadata = {
 
 export const dynamic = 'force-dynamic'
 
+const PER_PAGE = 20
+
 interface AppsPageProps {
-  searchParams: Promise<{ category?: string; q?: string }>
+  searchParams: Promise<{ category?: string; q?: string; page?: string }>
 }
 
 export default async function AppsPage({ searchParams }: AppsPageProps) {
@@ -22,22 +25,42 @@ export default async function AppsPage({ searchParams }: AppsPageProps) {
   const params = await searchParams
   const activeCategory = params.category || ''
   const search = params.q || ''
+  const page = Math.max(1, parseInt(params.page || '1') || 1)
+  const offset = (page - 1) * PER_PAGE
 
   let apps: any[] = []
   let categories: any[] = []
+  let totalCount = 0
   let activeCatName = ''
 
   try {
     ;[apps, categories] = await Promise.all([
-      getApps({ category: activeCategory || undefined, search: search || undefined, limit: 60 }),
+      getApps({
+        category: activeCategory || undefined,
+        search: search || undefined,
+        limit: PER_PAGE,
+        offset,
+      }),
       getCategories(),
     ])
+
+    // Get total count for pagination
+    const allForCount = await getApps({
+      category: activeCategory || undefined,
+      search: search || undefined,
+      limit: 10000,
+    })
+    totalCount = allForCount.length
+
     if (activeCategory) {
-      activeCatName = categories.find(c => c.slug === activeCategory)?.name || activeCategory
+      activeCatName =
+        categories.find(c => c.slug === activeCategory)?.name || activeCategory
     }
   } catch (error) {
     console.error('Database error:', error)
   }
+
+  const totalPages = Math.ceil(totalCount / PER_PAGE)
 
   const cards = apps.map(app => ({
     slug: app.slug,
@@ -53,10 +76,15 @@ export default async function AppsPage({ searchParams }: AppsPageProps) {
   }))
 
   // Build query string helper
-  const hrefFor = (catSlug?: string, q?: string) => {
+  const hrefFor = (
+    catSlug?: string,
+    q?: string,
+    pageNum?: number
+  ) => {
     const sp = new URLSearchParams()
     if (catSlug) sp.set('category', catSlug)
     if (q) sp.set('q', q)
+    if (pageNum && pageNum > 1) sp.set('page', String(pageNum))
     const s = sp.toString()
     return s ? `/apps?${s}` : '/apps'
   }
@@ -118,11 +146,59 @@ export default async function AppsPage({ searchParams }: AppsPageProps) {
 
         {/* Results count */}
         <p className="text-sm text-muted-foreground mb-4">
-          {cards.length} mod ditemukan{search && ` untuk "${search}"`}
+          {totalCount} mod ditemukan{search && ` untuk "${search}"`}
+          {totalPages > 1 && ` • Halaman ${page}/${totalPages}`}
         </p>
 
         {/* Grid */}
-        <AppGrid apps={cards} emptyMessage={search ? `Tidak ada hasil untuk "${search}"` : 'Belum ada mod di kategori ini'} />
+        <AppGrid
+          apps={cards}
+          emptyMessage={
+            search
+              ? `Tidak ada hasil untuk "${search}"`
+              : 'Belum ada mod di kategori ini'
+          }
+        />
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <nav className="mt-8 flex items-center justify-center gap-2" aria-label="Pagination">
+            {page > 1 && (
+              <Link href={hrefFor(activeCategory, search, page - 1)}>
+                <Button variant="outline" size="sm">← Sebelumnya</Button>
+              </Link>
+            )}
+
+            <div className="flex items-center gap-1">
+              {Array.from({ length: totalPages }, (_, i) => i + 1)
+                .filter(p => p === 1 || p === totalPages || Math.abs(p - page) <= 2)
+                .map((p, idx, arr) => (
+                  <span key={p} className="flex items-center gap-1">
+                    {idx > 0 && arr[idx - 1] !== p - 1 && (
+                      <span className="text-muted-foreground px-1">...</span>
+                    )}
+                    <Link
+                      href={hrefFor(activeCategory, search, p)}
+                      className={cn(
+                        'w-9 h-9 flex items-center justify-center text-sm font-medium rounded-lg transition-colors',
+                        p === page
+                          ? 'bg-primary text-primary-foreground'
+                          : 'text-foreground/70 hover:bg-muted'
+                      )}
+                    >
+                      {p}
+                    </Link>
+                  </span>
+                ))}
+            </div>
+
+            {page < totalPages && (
+              <Link href={hrefFor(activeCategory, search, page + 1)}>
+                <Button variant="outline" size="sm">Selanjutnya →</Button>
+              </Link>
+            )}
+          </nav>
+        )}
       </div>
     </div>
   )
