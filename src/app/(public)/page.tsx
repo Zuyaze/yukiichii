@@ -210,7 +210,6 @@ export default async function HomePage() {
                     <p className="mt-1.5 text-xs font-medium text-foreground line-clamp-1 leading-snug group-hover:text-primary transition-colors">
                       {app.title}
                     </p>
-                    <p className="text-[10px] text-green-600 dark:text-green-400 font-semibold mt-0.5">GRATIS</p>
                   </Link>
                 ))}
 
