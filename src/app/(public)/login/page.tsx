@@ -107,8 +107,8 @@ export default function LoginPage() {
           </form>
 
           <p className="text-center text-sm text-muted-foreground mt-6">
-            Kembali ke{' '}
-            <Link href="/" className="text-primary hover:underline">Beranda</Link>
+            Back to{' '}
+            <Link href="/" className="text-primary hover:underline">Home</Link>
           </p>
         </div>
       </div>

@@ -141,7 +141,7 @@ export default function PublicLayout({ children }: { children: ReactNode }) {
               <span className="text-lg font-bold text-foreground">Chii</span>
             </div>
             <p className="text-sm text-muted-foreground text-center sm:text-left">
-              &copy; {new Date().getFullYear()} YukiiChii. Semua hak dilindungi.
+              &copy; {new Date().getFullYear()} YukiiChii. All rights reserved.
             </p>
           </div>
         </div>

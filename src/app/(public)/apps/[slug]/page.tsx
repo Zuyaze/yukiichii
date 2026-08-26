@@ -38,13 +38,13 @@ export default async function AppDetailPage({ params }: AppDetailPageProps) {
     <div className="min-h-screen bg-background">
       {/* Back link */}
       <div className="mx-auto max-w-3xl px-4 pt-6 sm:px-6">
-        <Link
-          href="/apps"
-          className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Kembali
-        </Link>
+          <Link
+            href="/apps"
+            className="inline-flex items-center gap-1.5 px-3 py-2 -ml-3 text-sm font-medium text-muted-foreground hover:text-primary rounded-lg hover:bg-muted transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back to Apps
+          </Link>
       </div>
 
       <div className="mx-auto max-w-3xl px-4 pb-16 pt-4 sm:px-6">
@@ -157,7 +157,7 @@ export default async function AppDetailPage({ params }: AppDetailPageProps) {
               </div>
             )}
             <div className="flex justify-between py-2.5 text-sm">
-              <dt className="text-muted-foreground">Diperbarui</dt>
+              <dt className="text-muted-foreground">Update</dt>
               <dd className="font-medium text-foreground">{formatDate(app.updated_at)}</dd>
             </div>
             <div className="flex justify-between py-2.5 text-sm">
