@@ -5,6 +5,7 @@ import { AppGrid } from '@/components/app-grid'
 import { Button } from '@/components/ui/button'
 import { ArrowRight, Download, Smartphone, Monitor, Gamepad2, FileCode, Database, AlertCircle } from 'lucide-react'
 import { unstable_noStore } from 'next/cache'
+import { SearchBar } from '@/components/search-bar'
 
 export const metadata: Metadata = {
   title: 'Kumpulan Aplikasi & Tools Gratis',
@@ -68,17 +69,7 @@ export default async function HomePage() {
       {/* Search Bar */}
       <section className="border-b border-border bg-muted/30 py-6">
         <div className="mx-auto max-w-2xl px-4">
-          <form action="/apps" method="GET" className="relative">
-            <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
-            <input
-              type="text"
-              name="q"
-              placeholder="Cari mod apk..."
-              className="w-full h-12 pl-12 pr-4 text-sm bg-background text-foreground border border-input rounded-xl shadow-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/40 focus:border-primary transition-colors"
-            />
-          </form>
+          <SearchBar placeholder="Cari mod..." />
         </div>
       </section>
 
