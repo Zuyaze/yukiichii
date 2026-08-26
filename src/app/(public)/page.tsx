@@ -17,14 +17,21 @@ export default async function HomePage() {
   unstable_noStore()
 
   let categories: any[] = []
+  let recentApps: any[] = []
   let dbError: Error | null = null
 
   try {
-    categories = await getCategories()
+    const [catsData, appsData] = await Promise.all([
+      getCategories(),
+      getApps({ limit: 10 }),
+    ])
+    categories = catsData
+    recentApps = appsData
   } catch (error) {
     console.error('Database error:', error)
     dbError = error as Error
     categories = []
+    recentApps = []
   }
 
   // Fetch apps per category (max 10 each)
@@ -95,6 +102,64 @@ export default async function HomePage() {
               </Link>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* Aplikasi Terbaru */}
+      <section className="py-8 border-t border-border">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl sm:text-2xl font-bold text-foreground">Aplikasi Terbaru</h2>
+            <Link
+              href="/apps"
+              className="text-sm font-medium text-primary hover:underline flex items-center gap-1"
+            >
+              Lihat Semua
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
+
+          {recentApps.length > 0 ? (
+            <div className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 sm:mx-0 sm:px-0">
+              {recentApps.map(app => (
+                <Link
+                  key={app.slug}
+                  href={`/apps/${app.slug}`}
+                  className="group block flex-shrink-0 w-32 sm:w-36"
+                >
+                  <div className="relative aspect-square rounded-xl overflow-hidden bg-muted ring-1 ring-border group-hover:ring-primary/50 transition-all">
+                    {(app.icon_url || (app as any).screenshots?.[0]) ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={(app as any).icon_url || (app as any).screenshots?.[0]}
+                        alt={app.title}
+                        loading="lazy"
+                        className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                      />
+                    ) : (
+                      <div className="flex items-center justify-center h-full bg-gradient-to-br from-primary/15 to-primary/5">
+                        <span className="text-2xl font-bold text-primary/60">
+                          {app.title.charAt(0).toUpperCase()}
+                        </span>
+                      </div>
+                    )}
+                    <span className="absolute bottom-1 left-1 px-1.5 py-0.5 text-[8px] font-black rounded bg-green-500 text-white tracking-wide">
+                      FREE
+                    </span>
+                  </div>
+                  <h3 className="mt-1.5 text-xs font-medium text-foreground line-clamp-2 leading-tight group-hover:text-primary transition-colors">
+                    {app.title}
+                  </h3>
+                  <p className="text-[10px] text-green-600 dark:text-green-400 font-semibold mt-0.5 flex items-center gap-0.5">
+                    <Download className="w-2.5 h-2.5" />
+                    GRATIS
+                  </p>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground py-4">Belum ada aplikasi terbaru.</p>
+          )}
         </div>
       </section>
 
