@@ -69,7 +69,7 @@ export default function EditAppPage() {
       <div className="max-w-4xl mx-auto text-center py-16">
         <h1 className="text-2xl font-bold text-foreground">Aplikasi tidak ditemukan</h1>
         <Link href="/dashboard/apps" className="text-primary hover:underline mt-3 inline-block">
-          ← Back to Apps
+          ← Kembali ke Aplikasi
         </Link>
       </div>
     )
