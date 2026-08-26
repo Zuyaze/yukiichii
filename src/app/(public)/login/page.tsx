@@ -48,7 +48,7 @@ export default function LoginPage() {
               <span className="text-2xl font-bold text-primary">Yukii</span>
               <span className="text-2xl font-bold text-foreground">Chii</span>
               <span className="mx-1.5 text-sm font-light text-muted-foreground/60">×</span>
-              <span className="text-xl font-bold text-emerald-500">Zuyaze</span>
+              <span className="text-xl font-bold text-foreground">Zuyaze</span>
             </Link>
             <h1 className="text-2xl font-bold text-foreground">Masuk ke Admin</h1>
             <p className="text-muted-foreground mt-2">Masukkan email dan password untuk mengakses dashboard</p>
