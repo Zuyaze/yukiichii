@@ -66,11 +66,9 @@ export default async function AppsPage({ searchParams }: AppsPageProps) {
       {/* Header */}
       <div className="border-b border-border bg-muted/30 py-8 sm:py-12">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          {activeCategory && (
-            <div className="mb-3">
-              <BackButton label="Kembali" />
-            </div>
-          )}
+          <div className="mb-3">
+            <BackButton label="Kembali" />
+          </div>
           <h1 className="text-3xl font-bold text-foreground sm:text-4xl">
             {activeCatName || 'Semua Aplikasi'}
           </h1>
