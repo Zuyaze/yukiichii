@@ -3,8 +3,8 @@ import Link from 'next/link'
 import { getApps, getCategories } from '@/lib/db/queries'
 import { AppGrid } from '@/components/app-grid'
 import { BackButton } from '@/components/back-button'
+import { SearchBar } from '@/components/search-bar'
 import { unstable_noStore } from 'next/cache'
-import { Search, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 export const metadata: Metadata = {
@@ -83,26 +83,9 @@ export default async function AppsPage({ searchParams }: AppsPageProps) {
 
       <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
         {/* Search */}
-        <form action="/apps" method="GET" className="relative mb-4">
-          {activeCategory && <input type="hidden" name="category" value={activeCategory} />}
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <input
-            type="text"
-            name="q"
-            defaultValue={search}
-            placeholder="Cari mod..."
-            className="w-full h-11 pl-10 pr-10 text-sm bg-background text-foreground border border-input rounded-lg placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-          />
-          {search && (
-            <Link
-              href={hrefFor(activeCategory)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-              aria-label="Hapus pencarian"
-            >
-              <X className="w-4 h-4" />
-            </Link>
-          )}
-        </form>
+        <div className="mb-4">
+          <SearchBar placeholder={activeCatName ? `Cari mod ${activeCatName}...` : 'Cari mod...'} />
+        </div>
 
         {/* Category chips */}
         <div className="flex flex-wrap justify-center gap-2 pb-3 mb-6">
