@@ -2,7 +2,7 @@ import { Metadata } from 'next'
 import Link from 'next/link'
 import { getApps, getCategories } from '@/lib/db/queries'
 import { Button } from '@/components/ui/button'
-import { Download, AlertCircle, ArrowRight } from 'lucide-react'
+import { ArrowRight, Download, AlertCircle } from 'lucide-react'
 import { unstable_noStore } from 'next/cache'
 import { SearchBar } from '@/components/search-bar'
 
@@ -48,7 +48,6 @@ export default async function HomePage() {
             icon_url: (app as any).icon_url ?? null,
             category_name: cat.name,
             category_color: cat.color,
-            category_slug: cat.slug,
           })),
         }
       } catch {
@@ -57,13 +56,23 @@ export default async function HomePage() {
     })
   )
 
+  // Map recent apps for display
+  const recentCards = recentApps.map(app => ({
+    slug: app.slug,
+    title: app.title,
+    screenshot_url: (app as any).screenshots?.[0] ?? null,
+    icon_url: (app as any).icon_url ?? null,
+    category_name: (app as any).category_name || null,
+    category_color: (app as any).category_color || '#3b82f6',
+  }))
+
   return (
     <div className="flex flex-col min-h-screen">
       {dbError && (
         <div className="bg-yellow-50 border-y border-yellow-200 px-4 py-3 text-center">
           <div className="flex items-center justify-center gap-2 text-yellow-700 text-sm">
             <AlertCircle className="w-4 h-4" />
-            <span>Database sedang bermasalah, menampilkan tampilan default. Beberapa fitur mungkin tidak tersedia.</span>
+            <span>Database sedang bermasalah.</span>
           </div>
         </div>
       )}
@@ -105,57 +114,58 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Aplikasi Terbaru */}
+      {/* ===== Aplikasi Terbaru ===== */}
       <section className="py-8 border-t border-border">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl sm:text-2xl font-bold text-foreground">Aplikasi Terbaru</h2>
-            <Link
-              href="/apps"
-              className="text-sm font-medium text-primary hover:underline flex items-center gap-1"
-            >
-              Lihat Semua
-              <ArrowRight className="w-4 h-4" />
-            </Link>
-          </div>
+          <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-4">Aplikasi Terbaru</h2>
 
-          {recentApps.length > 0 ? (
-            <div className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 sm:mx-0 sm:px-0">
-              {recentApps.map(app => (
+          {recentCards.length > 0 ? (
+            <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-thin">
+              {/* App tiles */}
+              {recentCards.map(app => (
                 <Link
                   key={app.slug}
                   href={`/apps/${app.slug}`}
-                  className="group block flex-shrink-0 w-32 sm:w-36"
+                  className="group block flex-shrink-0 w-28"
                 >
-                  <div className="relative aspect-square rounded-xl overflow-hidden bg-muted ring-1 ring-border group-hover:ring-primary/50 transition-all">
-                    {(app.icon_url || (app as any).screenshots?.[0]) ? (
-                      // eslint-disable-next-line @next/next/no-img-element
+                  <div className="relative aspect-square rounded-xl overflow-hidden bg-muted">
+                    {(app.icon_url || app.screenshot_url) ? (
+                      /* eslint-disable-next-line @next/next/no-img-element */
                       <img
-                        src={(app as any).icon_url || (app as any).screenshots?.[0]}
+                        src={app.icon_url || app.screenshot_url}
                         alt={app.title}
                         loading="lazy"
                         className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
                       />
                     ) : (
                       <div className="flex items-center justify-center h-full bg-gradient-to-br from-primary/15 to-primary/5">
-                        <span className="text-2xl font-bold text-primary/60">
-                          {app.title.charAt(0).toUpperCase()}
-                        </span>
+                        <span className="text-2xl font-bold text-primary/60">{app.title.charAt(0).toUpperCase()}</span>
                       </div>
                     )}
-                    <span className="absolute bottom-1 left-1 px-1.5 py-0.5 text-[8px] font-black rounded bg-green-500 text-white tracking-wide">
-                      FREE
-                    </span>
+                    {/* FREE pill */}
+                    <span className="absolute bottom-1 left-1 px-1.5 py-0.5 text-[8px] font-black rounded bg-green-500 text-white">FREE</span>
                   </div>
-                  <h3 className="mt-1.5 text-xs font-medium text-foreground line-clamp-2 leading-tight group-hover:text-primary transition-colors">
+                  <p className="mt-1.5 text-xs font-medium text-foreground line-clamp-1 leading-snug group-hover:text-primary transition-colors">
                     {app.title}
-                  </h3>
-                  <p className="text-[10px] text-green-600 dark:text-green-400 font-semibold mt-0.5 flex items-center gap-0.5">
-                    <Download className="w-2.5 h-2.5" />
-                    GRATIS
                   </p>
+                  {app.category_name && (
+                    <p className="text-[10px] text-muted-foreground">{app.category_name}</p>
+                  )}
                 </Link>
               ))}
+
+              {/* Lihat Semua tile */}
+              <Link
+                href="/apps"
+                className="group flex-shrink-0 w-28 flex flex-col"
+              >
+                <div className="relative aspect-square rounded-xl overflow-hidden bg-primary/5 border-2 border-dashed border-primary/30 group-hover:border-primary group-hover:bg-primary/10 transition-all flex items-center justify-center">
+                  <span className="flex flex-col items-center gap-1 text-primary">
+                    <ArrowRight className="w-6 h-6 group-hover:translate-x-1 transition-transform" />
+                    <span className="text-[10px] font-bold">Lihat Semua</span>
+                  </span>
+                </div>
+              </Link>
             </div>
           ) : (
             <p className="text-sm text-muted-foreground py-4">Belum ada aplikasi terbaru.</p>
@@ -163,38 +173,26 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Per-Category Sections */}
+      {/* ===== Per-Category Sections ===== */}
       {categorySections.map(section => (
         <section key={section.id} className="py-8 border-t border-border first:border-t-0">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            {/* Section header */}
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl sm:text-2xl font-bold text-foreground flex items-center gap-2">
-                {section.icon && <span>{section.icon}</span>}
-                {section.name}
-              </h2>
-              <Link
-                href={`/apps?category=${section.slug}`}
-                className="text-sm font-medium text-primary hover:underline flex items-center gap-1"
-              >
-                Lihat Semua
-                <ArrowRight className="w-4 h-4" />
-              </Link>
-            </div>
+            <h2 className="text-xl sm:text-2xl font-bold text-foreground flex items-center gap-2 mb-4">
+              {section.icon && <span>{section.icon}</span>}
+              {section.name}
+            </h2>
 
-            {/* Horizontal scrollable tiles */}
             {section.apps.length > 0 ? (
-              <div className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 sm:mx-0 sm:px-0 scrollbar-thin">
+              <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-thin">
                 {section.apps.map(app => (
                   <Link
                     key={app.slug}
                     href={`/apps/${app.slug}`}
-                    className="group block flex-shrink-0 w-32 sm:w-36"
+                    className="group block flex-shrink-0 w-28"
                   >
-                    {/* Logo/Image */}
-                    <div className="relative aspect-square rounded-xl overflow-hidden bg-muted ring-1 ring-border group-hover:ring-primary/50 transition-all">
+                    <div className="relative aspect-square rounded-xl overflow-hidden bg-muted">
                       {(app.icon_url || app.screenshot_url) ? (
-                        // eslint-disable-next-line @next/next/no-img-element
+                        /* eslint-disable-next-line @next/next/no-img-element */
                         <img
                           src={app.icon_url || app.screenshot_url}
                           alt={app.title}
@@ -203,55 +201,34 @@ export default async function HomePage() {
                         />
                       ) : (
                         <div className="flex items-center justify-center h-full bg-gradient-to-br from-primary/15 to-primary/5">
-                          <span className="text-2xl font-bold text-primary/60">
-                            {app.title.charAt(0).toUpperCase()}
-                          </span>
+                          <span className="text-2xl font-bold text-primary/60">{app.title.charAt(0).toUpperCase()}</span>
                         </div>
                       )}
-
-                      {/* Category badge */}
-                      <span
-                        className="absolute top-1 left-1 px-1.5 py-0.5 text-[9px] font-bold rounded-md"
-                        style={{
-                          backgroundColor: `${section.color}E6`,
-                          color: '#fff',
-                        }}
-                      >
-                        {section.name}
-                      </span>
-
-                      {/* Free pill */}
-                      <span className="absolute bottom-1 left-1 px-1.5 py-0.5 text-[8px] font-black rounded bg-green-500 text-white tracking-wide">
-                        FREE
-                      </span>
+                      {/* FREE pill */}
+                      <span className="absolute bottom-1 left-1 px-1.5 py-0.5 text-[8px] font-black rounded bg-green-500 text-white">FREE</span>
                     </div>
-
-                    {/* Title */}
-                    <h3 className="mt-1.5 text-xs font-medium text-foreground line-clamp-2 leading-tight group-hover:text-primary transition-colors">
+                    <p className="mt-1.5 text-xs font-medium text-foreground line-clamp-1 leading-snug group-hover:text-primary transition-colors">
                       {app.title}
-                    </h3>
-                    <p className="text-[10px] text-green-600 dark:text-green-400 font-semibold mt-0.5 flex items-center gap-0.5">
-                      <Download className="w-2.5 h-2.5" />
-                      GRATIS
                     </p>
+                    <p className="text-[10px] text-green-600 dark:text-green-400 font-semibold mt-0.5">GRATIS</p>
                   </Link>
                 ))}
 
-                {/* "Lihat Semua" tile at the end */}
+                {/* Lihat Semua tile at end */}
                 <Link
                   href={`/apps?category=${section.slug}`}
-                  className="group flex-shrink-0 w-32 sm:w-36 flex items-center justify-center rounded-xl border-2 border-dashed border-primary/30 hover:border-primary hover:bg-primary/5 transition-all cursor-pointer"
+                  className="group flex-shrink-0 w-28 flex flex-col"
                 >
-                  <span className="flex flex-col items-center gap-1 text-primary">
-                    <ArrowRight className="w-6 h-6 group-hover:translate-x-1 transition-transform" />
-                    <span className="text-xs font-semibold">Lihat Semua</span>
-                  </span>
+                  <div className="relative aspect-square rounded-xl overflow-hidden bg-primary/5 border-2 border-dashed border-primary/30 group-hover:border-primary group-hover:bg-primary/10 transition-all flex items-center justify-center">
+                    <span className="flex flex-col items-center gap-1 text-primary">
+                      <ArrowRight className="w-6 h-6 group-hover:translate-x-1 transition-transform" />
+                      <span className="text-[10px] font-bold">Lihat Semua</span>
+                    </span>
+                  </div>
                 </Link>
               </div>
             ) : (
-              <p className="text-sm text-muted-foreground py-4">
-                Belum ada mod di kategori ini.
-              </p>
+              <p className="text-sm text-muted-foreground py-4">Belum ada mod di kategori ini.</p>
             )}
           </div>
         </section>
