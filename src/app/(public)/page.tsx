@@ -91,7 +91,7 @@ export default async function HomePage() {
             <h1 className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl md:text-6xl lg:text-7xl">
               <span className="text-primary">Yukii</span>Chii
               <span className="mx-2 text-lg font-light text-muted-foreground/60 align-middle">×</span>
-              <span className="text-emerald-500">Zuyaze</span>
+              <span className="text-foreground">Zuyaze</span>
             </h1>
             <p className="mt-6 text-lg text-muted-foreground sm:text-xl max-w-3xl mx-auto">
               Kumpulan Mod Apk & Loader gratis terbaru.
@@ -142,8 +142,8 @@ export default async function HomePage() {
                         <span className="text-2xl font-bold text-primary/60">{app.title.charAt(0).toUpperCase()}</span>
                       </div>
                     )}
-                    {/* FREE pill */}
-                    <span className="absolute bottom-1 left-1 px-1.5 py-0.5 text-[8px] font-black rounded bg-green-500 text-white">FREE</span>
+                    {/* GRATIS pill */}
+                    <span className="absolute bottom-1 left-1 px-1.5 py-0.5 text-[8px] font-black rounded bg-green-500 text-white">GRATIS</span>
                   </div>
                   <p className="mt-1.5 text-xs font-medium text-foreground line-clamp-1 leading-snug group-hover:text-primary transition-colors">
                     {app.title}
@@ -204,8 +204,8 @@ export default async function HomePage() {
                           <span className="text-2xl font-bold text-primary/60">{app.title.charAt(0).toUpperCase()}</span>
                         </div>
                       )}
-                      {/* FREE pill */}
-                      <span className="absolute bottom-1 left-1 px-1.5 py-0.5 text-[8px] font-black rounded bg-green-500 text-white">FREE</span>
+                      {/* GRATIS pill */}
+                      <span className="absolute bottom-1 left-1 px-1.5 py-0.5 text-[8px] font-black rounded bg-green-500 text-white">GRATIS</span>
                     </div>
                     <p className="mt-1.5 text-xs font-medium text-foreground line-clamp-1 leading-snug group-hover:text-primary transition-colors">
                       {app.title}
