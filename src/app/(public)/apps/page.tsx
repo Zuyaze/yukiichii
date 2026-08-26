@@ -111,7 +111,6 @@ export default async function AppsPage({ searchParams }: AppsPageProps) {
                   : 'bg-background text-muted-foreground border-border hover:border-primary/50 hover:text-foreground'
               )}
             >
-              {cat.icon && <span className="mr-1">{cat.icon}</span>}
               {cat.name}
             </Link>
           ))}

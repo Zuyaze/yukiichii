@@ -183,7 +183,6 @@ export default async function HomePage() {
         <section key={section.id} className="py-8 border-t border-border first:border-t-0">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <h2 className="text-xl sm:text-2xl font-bold text-foreground flex items-center gap-2 mb-4">
-              {section.icon && <span>{section.icon}</span>}
               {section.name}
             </h2>
 
