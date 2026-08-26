@@ -23,10 +23,19 @@ export default async function AppsListPage({ searchParams }: AppsListPageProps) 
   const query = params.q || ''
   const categoryFilter = params.category || ''
   const sortBy = params.sort || 'newest'
-  const page = Math.max(1, parseInt(params.page || '1'))
+  const page = Math.max(1, parseInt(params.page || '1') || 1)
   const perPage = 20
 
-  const [allApps, categories] = await Promise.all([getApps({ limit: 10000 }), getCategories()])
+  let allApps: any[] = []
+  let categories: any[] = []
+
+  try {
+    ;[allApps, categories] = await Promise.all([getApps({ limit: 10000 }), getCategories()])
+  } catch (error) {
+    console.error('Database error:', error)
+    allApps = []
+    categories = []
+  }
 
   // Filter
   let filtered = allApps
