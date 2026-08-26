@@ -61,6 +61,8 @@ export function AdminShell({ email, children }: AdminShellProps) {
             <Link href="/dashboard" className="flex items-center">
               <span className="text-xl font-bold text-primary">Yukii</span>
               <span className="text-xl font-bold text-foreground">Chii</span>
+              <span className="mx-1.5 text-sm font-light text-muted-foreground/60">×</span>
+              <span className="text-lg font-bold text-emerald-500">Zuyaze</span>
             </Link>
             <button
               className="lg:hidden p-2 rounded-lg hover:bg-muted"

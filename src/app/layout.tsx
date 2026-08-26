@@ -15,34 +15,34 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: 'YukiiChii - Kumpulan Aplikasi & Tools',
-    template: '%s | YukiiChii',
+    default: 'YukiiChii × Zuyaze — Mod Apk & Loader Gratis',
+    template: '%s | YukiiChii × Zuyaze',
   },
   description: 'Kumpulan Mod Apk & Loader gratis terbaru. Game dan aplikasi mod premium siap download — cepat, aman, tanpa ribet.',
   keywords: ['mod apk', 'apk mod', 'mod game', 'loader', 'download mod', 'premium unlock', 'mod android'],
-  authors: [{ name: 'YukiiChii' }],
-  creator: 'YukiiChii',
-  publisher: 'YukiiChii',
+  authors: [{ name: 'YukiiChii x Zuyaze' }],
+  creator: 'YukiiChii x Zuyaze',
+  publisher: 'YukiiChii x Zuyaze',
   robots: 'index, follow',
   openGraph: {
     type: 'website',
     locale: 'id_ID',
     url: 'https://yukiichii.netlify.app',
-    siteName: 'YukiiChii',
-    title: 'YukiiChii - Kumpulan Mod Apk & Loader',
+    siteName: 'YukiiChii × Zuyaze',
+    title: 'YukiiChii × Zuyaze — Mod Apk & Loader Gratis',
     description: 'Kumpulan Mod Apk & Loader gratis terbaru.',
     images: [
       {
         url: '/og-image.svg',
         width: 1200,
         height: 630,
-        alt: 'YukiiChii',
+        alt: 'YukiiChii × Zuyaze',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'YukiiChii',
+    title: 'YukiiChii × Zuyaze',
     description: 'Kumpulan Mod Apk & Loader gratis terbaru.',
     images: ['/og-image.svg'],
   },

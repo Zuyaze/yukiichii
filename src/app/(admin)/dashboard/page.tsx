@@ -28,7 +28,7 @@ export default async function DashboardPage() {
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Dashboard</h1>
-          <p className="text-muted-foreground mt-1">Kelola aplikasi dan kategori YukiiChii</p>
+          <p className="text-muted-foreground mt-1">Kelola aplikasi dan kategori YukiiChii × Zuyaze</p>
         </div>
         <Link href="/dashboard/apps/new">
           <Button className="gap-2 w-full sm:w-auto">

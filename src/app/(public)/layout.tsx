@@ -46,6 +46,8 @@ export default function PublicLayout({ children }: { children: ReactNode }) {
           <Link href="/" className="flex items-center" aria-label="YukiiChii Home">
             <span className="text-xl font-bold text-primary">Yukii</span>
             <span className="text-xl font-bold text-foreground">Chii</span>
+            <span className="mx-1.5 text-sm font-light text-muted-foreground/60">×</span>
+            <span className="text-lg font-bold text-emerald-500">Zuyaze</span>
           </Link>
 
           {/* Desktop nav */}
@@ -139,6 +141,8 @@ export default function PublicLayout({ children }: { children: ReactNode }) {
             <div className="flex items-center">
               <span className="text-lg font-bold text-primary">Yukii</span>
               <span className="text-lg font-bold text-foreground">Chii</span>
+              <span className="mx-1 text-sm font-light text-muted-foreground/60">×</span>
+              <span className="text-lg font-bold text-emerald-500">Zuyaze</span>
             </div>
             <p className="text-sm text-muted-foreground text-center sm:text-left">
               &copy; {new Date().getFullYear()} YukiiChii. All rights reserved.
