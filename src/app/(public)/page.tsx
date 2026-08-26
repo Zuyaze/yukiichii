@@ -121,7 +121,6 @@ export default async function HomePage() {
 
           {recentCards.length > 0 ? (
             <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-thin">
-              {/* App tiles */}
               {recentCards.map(app => (
                 <Link
                   key={app.slug}
@@ -142,24 +141,30 @@ export default async function HomePage() {
                         <span className="text-2xl font-bold text-primary/60">{app.title.charAt(0).toUpperCase()}</span>
                       </div>
                     )}
+                    {/* Category badge */}
+                    {app.category_name && (
+                      <span
+                        className="absolute top-1 left-1 px-1.5 py-0.5 text-[8px] font-bold rounded-md"
+                        style={{ backgroundColor: `${app.category_color}E6`, color: '#fff' }}
+                      >
+                        {app.category_name}
+                      </span>
+                    )}
                     {/* GRATIS pill */}
                     <span className="absolute bottom-1 left-1 px-1.5 py-0.5 text-[8px] font-black rounded bg-green-500 text-white">GRATIS</span>
                   </div>
                   <p className="mt-1.5 text-xs font-medium text-foreground line-clamp-1 leading-snug group-hover:text-primary transition-colors">
                     {app.title}
                   </p>
-                  {app.category_name && (
-                    <p className="text-[10px] text-muted-foreground">{app.category_name}</p>
-                  )}
                 </Link>
               ))}
 
               {/* Lihat Semua tile */}
               <Link
                 href="/apps"
-                className="group flex-shrink-0 w-28 flex flex-col"
+                className="flex-shrink-0 w-28 flex flex-col"
               >
-                <div className="relative aspect-square rounded-xl overflow-hidden bg-primary/5 border-2 border-dashed border-primary/30 group-hover:border-primary group-hover:bg-primary/10 transition-all flex items-center justify-center">
+                <div className="relative aspect-square rounded-xl overflow-hidden bg-primary/5 border-2 border-dashed border-primary/30 hover:border-primary hover:bg-primary/10 transition-all flex items-center justify-center">
                   <span className="flex flex-col items-center gap-1 text-primary">
                     <ArrowRight className="w-6 h-6 group-hover:translate-x-1 transition-transform" />
                     <span className="text-[10px] font-bold">Lihat Semua</span>
@@ -204,6 +209,13 @@ export default async function HomePage() {
                           <span className="text-2xl font-bold text-primary/60">{app.title.charAt(0).toUpperCase()}</span>
                         </div>
                       )}
+                      {/* Category badge */}
+                      <span
+                        className="absolute top-1 left-1 px-1.5 py-0.5 text-[8px] font-bold rounded-md"
+                        style={{ backgroundColor: `${section.color}E6`, color: '#fff' }}
+                      >
+                        {section.name}
+                      </span>
                       {/* GRATIS pill */}
                       <span className="absolute bottom-1 left-1 px-1.5 py-0.5 text-[8px] font-black rounded bg-green-500 text-white">GRATIS</span>
                     </div>
