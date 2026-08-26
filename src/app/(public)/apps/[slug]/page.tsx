@@ -43,7 +43,7 @@ export default async function AppDetailPage({ params }: AppDetailPageProps) {
             className="inline-flex items-center gap-1.5 px-3 py-2 -ml-3 text-sm font-medium text-muted-foreground hover:text-primary rounded-lg hover:bg-muted transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
-            Kembali ke Aplikasi
+            Kembali
           </Link>
       </div>
 

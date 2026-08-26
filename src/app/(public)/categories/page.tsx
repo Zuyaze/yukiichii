@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { getCategories } from '@/lib/db/queries'
 import { Smartphone, Monitor, Gamepad2, FileCode, Download } from 'lucide-react'
 import { unstable_noStore } from 'next/cache'
+import { BackButton } from '@/components/back-button'
 
 export const metadata: Metadata = {
   title: 'Kategori',
@@ -37,6 +38,9 @@ export default async function CategoriesPage() {
     <div className="min-h-screen">
       <div className="bg-muted/30 py-8 sm:py-12">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="mb-3">
+            <BackButton label="Kembali" />
+          </div>
           <h1 className="text-3xl font-bold text-foreground sm:text-4xl">Kategori</h1>
           <p className="text-muted-foreground mt-2">Temukan aplikasi berdasarkan kategori favoritmu</p>
         </div>
