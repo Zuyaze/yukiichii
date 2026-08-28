@@ -27,7 +27,8 @@ export function HeroCarousel({
   showDots = true,
   pauseOnHover = true,
 }: HeroCarouselProps) {
-  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, align: 'center' })
+  const shouldLoop = images.length > 2
+  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: shouldLoop, align: 'start' })
   const [selectedIndex, setSelectedIndex] = useState(0)
   const [scrollSnaps, setScrollSnaps] = useState<number[]>([])
   const [isPlaying, setIsPlaying] = useState(true)
