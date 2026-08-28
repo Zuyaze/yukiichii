@@ -238,7 +238,11 @@ export function AppGroupsClient({ initialGroups }: AppGroupsClientProps) {
           </TableHeader>
           <TableBody>
             {groups.map(group => (
-              <TableRow key={group.id}>
+              <TableRow 
+                key={group.id}
+                onClick={() => router.push(`/dashboard/app-groups/${group.id}`)}
+                className="cursor-pointer hover:bg-muted/50 transition-colors"
+              >
                 <TableCell>
                   <div className="relative w-10 h-10 rounded-lg overflow-hidden bg-muted border border-border">
                     {group.logo_url ? (
