@@ -58,11 +58,6 @@ export function HeroGalleryClient({ initialImages }: HeroGalleryClientProps) {
   const currentImage = images[0] || null
 
   const handleOpen = (image?: HeroImage) => {
-    // Cleanup previous blob URL if any
-    if (formData.image_url.startsWith('blob:')) {
-      URL.revokeObjectURL(formData.image_url)
-    }
-    
     if (image) {
       setEditing(image)
       setFormData({
@@ -93,10 +88,6 @@ export function HeroGalleryClient({ initialImages }: HeroGalleryClientProps) {
   }
 
   const handleClose = () => {
-    // Cleanup blob URL if exists
-    if (formData.image_url.startsWith('blob:')) {
-      URL.revokeObjectURL(formData.image_url)
-    }
     setOpen(false)
     setEditing(null)
     setError('')
@@ -129,19 +120,11 @@ export function HeroGalleryClient({ initialImages }: HeroGalleryClientProps) {
       return
     }
 
-    // Show local preview immediately
-    const localUrl = URL.createObjectURL(file)
-    setFormData(prev => ({ ...prev, image_url: localUrl }))
-
     setUploading(true)
     setError('')
 
     try {
       const url = await uploadToCloudinary(file)
-      // Cleanup local URL after successful upload
-      if (formData.image_url.startsWith('blob:')) {
-        URL.revokeObjectURL(formData.image_url)
-      }
       setFormData(prev => ({ ...prev, image_url: url }))
     } catch (err) {
       setError('Gagal upload gambar: ' + (err as Error).message)
@@ -205,6 +188,10 @@ export function HeroGalleryClient({ initialImages }: HeroGalleryClientProps) {
     } catch (error) {
       alert('Gagal menghapus gambar')
     }
+  }
+
+  const handleRemoveImage = () => {
+    setFormData(prev => ({ ...prev, image_url: '' }))
   }
 
   return (
@@ -276,7 +263,7 @@ export function HeroGalleryClient({ initialImages }: HeroGalleryClientProps) {
         </CardContent>
       </Card>
 
-      {/* Edit/Add Dialog */}
+      {/* Edit/Add Dialog - EXACTLY like Logo Aplikasi in admin-form.tsx */}
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-w-md">
           <form onSubmit={handleSubmit}>
@@ -294,6 +281,7 @@ export function HeroGalleryClient({ initialImages }: HeroGalleryClientProps) {
               <div className="space-y-2">
                 <Label>Gambar *</Label>
                 <div className="flex items-start gap-4">
+                  {/* Preview / placeholder - EXACTLY like Logo Aplikasi */}
                   <div className="relative w-32 h-18 flex-shrink-0 rounded-lg overflow-hidden border-2 border-dashed border-border bg-muted/50">
                     {formData.image_url ? (
                       <>
@@ -304,12 +292,7 @@ export function HeroGalleryClient({ initialImages }: HeroGalleryClientProps) {
                         />
                         <button
                           type="button"
-                          onClick={() => {
-                            if (formData.image_url.startsWith('blob:')) {
-                              URL.revokeObjectURL(formData.image_url)
-                            }
-                            setFormData(prev => ({ ...prev, image_url: '' }))
-                          }}
+                          onClick={handleRemoveImage}
                           className="absolute top-1 right-1 w-6 h-6 rounded-full bg-destructive text-white flex items-center justify-center hover:bg-destructive/80"
                         >
                           <Trash2 className="w-3 h-3" />
@@ -328,11 +311,31 @@ export function HeroGalleryClient({ initialImages }: HeroGalleryClientProps) {
                     )}
                   </div>
 
+                  {/* Upload button - EXACTLY like Logo Aplikasi */}
                   <div className="flex-1">
                     <input
                       type="file"
                       accept="image/jpeg,image/png,image/webp,image/avif"
-                      onChange={e => e.target.files?.[0] && handleFileUpload(e.target.files[0])}
+                      onChange={async e => {
+                        const file = e.target.files?.[0]
+                        if (!file) return
+                        const validation = validateImageFile(file)
+                        if (!validation.valid) {
+                          alert(validation.error)
+                          return
+                        }
+                        setUploading(true)
+                        setError('')
+                        try {
+                          const url = await uploadToCloudinary(file)
+                          setFormData(prev => ({ ...prev, image_url: url }))
+                        } catch (err) {
+                          setError('Gagal upload gambar: ' + (err as Error).message)
+                        } finally {
+                          setUploading(false)
+                          e.target.value = ''
+                        }
+                      }}
                       className="hidden"
                       id="hero-image-upload"
                     />
