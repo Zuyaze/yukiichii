@@ -31,6 +31,7 @@ export default async function HomePage() {
     categories = catsData
     recentApps = appsData
     heroImages = heroData
+    console.log('[HomePage] Hero images from DB:', heroImages.map(i => ({ id: i.id, is_active: i.is_active, url: i.image_url?.substring(0, 60) })))
   } catch (error) {
     console.error('Database error:', error)
     dbError = error as Error

@@ -27,11 +27,16 @@ export function HeroCarousel({
   showDots = true,
   pauseOnHover = true,
 }: HeroCarouselProps) {
+  console.log('[HeroCarousel] Received images:', images.length, images.map(i => ({ id: i.id, url: i.image_url?.substring(0, 60) })))
   const shouldLoop = images.length > 2
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: shouldLoop, align: 'start' })
   const [selectedIndex, setSelectedIndex] = useState(0)
   const [scrollSnaps, setScrollSnaps] = useState<number[]>([])
   const [isPlaying, setIsPlaying] = useState(true)
+
+  useEffect(() => {
+    console.log('[HeroCarousel] scrollSnaps:', scrollSnaps, 'selectedIndex:', selectedIndex, 'emblaApi:', !!emblaApi)
+  }, [scrollSnaps, selectedIndex, emblaApi])
 
   const scrollPrev = useCallback(() => {
     if (emblaApi) emblaApi.scrollPrev()
