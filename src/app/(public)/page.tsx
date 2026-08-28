@@ -1,6 +1,6 @@
 import { Metadata } from 'next'
 import Link from 'next/link'
-import { getApps, getCategories } from '@/lib/db/queries'
+import { getApps, getCategories, getHeroImages } from '@/lib/db/queries'
 import { Button } from '@/components/ui/button'
 import { ArrowRight, Download, AlertCircle } from 'lucide-react'
 import { unstable_noStore } from 'next/cache'
@@ -18,20 +18,24 @@ export default async function HomePage() {
 
   let categories: any[] = []
   let recentApps: any[] = []
+  let heroImages: any[] = []
   let dbError: Error | null = null
 
   try {
-    const [catsData, appsData] = await Promise.all([
+    const [catsData, appsData, heroData] = await Promise.all([
       getCategories(),
       getApps({ limit: 10 }),
+      getHeroImages(),
     ])
     categories = catsData
     recentApps = appsData
+    heroImages = heroData
   } catch (error) {
     console.error('Database error:', error)
     dbError = error as Error
     categories = []
     recentApps = []
+    heroImages = []
   }
 
   // Fetch apps per category (max 10 each)
@@ -84,32 +88,80 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Hero Section */}
+      {/* Hero Section - Dynamic Gallery */}
       <section className="relative overflow-hidden py-16 sm:py-20 lg:py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
+          <div className="text-center mb-10">
             <h1 className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl md:text-6xl lg:text-7xl">
               <span className="text-primary">Yukii</span>Chii
               <span className="mx-2 text-lg font-light text-muted-foreground/60 align-middle">×</span>
               <span className="text-foreground">Zuyaze</span>
             </h1>
-            <p className="mt-6 text-lg text-muted-foreground sm:text-xl max-w-3xl mx-auto">
-              Kumpulan Mod Apk & Loader gratis terbaru.
-              Game dan aplikasi mod premium, langsung download tanpa ribet.
-            </p>
-            <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Link href="/apps">
-                <Button size="lg" className="w-full sm:w-auto gap-2">
-                  <Download className="w-5 h-5" />
-                  Jelajahi Aplikasi
-                </Button>
-              </Link>
-              <Link href="/categories">
-                <Button size="lg" variant="outline" className="w-full sm:w-auto">
-                  Lihat Kategori
-                </Button>
-              </Link>
+          </div>
+
+          {/* Hero Gallery Grid */}
+          {heroImages.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+              {heroImages.map((image, index) => (
+                <Link
+                  key={image.id}
+                  href="/apps"
+                  className="group block relative aspect-video rounded-2xl overflow-hidden bg-muted ring-1 ring-border hover:ring-primary/50 transition-all"
+                >
+                  <img
+                    src={image.image_url}
+                    alt={image.alt_text || `Hero ${index + 1}`}
+                    loading={index < 4 ? 'eager' : 'lazy'}
+                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
+                    <div className="w-full text-white">
+                      {image.alt_text && (
+                        <p className="text-sm sm:text-base font-medium mb-1">{image.alt_text}</p>
+                      )}
+                      <p className="text-xs sm:text-sm text-white/80">Jelajahi aplikasi →</p>
+                    </div>
+                  </div>
+                </Link>
+              ))}
             </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+              {/* Fallback placeholder images from public/hero/ */}
+              {[1, 2, 3, 4].map(i => (
+                <Link
+                  key={i}
+                  href="/apps"
+                  className="group block relative aspect-video rounded-2xl overflow-hidden ring-1 ring-border hover:ring-primary/50 transition-all"
+                >
+                  <img
+                    src={`/hero/hero-${i}.svg`}
+                    alt={`Hero Gallery Demo ${i}`}
+                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
+                    <div className="w-full text-white text-center">
+                      <p className="text-xs sm:text-sm text-white/80">Jelajahi aplikasi →</p>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
+
+          {/* CTA Buttons */}
+          <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
+            <Link href="/apps">
+              <Button size="lg" className="w-full sm:w-auto gap-2">
+                <Download className="w-5 h-5" />
+                Jelajahi Aplikasi
+              </Button>
+            </Link>
+            <Link href="/categories">
+              <Button size="lg" variant="outline" className="w-full sm:w-auto">
+                Lihat Kategori
+              </Button>
+            </Link>
           </div>
         </div>
       </section>

@@ -83,9 +83,27 @@ const SCHEMA_STATEMENTS = [
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
   )`,
+  `CREATE TABLE IF NOT EXISTS hero_images (
+    id SERIAL PRIMARY KEY,
+    image_url TEXT NOT NULL,
+    alt_text TEXT,
+    sort_order INTEGER DEFAULT 0,
+    is_active BOOLEAN DEFAULT true,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  )`,
   // Migration for existing databases
   `ALTER TABLE apps ADD COLUMN IF NOT EXISTS screenshots JSONB NOT NULL DEFAULT '[]'::jsonb`,
   `ALTER TABLE apps ADD COLUMN IF NOT EXISTS icon_url TEXT`,
+  `CREATE TABLE IF NOT EXISTS hero_images (
+    id SERIAL PRIMARY KEY,
+    image_url TEXT NOT NULL,
+    alt_text TEXT,
+    sort_order INTEGER DEFAULT 0,
+    is_active BOOLEAN DEFAULT true,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  )`,
   `CREATE TABLE IF NOT EXISTS app_tags (
     app_id INTEGER NOT NULL REFERENCES apps(id) ON DELETE CASCADE,
     tag_id INTEGER NOT NULL REFERENCES tags(id) ON DELETE CASCADE,
@@ -171,6 +189,16 @@ export type Tag = {
   slug: string
   color: string
   created_at: string
+}
+
+export type HeroImage = {
+  id: number
+  image_url: string
+  alt_text: string | null
+  sort_order: number
+  is_active: boolean
+  created_at: string
+  updated_at: string
 }
 
 export type Admin = {

@@ -1,5 +1,5 @@
 import { getDb } from './index'
-import type { App, Category, Tag, Admin, Click } from './index'
+import type { App, Category, Tag, Admin, Click, HeroImage } from './index'
 
 export async function getApps(options?: {
   category?: string
@@ -321,4 +321,84 @@ export async function getAppById(
   })
 
   return { ...app, tags: tagsResult.rows as unknown as Tag[] }
+}
+
+export async function getHeroImages(): Promise<HeroImage[]> {
+  const result = await getDb().execute({
+    sql: 'SELECT * FROM hero_images WHERE is_active = true ORDER BY sort_order ASC, created_at ASC',
+  })
+  return result.rows as unknown as HeroImage[]
+}
+
+export async function getAllHeroImages(): Promise<HeroImage[]> {
+  const result = await getDb().execute({
+    sql: 'SELECT * FROM hero_images ORDER BY sort_order ASC, created_at ASC',
+  })
+  return result.rows as unknown as HeroImage[]
+}
+
+export async function getHeroImageById(id: number): Promise<HeroImage | null> {
+  const result = await getDb().execute({
+    sql: 'SELECT * FROM hero_images WHERE id = ?',
+    args: [id],
+  })
+  return (result.rows[0] as unknown as HeroImage) || null
+}
+
+export async function createHeroImage(data: {
+  image_url: string
+  alt_text: string | null
+  sort_order: number
+  is_active: boolean
+}): Promise<number> {
+  const result = await getDb().execute({
+    sql: 'INSERT INTO hero_images (image_url, alt_text, sort_order, is_active) VALUES (?, ?, ?, ?) RETURNING id',
+    args: [data.image_url, data.alt_text, data.sort_order, data.is_active],
+  })
+  return (result.rows[0] as any).id as number
+}
+
+export async function updateHeroImage(
+  id: number,
+  data: {
+    image_url?: string
+    alt_text?: string | null
+    sort_order?: number
+    is_active?: boolean
+  }
+): Promise<void> {
+  const db = getDb()
+  const updates: string[] = []
+  const args: any[] = []
+
+  if (data.image_url !== undefined) {
+    updates.push('image_url = ?')
+    args.push(data.image_url)
+  }
+  if (data.alt_text !== undefined) {
+    updates.push('alt_text = ?')
+    args.push(data.alt_text)
+  }
+  if (data.sort_order !== undefined) {
+    updates.push('sort_order = ?')
+    args.push(data.sort_order)
+  }
+  if (data.is_active !== undefined) {
+    updates.push('is_active = ?')
+    args.push(data.is_active)
+  }
+
+  if (updates.length === 0) return
+
+  updates.push('updated_at = CURRENT_TIMESTAMP')
+  args.push(id)
+
+  await db.execute({
+    sql: `UPDATE hero_images SET ${updates.join(', ')} WHERE id = ?`,
+    args,
+  })
+}
+
+export async function deleteHeroImage(id: number): Promise<void> {
+  await getDb().execute({ sql: 'DELETE FROM hero_images WHERE id = ?', args: [id] })
 }
