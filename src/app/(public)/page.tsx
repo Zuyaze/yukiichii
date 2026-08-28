@@ -1,6 +1,6 @@
 import { Metadata } from 'next'
 import Link from 'next/link'
-import { getApps, getCategories, getHeroImages } from '@/lib/db/queries'
+import { getApps, getCategories, getHeroImages, getAppGroups } from '@/lib/db/queries'
 import { Button } from '@/components/ui/button'
 import { ArrowRight, Download, AlertCircle } from 'lucide-react'
 import { unstable_noStore } from 'next/cache'
@@ -20,17 +20,20 @@ export default async function HomePage() {
   let categories: any[] = []
   let recentApps: any[] = []
   let heroImages: any[] = []
+  let appGroups: any[] = []
   let dbError: Error | null = null
 
   try {
-    const [catsData, appsData, heroData] = await Promise.all([
+    const [catsData, appsData, heroData, groupsData] = await Promise.all([
       getCategories(),
       getApps({ limit: 10 }),
       getHeroImages(),
+      getAppGroups(),
     ])
     categories = catsData
     recentApps = appsData
     heroImages = heroData
+    appGroups = groupsData
     console.log('[HomePage] Hero images from DB:', heroImages.map(i => ({ id: i.id, is_active: i.is_active, url: i.image_url?.substring(0, 60) })))
   } catch (error) {
     console.error('Database error:', error)
@@ -38,6 +41,7 @@ export default async function HomePage() {
     categories = []
     recentApps = []
     heroImages = []
+    appGroups = []
   }
 
   // Fetch apps per category (max 10 each)
@@ -122,6 +126,45 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* ===== Group Aplikasi (Populer) ===== */}
+      {appGroups.length > 0 && (
+        <section className="py-8 border-t border-border">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <h2 className="text-2xl sm:text-3xl font-bold text-center text-foreground mb-8">Populer</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {appGroups.map(group => (
+                <Link
+                  key={group.id}
+                  href={`/groups/${group.slug}`}
+                  className="group flex flex-col items-center p-6 rounded-2xl border border-border bg-background hover:border-primary/50 hover:bg-primary/5 transition-all"
+                >
+                  <div className="relative w-24 h-24 rounded-xl overflow-hidden mb-4 bg-muted transition-transform group-hover:scale-105">
+                    {group.logo_url ? (
+                      <img
+                        src={group.logo_url}
+                        alt={group.title}
+                        className="absolute inset-0 w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="flex items-center justify-center h-full bg-gradient-to-br from-primary/10 to-primary/5">
+                        <span className="text-3xl font-bold text-primary/60">{group.title.charAt(0).toUpperCase()}</span>
+                      </div>
+                    )}
+                  </div>
+                  <h3 className="text-lg font-bold text-foreground group-hover:text-primary transition-colors text-center mb-1">{group.title}</h3>
+                  {group.description && (
+                    <p className="text-sm text-muted-foreground text-center mb-2 line-clamp-2">{group.description}</p>
+                  )}
+                  <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary">
+                    Lihat aplikasi
+                  </span>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* ===== Aplikasi Terbaru ===== */}
       <section className="py-8 border-t border-border">
