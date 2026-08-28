@@ -6,6 +6,7 @@ import { ArrowRight, Download, AlertCircle } from 'lucide-react'
 import { unstable_noStore } from 'next/cache'
 import { SearchBar } from '@/components/search-bar'
 import { HeroSingle } from '@/components/hero-single'
+import { AppCard } from '@/components/app-card'
 
 export const metadata: Metadata = {
   title: 'Kumpulan Mod Apk & Loader Gratis',
@@ -181,41 +182,16 @@ export default async function HomePage() {
           {recentCards.length > 0 ? (
             <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-thin">
               {recentCards.map(app => (
-                <Link
+                <AppCard
                   key={app.slug}
-                  href={`/apps/${app.slug}`}
-                  className="group block flex-shrink-0 w-28"
-                >
-                  <div className="relative aspect-square rounded-xl overflow-hidden bg-muted">
-                    {(app.icon_url || app.screenshot_url) ? (
-                      /* eslint-disable-next-line @next/next/no-img-element */
-                      <img
-                        src={app.icon_url || app.screenshot_url}
-                        alt={app.title}
-                        loading="lazy"
-                        className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
-                      />
-                    ) : (
-                      <div className="flex items-center justify-center h-full bg-gradient-to-br from-primary/15 to-primary/5">
-                        <span className="text-2xl font-bold text-primary/60">{app.title.charAt(0).toUpperCase()}</span>
-                      </div>
-                    )}
-                    {/* Category badge */}
-                    {app.category_name && (
-                      <span
-                        className="absolute top-1 left-1 px-1.5 py-0.5 text-[8px] font-bold rounded-md"
-                        style={{ backgroundColor: `${app.category_color}E6`, color: '#fff' }}
-                      >
-                        {app.category_name}
-                      </span>
-                    )}
-                    {/* GRATIS pill */}
-                    <span className="absolute bottom-1 left-1 px-1.5 py-0.5 text-[8px] font-black rounded bg-green-500 text-white">GRATIS</span>
-                  </div>
-                  <p className="mt-1.5 text-xs font-medium text-foreground line-clamp-2 leading-snug group-hover:text-primary transition-colors">
-                    {app.title}
-                  </p>
-                </Link>
+                  slug={app.slug}
+                  title={app.title}
+                  icon_url={app.icon_url}
+                  screenshot_url={app.screenshot_url}
+                  category_name={app.category_name}
+                  category_color={app.category_color}
+                  variant="horizontal"
+                />
               ))}
 
               {/* Lihat Semua tile */}
@@ -248,39 +224,16 @@ export default async function HomePage() {
             {section.apps.length > 0 ? (
               <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-thin">
                 {section.apps.map(app => (
-                  <Link
+                  <AppCard
                     key={app.slug}
-                    href={`/apps/${app.slug}`}
-                    className="group block flex-shrink-0 w-28"
-                  >
-                    <div className="relative aspect-square rounded-xl overflow-hidden bg-muted">
-                      {(app.icon_url || app.screenshot_url) ? (
-                        /* eslint-disable-next-line @next/next/no-img-element */
-                        <img
-                          src={app.icon_url || app.screenshot_url}
-                          alt={app.title}
-                          loading="lazy"
-                          className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
-                        />
-                      ) : (
-                        <div className="flex items-center justify-center h-full bg-gradient-to-br from-primary/15 to-primary/5">
-                          <span className="text-2xl font-bold text-primary/60">{app.title.charAt(0).toUpperCase()}</span>
-                        </div>
-                      )}
-                      {/* Category badge */}
-                      <span
-                        className="absolute top-1 left-1 px-1.5 py-0.5 text-[8px] font-bold rounded-md"
-                        style={{ backgroundColor: `${section.color}E6`, color: '#fff' }}
-                      >
-                        {section.name}
-                      </span>
-                      {/* GRATIS pill */}
-                      <span className="absolute bottom-1 left-1 px-1.5 py-0.5 text-[8px] font-black rounded bg-green-500 text-white">GRATIS</span>
-                    </div>
-                    <p className="mt-1.5 text-xs font-medium text-foreground line-clamp-2 leading-snug group-hover:text-primary transition-colors">
-                      {app.title}
-                    </p>
-                  </Link>
+                    slug={app.slug}
+                    title={app.title}
+                    icon_url={app.icon_url}
+                    screenshot_url={app.screenshot_url}
+                    category_name={section.name}
+                    category_color={section.color}
+                    variant="horizontal"
+                  />
                 ))}
 
                 {/* Lihat Semua tile at end */}
