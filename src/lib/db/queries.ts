@@ -550,7 +550,16 @@ export async function getGroupApps(groupId: number): Promise<(App & { group_sort
   return result.rows as unknown as (App & { group_sort_order: number; category_name: string | null; category_color: string | null })[]
 }
 
-export async function addAppToGroup(groupId: number, appId: number, sortOrder: number = 0): Promise<number> {
+export async function addAppToGroup(groupId: number, appId: number, sortOrder?: number): Promise<number> {
+  if (sortOrder === undefined) {
+    // Auto-assign next sort order
+    const result = await getDb().execute({
+      sql: 'SELECT COALESCE(MAX(sort_order), -1) + 1 as next_order FROM app_group_items WHERE group_id = ?',
+      args: [groupId],
+    })
+    sortOrder = (result.rows[0] as any)?.next_order ?? 0
+  }
+
   const result = await getDb().execute({
     sql: 'INSERT INTO app_group_items (group_id, app_id, sort_order) VALUES (?, ?, ?) ON CONFLICT (group_id, app_id) DO NOTHING RETURNING id',
     args: [groupId, appId, sortOrder],
