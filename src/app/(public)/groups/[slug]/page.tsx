@@ -66,7 +66,7 @@ export default async function GroupPage({ params }: GroupPageProps) {
       {/* Apps Grid - Vertical scroll grid */}
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         {group.apps.length > 0 ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4 lg:gap-5">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4 lg:gap-5 justify-items-center">
             {group.apps.map(app => (
               <AppCard
                 key={app.slug}
