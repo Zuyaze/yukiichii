@@ -612,7 +612,9 @@ export async function isAppInGroup(groupId: number, appId: number): Promise<bool
 
 export async function getAppsNotInGroup(groupId: number, search?: string): Promise<App[]> {
   let sql = `
-    SELECT a.* FROM apps a
+    SELECT a.*, c.name as category_name, c.color as category_color
+    FROM apps a
+    LEFT JOIN categories c ON a.category_id = c.id
     WHERE a.id NOT IN (SELECT app_id FROM app_group_items WHERE group_id = ?)
   `
   const args: any[] = [groupId]
