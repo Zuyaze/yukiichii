@@ -44,8 +44,8 @@ export default async function GroupPage({ params }: GroupPageProps) {
             Kembali
           </Link>
 
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
-            <div className="relative w-24 h-24 flex-shrink-0 rounded-xl overflow-hidden bg-muted border border-border">
+          <div className="flex flex-col items-center text-center gap-4">
+            <div className="relative w-24 h-24 flex-shrink-0 rounded-xl overflow-hidden bg-muted border border-border mx-auto">
               {group.logo_url ? (
                 <img src={group.logo_url} alt={group.title} className="absolute inset-0 w-full h-full object-cover" />
               ) : (
