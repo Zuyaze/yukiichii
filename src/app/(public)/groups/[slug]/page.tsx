@@ -34,13 +34,13 @@ export default async function GroupPage({ params }: GroupPageProps) {
       <div className="bg-muted/30 py-8 sm:py-12">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <Link
-            href="/groups"
+            href="/"
             className="inline-flex items-center gap-1.5 px-3 py-2 -ml-3 text-sm font-medium text-muted-foreground hover:text-primary rounded-lg hover:bg-muted transition-colors mb-4"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
-            Kembali ke Group
+            Kembali
           </Link>
 
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
