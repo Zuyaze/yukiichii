@@ -133,34 +133,40 @@ export default async function HomePage() {
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <h2 className="text-2xl sm:text-3xl font-bold text-center text-foreground mb-8">Populer</h2>
             <div className="grid grid-cols-2 gap-4 sm:gap-6">
-              {appGroups.map(group => (
-                <Link
-                  key={group.id}
-                  href={`/groups/${String(group.slug)}`}
-                  className="group flex flex-col items-center p-4 rounded-xl border border-border bg-background hover:border-primary/50 hover:bg-primary/5 transition-all"
-                >
-                  <div className="relative w-20 h-20 rounded-xl overflow-hidden mb-3 bg-muted transition-transform group-hover:scale-105">
-                    {group.logo_url ? (
-                      <img
-                        src={group.logo_url}
-                        alt={group.title}
-                        className="absolute inset-0 w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="flex items-center justify-center h-full bg-gradient-to-br from-primary/10 to-primary/5">
-                        <span className="text-2xl font-bold text-primary/60">{String(group.title).charAt(0).toUpperCase()}</span>
-                      </div>
+              {appGroups.map(group => {
+                const title = typeof group.title === 'string' ? group.title : ''
+                const description = typeof group.description === 'string' ? group.description : ''
+                const slug = typeof group.slug === 'string' ? group.slug : ''
+                const logoUrl = typeof group.logo_url === 'string' ? group.logo_url : ''
+                return (
+                  <Link
+                    key={group.id}
+                    href={`/groups/${slug}`}
+                    className="group flex flex-col items-center p-4 rounded-xl border border-border bg-background hover:border-primary/50 hover:bg-primary/5 transition-all"
+                  >
+                    <div className="relative w-20 h-20 rounded-xl overflow-hidden mb-3 bg-muted transition-transform group-hover:scale-105">
+                      {logoUrl ? (
+                        <img
+                          src={logoUrl}
+                          alt={title}
+                          className="absolute inset-0 w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="flex items-center justify-center h-full bg-gradient-to-br from-primary/10 to-primary/5">
+                          <span className="text-2xl font-bold text-primary/60">{title.charAt(0).toUpperCase()}</span>
+                        </div>
+                      )}
+                    </div>
+                    <h3 className="text-base font-bold text-foreground group-hover:text-primary transition-colors text-center mb-1">{title}</h3>
+                    {description && (
+                      <p className="text-xs text-muted-foreground text-center mb-2 line-clamp-2">{description}</p>
                     )}
-                  </div>
-                  <h3 className="text-base font-bold text-foreground group-hover:text-primary transition-colors text-center mb-1">{String(group.title)}</h3>
-                  {group.description && (
-                    <p className="text-xs text-muted-foreground text-center mb-2 line-clamp-2">{String(group.description)}</p>
-                  )}
-                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary">
-                    Lihat selengkapnya
-                  </span>
-                </Link>
-              ))}
+                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary">
+                      Lihat selengkapnya
+                    </span>
+                  </Link>
+                )
+              })}
             </div>
           </div>
         </section>
