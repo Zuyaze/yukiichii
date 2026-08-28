@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -55,7 +55,6 @@ export function HeroGalleryClient({ initialImages }: HeroGalleryClientProps) {
   const [saving, setSaving] = useState(false)
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState('')
-  const [previewKey, setPreviewKey] = useState(0)
 
   const handleOpen = (image?: HeroImage) => {
     if (image) {
@@ -75,19 +74,14 @@ export function HeroGalleryClient({ initialImages }: HeroGalleryClientProps) {
         is_active: true,
       })
     }
-    setPreviewKey(k => k + 1)
     setOpen(true)
     setError('')
   }
 
   const handleClose = () => {
-    if (formData.image_url.startsWith('blob:')) {
-      URL.revokeObjectURL(formData.image_url)
-    }
     setOpen(false)
     setEditing(null)
     setError('')
-    setPreviewKey(k => k + 1)
   }
 
   const uploadToCloudinary = async (file: File): Promise<string> => {
@@ -117,21 +111,12 @@ export function HeroGalleryClient({ initialImages }: HeroGalleryClientProps) {
       return
     }
 
-    if (formData.image_url.startsWith('blob:')) {
-      URL.revokeObjectURL(formData.image_url)
-    }
-
-    const localUrl = URL.createObjectURL(file)
-    setFormData(prev => ({ ...prev, image_url: localUrl }))
-    setPreviewKey(k => k + 1)
-
     setUploading(true)
     setError('')
 
     try {
       const url = await uploadToCloudinary(file)
       setFormData(prev => ({ ...prev, image_url: url }))
-      setPreviewKey(k => k + 1)
     } catch (err) {
       setError('Gagal upload gambar: ' + (err as Error).message)
     } finally {
@@ -308,20 +293,13 @@ export function HeroGalleryClient({ initialImages }: HeroGalleryClientProps) {
                     {formData.image_url ? (
                       <>
                         <img
-                          key={previewKey}
                           src={formData.image_url}
                           alt="Preview"
                           className="absolute inset-0 w-full h-full object-cover"
                         />
                         <button
                           type="button"
-                          onClick={() => {
-                            if (formData.image_url.startsWith('blob:')) {
-                              URL.revokeObjectURL(formData.image_url)
-                            }
-                            setFormData(prev => ({ ...prev, image_url: '' }))
-                            setPreviewKey(k => k + 1)
-                          }}
+                          onClick={() => setFormData(prev => ({ ...prev, image_url: '' }))}
                           className="absolute top-1 right-1 w-6 h-6 rounded-full bg-destructive text-white flex items-center justify-center hover:bg-destructive/80"
                         >
                           <Trash2 className="w-3 h-3" />
