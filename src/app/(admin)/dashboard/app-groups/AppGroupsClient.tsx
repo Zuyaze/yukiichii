@@ -298,7 +298,7 @@ export function AppGroupsClient({ initialGroups }: AppGroupsClientProps) {
       </div>
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-md max-h-[80vh] overflow-y-auto">
           <form onSubmit={handleSubmit}>
             <DialogHeader>
               <DialogTitle>{editing ? 'Edit Group' : 'Tambah Group Baru'}</DialogTitle>
