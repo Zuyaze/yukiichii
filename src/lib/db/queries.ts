@@ -419,12 +419,27 @@ export async function getAllAppGroups(): Promise<AppGroup[]> {
   return result.rows as unknown as AppGroup[]
 }
 
-export async function getAppGroupBySlug(slug: string): Promise<AppGroup | null> {
-  const result = await getDb().execute({
+export async function getAppGroupBySlug(slug: string): Promise<(AppGroup & { apps: (App & { group_sort_order: number })[] }) | null> {
+  const groupResult = await getDb().execute({
     sql: 'SELECT * FROM app_groups WHERE slug = ?',
     args: [slug],
   })
-  return (result.rows[0] as unknown as AppGroup) || null
+  if (groupResult.rows.length === 0) return null
+
+  const group = groupResult.rows[0] as unknown as AppGroup
+
+  const appsResult = await getDb().execute({
+    sql: `
+      SELECT a.*, agi.sort_order as group_sort_order
+      FROM apps a
+      JOIN app_group_items agi ON a.id = agi.app_id
+      WHERE agi.group_id = ?
+      ORDER BY agi.sort_order ASC, a.created_at ASC
+    `,
+    args: [group.id],
+  })
+
+  return { ...group, apps: appsResult.rows as unknown as (App & { group_sort_order: number })[] }
 }
 
 export async function getAppGroupById(id: number): Promise<AppGroup | null> {
