@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useState, useRef } from 'react'
 import useEmblaCarousel from 'embla-carousel-react'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -27,16 +27,13 @@ export function HeroCarousel({
   showDots = true,
   pauseOnHover = true,
 }: HeroCarouselProps) {
-  console.log('[HeroCarousel] Received images:', images.length, images.map(i => ({ id: i.id, url: i.image_url?.substring(0, 60) })))
   const shouldLoop = images.length > 2
-  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: shouldLoop, align: 'start' })
+  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: shouldLoop, align: 'start', slidesToScroll: 1 })
   const [selectedIndex, setSelectedIndex] = useState(0)
   const [scrollSnaps, setScrollSnaps] = useState<number[]>([])
   const [isPlaying, setIsPlaying] = useState(true)
-
-  useEffect(() => {
-    console.log('[HeroCarousel] scrollSnaps changed:', scrollSnaps, 'selectedIndex:', selectedIndex, 'emblaApi exists:', !!emblaApi)
-  }, [scrollSnaps, selectedIndex, emblaApi])
+  const [imagesLoaded, setImagesLoaded] = useState(0)
+  const loadedCountRef = useRef(0)
 
   const scrollPrev = useCallback(() => {
     if (emblaApi) emblaApi.scrollPrev()
@@ -55,17 +52,13 @@ export function HeroCarousel({
 
     const onInit = () => {
       const snaps = emblaApi.scrollSnapList()
-      console.log('[HeroCarousel] onInit - scrollSnapList:', snaps, 'length:', snaps.length)
       setScrollSnaps(snaps)
     }
     const onSelect = () => {
-      const selected = emblaApi.selectedScrollSnap()
-      console.log('[HeroCarousel] onSelect - selectedScrollSnap:', selected)
-      setSelectedIndex(selected)
+      setSelectedIndex(emblaApi.selectedScrollSnap())
     }
     const onReInit = () => {
       const snaps = emblaApi.scrollSnapList()
-      console.log('[HeroCarousel] onReInit - scrollSnapList:', snaps, 'length:', snaps.length)
       setScrollSnaps(snaps)
     }
 
@@ -95,7 +88,7 @@ export function HeroCarousel({
   useEffect(() => {
     if (!pauseOnHover) return
 
-    const container = emblaRef.current?.parentElement
+    const container = emblaRef.current
     if (!container) return
 
     const handleMouseEnter = () => setIsPlaying(false)
@@ -109,6 +102,14 @@ export function HeroCarousel({
       container.removeEventListener('mouseleave', handleMouseLeave)
     }
   }, [emblaRef, pauseOnHover])
+
+  const handleImageLoad = useCallback(() => {
+    loadedCountRef.current += 1
+    setImagesLoaded(loadedCountRef.current)
+    if (loadedCountRef.current === images.length && emblaApi) {
+      emblaApi.reInit()
+    }
+  }, [images.length, emblaApi])
 
   if (images.length === 0) {
     return (
@@ -143,14 +144,13 @@ export function HeroCarousel({
   }
 
   return (
-    <div className="relative" ref={emblaRef}>
-      <div className="overflow-hidden">
-        <div className="flex" style={{ transform: 'translateX(0)' }}>
+    <div className="relative w-full" ref={emblaRef}>
+      <div className="embla__viewport overflow-hidden">
+        <div className="embla__container flex">
           {images.map((image, index) => (
             <div
               key={image.id}
-              className="flex-[0_0_100%] min-w-0"
-              style={{ width: '100%' }}
+              className="embla__slide flex-[0_0_100%] min-w-0 relative aspect-video"
             >
               <Link
                 href="/apps"
@@ -160,6 +160,7 @@ export function HeroCarousel({
                   src={image.image_url}
                   alt={image.alt_text || `Hero ${index + 1}`}
                   loading={index === 0 ? 'eager' : 'lazy'}
+                  onLoad={handleImageLoad}
                   className="absolute inset-0 w-full h-full object-cover"
                 />
               </Link>
