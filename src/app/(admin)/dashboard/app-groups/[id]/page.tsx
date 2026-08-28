@@ -90,7 +90,7 @@ export default function AppGroupDetailPage() {
 
     async function loadAvailable() {
       try {
-        const res = await fetch(`/api/app-groups/${group.id}/apps?search=${encodeURIComponent(searchQuery)}`)
+        const res = await fetch(`/api/app-groups/${group.id}/apps?search=${encodeURIComponent(searchQuery)}&in_group=false`)
         const data = await res.json()
         setAvailableApps(data.apps || [])
       } catch {

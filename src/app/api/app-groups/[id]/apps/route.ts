@@ -1,5 +1,5 @@
 import { auth } from '@/lib/auth'
-import { getGroupApps, addAppToGroup, removeAppFromGroup } from '@/lib/db/queries'
+import { getGroupApps, getAppsNotInGroup, addAppToGroup, removeAppFromGroup } from '@/lib/db/queries'
 
 export async function GET(
   request: Request,
@@ -7,13 +7,21 @@ export async function GET(
 ) {
   const { id } = await params
   const groupId = parseInt(id)
+  const { searchParams } = new URL(request.url)
+  const search = searchParams.get('search') || ''
+  const inGroup = searchParams.get('in_group') === 'true'
 
   if (isNaN(groupId)) {
     return Response.json({ error: 'ID tidak valid' }, { status: 400 })
   }
 
   try {
-    const apps = await getGroupApps(groupId)
+    let apps
+    if (inGroup) {
+      apps = await getGroupApps(groupId)
+    } else {
+      apps = await getAppsNotInGroup(groupId, search || undefined)
+    }
     return Response.json({ apps })
   } catch (error) {
     console.error('Get group apps error:', error)
