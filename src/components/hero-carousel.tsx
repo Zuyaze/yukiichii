@@ -1,9 +1,9 @@
 'use client'
 
 import Link from 'next/link'
-import { useCallback, useEffect, useState, useRef } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import useEmblaCarousel from 'embla-carousel-react'
-import { ChevronLeft, ChevronRight, Plus } from 'lucide-react'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 interface HeroImage {
@@ -28,11 +28,17 @@ export function HeroCarousel({
   pauseOnHover = true,
 }: HeroCarouselProps) {
   const shouldLoop = images.length > 2
-  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: shouldLoop, align: 'center', slidesToScroll: 1 })
+  const [emblaRef, emblaApi] = useEmblaCarousel({ 
+    loop: shouldLoop, 
+    align: 'center', 
+    slidesToScroll: 1,
+    draggable: true,
+  })
   const [selectedIndex, setSelectedIndex] = useState(0)
   const [scrollSnaps, setScrollSnaps] = useState<number[]>([])
   const [isPlaying, setIsPlaying] = useState(true)
   const loadedCountRef = useRef(0)
+  const reInitTimeoutRef = useRef<NodeJS.Timeout>()
 
   const scrollPrev = useCallback(() => {
     if (emblaApi) emblaApi.scrollPrev()
@@ -51,13 +57,11 @@ export function HeroCarousel({
 
     const onInit = () => {
       const snaps = emblaApi.scrollSnapList()
-      console.log('[HeroCarousel] onInit scrollSnaps:', snaps)
       setScrollSnaps(snaps)
     }
     const onSelect = () => setSelectedIndex(emblaApi.selectedScrollSnap())
     const onReInit = () => {
       const snaps = emblaApi.scrollSnapList()
-      console.log('[HeroCarousel] onReInit scrollSnaps:', snaps)
       setScrollSnaps(snaps)
     }
 
@@ -105,7 +109,10 @@ export function HeroCarousel({
   const handleImageLoad = useCallback(() => {
     loadedCountRef.current += 1
     if (loadedCountRef.current === images.length && emblaApi) {
-      emblaApi.reInit()
+      if (reInitTimeoutRef.current) clearTimeout(reInitTimeoutRef.current)
+      reInitTimeoutRef.current = setTimeout(() => {
+        emblaApi.reInit()
+      }, 50)
     }
   }, [images.length, emblaApi])
 
@@ -133,7 +140,7 @@ export function HeroCarousel({
   // 2+ images - Carousel
   return (
     <div className="relative w-full" ref={emblaRef}>
-      <div className="embla__viewport overflow-hidden w-full">
+      <div className="embla__viewport overflow-hidden">
         <div className="embla__container flex">
           {images.map((image, index) => (
             <div
@@ -157,7 +164,7 @@ export function HeroCarousel({
         </div>
       </div>
 
-      {showArrows && images.length > 1 && (
+      {showArrows && (
         <>
           <button
             type="button"
