@@ -79,6 +79,10 @@ export function HeroGalleryClient({ initialImages }: HeroGalleryClientProps) {
   }
 
   const handleClose = () => {
+    // Cleanup local object URL if exists
+    if (formData.image_url.startsWith('blob:')) {
+      URL.revokeObjectURL(formData.image_url)
+    }
     setOpen(false)
     setEditing(null)
     setError('')
@@ -110,6 +114,15 @@ export function HeroGalleryClient({ initialImages }: HeroGalleryClientProps) {
       alert(validation.error)
       return
     }
+
+    // Cleanup previous local URL if exists
+    if (formData.image_url.startsWith('blob:')) {
+      URL.revokeObjectURL(formData.image_url)
+    }
+
+    // Show local preview immediately
+    const localUrl = URL.createObjectURL(file)
+    setFormData(prev => ({ ...prev, image_url: localUrl }))
 
     setUploading(true)
     setError('')

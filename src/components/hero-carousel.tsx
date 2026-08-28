@@ -49,9 +49,17 @@ export function HeroCarousel({
   useEffect(() => {
     if (!emblaApi) return
 
-    const onInit = () => setScrollSnaps(emblaApi.scrollSnapList())
+    const onInit = () => {
+      const snaps = emblaApi.scrollSnapList()
+      console.log('[HeroCarousel] onInit scrollSnaps:', snaps)
+      setScrollSnaps(snaps)
+    }
     const onSelect = () => setSelectedIndex(emblaApi.selectedScrollSnap())
-    const onReInit = () => setScrollSnaps(emblaApi.scrollSnapList())
+    const onReInit = () => {
+      const snaps = emblaApi.scrollSnapList()
+      console.log('[HeroCarousel] onReInit scrollSnaps:', snaps)
+      setScrollSnaps(snaps)
+    }
 
     emblaApi.on('init', onInit)
     emblaApi.on('select', onSelect)
@@ -101,18 +109,10 @@ export function HeroCarousel({
     }
   }, [images.length, emblaApi])
 
-  // Empty state - single placeholder card
+  // Empty state - single clean placeholder
   if (images.length === 0) {
     return (
-      <div className="relative aspect-video rounded-2xl overflow-hidden bg-gradient-to-br from-primary/10 to-primary/5 ring-1 ring-border flex items-center justify-center">
-        <Link href="/dashboard/hero-gallery" className="text-center p-8 hover:bg-primary/5 transition-colors w-full h-full flex flex-col items-center justify-center">
-          <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-4 mx-auto">
-            <Plus className="w-8 h-8 text-primary" />
-          </div>
-          <h3 className="text-lg font-semibold text-foreground mb-1">Belum ada Hero Gallery</h3>
-          <p className="text-sm text-muted-foreground">Tambah gambar dari Admin → Hero Gallery</p>
-        </Link>
-      </div>
+      <div className="relative aspect-video rounded-2xl overflow-hidden bg-gradient-to-br from-primary/10 to-primary/5 ring-1 ring-border" />
     )
   }
 
@@ -133,7 +133,7 @@ export function HeroCarousel({
   // 2+ images - Carousel
   return (
     <div className="relative w-full" ref={emblaRef}>
-      <div className="embla__viewport overflow-hidden">
+      <div className="embla__viewport overflow-hidden w-full">
         <div className="embla__container flex">
           {images.map((image, index) => (
             <div
