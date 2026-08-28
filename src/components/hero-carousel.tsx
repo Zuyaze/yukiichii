@@ -120,12 +120,6 @@ export function HeroCarousel({
           alt={image.alt_text || 'Hero'}
           className="absolute inset-0 w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent flex items-end p-4">
-          <div className="w-full text-white text-center">
-            {image.alt_text && <p className="text-sm font-medium mb-1">{image.alt_text}</p>}
-            <p className="text-xs text-white/80">Jelajahi aplikasi →</p>
-          </div>
-        </div>
       </Link>
     )
   }
@@ -150,12 +144,6 @@ export function HeroCarousel({
                   loading={index === 0 ? 'eager' : 'lazy'}
                   className="absolute inset-0 w-full h-full object-cover"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent flex items-end p-4">
-                  <div className="w-full text-white text-center">
-                    {image.alt_text && <p className="text-sm font-medium mb-1">{image.alt_text}</p>}
-                    <p className="text-xs text-white/80">Jelajahi aplikasi →</p>
-                  </div>
-                </div>
               </Link>
             </div>
           ))}
