@@ -92,6 +92,25 @@ const SCHEMA_STATEMENTS = [
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
   )`,
+  `CREATE TABLE IF NOT EXISTS app_groups (
+    id SERIAL PRIMARY KEY,
+    name TEXT NOT NULL,
+    slug TEXT NOT NULL UNIQUE,
+    title TEXT NOT NULL,
+    description TEXT,
+    logo_url TEXT,
+    sort_order INTEGER DEFAULT 0,
+    is_active BOOLEAN DEFAULT true,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  )`,
+  `CREATE TABLE IF NOT EXISTS app_group_items (
+    id SERIAL PRIMARY KEY,
+    group_id INTEGER NOT NULL REFERENCES app_groups(id) ON DELETE CASCADE,
+    app_id INTEGER NOT NULL REFERENCES apps(id) ON DELETE CASCADE,
+    sort_order INTEGER DEFAULT 0,
+    UNIQUE(group_id, app_id)
+  )`,
   // Migration for existing databases
   `ALTER TABLE apps ADD COLUMN IF NOT EXISTS screenshots JSONB NOT NULL DEFAULT '[]'::jsonb`,
   `ALTER TABLE apps ADD COLUMN IF NOT EXISTS icon_url TEXT`,
@@ -127,6 +146,9 @@ const SCHEMA_STATEMENTS = [
   `CREATE INDEX IF NOT EXISTS idx_apps_slug ON apps(slug)`,
   `CREATE INDEX IF NOT EXISTS idx_clicks_app ON clicks(app_id)`,
   `CREATE INDEX IF NOT EXISTS idx_clicks_created ON clicks(created_at)`,
+  `CREATE INDEX IF NOT EXISTS idx_app_groups_slug ON app_groups(slug)`,
+  `CREATE INDEX IF NOT EXISTS idx_app_group_items_group ON app_group_items(group_id)`,
+  `CREATE INDEX IF NOT EXISTS idx_app_group_items_app ON app_group_items(app_id)`,
 ]
 
 export async function initDb() {
@@ -199,6 +221,26 @@ export type HeroImage = {
   is_active: boolean
   created_at: string
   updated_at: string
+}
+
+export type AppGroup = {
+  id: number
+  name: string
+  slug: string
+  title: string
+  description: string | null
+  logo_url: string | null
+  sort_order: number
+  is_active: boolean
+  created_at: string
+  updated_at: string
+}
+
+export type AppGroupItem = {
+  id: number
+  group_id: number
+  app_id: number
+  sort_order: number
 }
 
 export type Admin = {

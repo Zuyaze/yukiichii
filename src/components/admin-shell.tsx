@@ -4,7 +4,7 @@ import { ReactNode, useEffect, useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
-import { LayoutDashboard, Box, Tag, LogOut, Menu, X, ChevronDown, ArrowLeft, Image } from 'lucide-react'
+import { LayoutDashboard, Box, Tag, LogOut, Menu, X, ChevronDown, ArrowLeft, Image, FolderOpen } from 'lucide-react'
 import { signOut } from 'next-auth/react'
 import { Button } from '@/components/ui/button'
 import {
@@ -19,6 +19,7 @@ import { AdminThemeToggle } from '@/components/admin-theme-toggle'
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
   { name: 'Aplikasi', href: '/dashboard/apps', icon: Box },
+  { name: 'Group Aplikasi', href: '/dashboard/app-groups', icon: FolderOpen },
   { name: 'Kategori', href: '/dashboard/categories', icon: Tag },
   { name: 'Tag', href: '/dashboard/tags', icon: Tag },
   { name: 'Hero Gallery', href: '/dashboard/hero-gallery', icon: Image },

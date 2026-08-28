@@ -1,5 +1,5 @@
 import { getDb } from './index'
-import type { App, Category, Tag, Admin, Click, HeroImage } from './index'
+import type { App, Category, Tag, Admin, Click, HeroImage, AppGroup, AppGroupItem } from './index'
 
 export async function getApps(options?: {
   category?: string
@@ -401,4 +401,203 @@ export async function updateHeroImage(
 
 export async function deleteHeroImage(id: number): Promise<void> {
   await getDb().execute({ sql: 'DELETE FROM hero_images WHERE id = ?', args: [id] })
+}
+
+// ===== App Groups =====
+
+export async function getAppGroups(): Promise<AppGroup[]> {
+  const result = await getDb().execute({
+    sql: 'SELECT * FROM app_groups WHERE is_active = true ORDER BY sort_order ASC, created_at ASC',
+  })
+  return result.rows as unknown as AppGroup[]
+}
+
+export async function getAllAppGroups(): Promise<AppGroup[]> {
+  const result = await getDb().execute({
+    sql: 'SELECT * FROM app_groups ORDER BY sort_order ASC, created_at ASC',
+  })
+  return result.rows as unknown as AppGroup[]
+}
+
+export async function getAppGroupBySlug(slug: string): Promise<AppGroup | null> {
+  const result = await getDb().execute({
+    sql: 'SELECT * FROM app_groups WHERE slug = ?',
+    args: [slug],
+  })
+  return (result.rows[0] as unknown as AppGroup) || null
+}
+
+export async function getAppGroupById(id: number): Promise<AppGroup | null> {
+  const result = await getDb().execute({
+    sql: 'SELECT * FROM app_groups WHERE id = ?',
+    args: [id],
+  })
+  return (result.rows[0] as unknown as AppGroup) || null
+}
+
+export async function getAppGroupWithApps(groupId: number): Promise<(AppGroup & { apps: (App & { sort_order: number })[] }) | null> {
+  const groupResult = await getDb().execute({
+    sql: 'SELECT * FROM app_groups WHERE id = ?',
+    args: [groupId],
+  })
+  if (groupResult.rows.length === 0) return null
+
+  const group = groupResult.rows[0] as unknown as AppGroup
+
+  const appsResult = await getDb().execute({
+    sql: `
+      SELECT a.*, agi.sort_order as group_sort_order
+      FROM apps a
+      JOIN app_group_items agi ON a.id = agi.app_id
+      WHERE agi.group_id = ?
+      ORDER BY agi.sort_order ASC, a.created_at ASC
+    `,
+    args: [groupId],
+  })
+
+  return { ...group, apps: appsResult.rows as unknown as (App & { sort_order: number })[] }
+}
+
+export async function createAppGroup(data: {
+  name: string
+  slug: string
+  title: string
+  description: string | null
+  logo_url: string | null
+  sort_order: number
+  is_active: boolean
+}): Promise<number> {
+  const result = await getDb().execute({
+    sql: `
+      INSERT INTO app_groups (name, slug, title, description, logo_url, sort_order, is_active)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+      RETURNING id
+    `,
+    args: [data.name, data.slug, data.title, data.description, data.logo_url, data.sort_order, data.is_active],
+  })
+  return (result.rows[0] as any).id as number
+}
+
+export async function updateAppGroup(
+  id: number,
+  data: {
+    name?: string
+    slug?: string
+    title?: string
+    description?: string | null
+    logo_url?: string | null
+    sort_order?: number
+    is_active?: boolean
+  }
+): Promise<void> {
+  const db = getDb()
+  const updates: string[] = []
+  const args: any[] = []
+
+  if (data.name !== undefined) { updates.push('name = ?'); args.push(data.name) }
+  if (data.slug !== undefined) { updates.push('slug = ?'); args.push(data.slug) }
+  if (data.title !== undefined) { updates.push('title = ?'); args.push(data.title) }
+  if (data.description !== undefined) { updates.push('description = ?'); args.push(data.description) }
+  if (data.logo_url !== undefined) { updates.push('logo_url = ?'); args.push(data.logo_url) }
+  if (data.sort_order !== undefined) { updates.push('sort_order = ?'); args.push(data.sort_order) }
+  if (data.is_active !== undefined) { updates.push('is_active = ?'); args.push(data.is_active) }
+
+  if (updates.length === 0) return
+
+  updates.push('updated_at = CURRENT_TIMESTAMP')
+  args.push(id)
+
+  await db.execute({
+    sql: `UPDATE app_groups SET ${updates.join(', ')} WHERE id = ?`,
+    args,
+  })
+}
+
+export async function deleteAppGroup(id: number): Promise<void> {
+  await getDb().execute({ sql: 'DELETE FROM app_groups WHERE id = ?', args: [id] })
+}
+
+// ===== App Group Items =====
+
+export async function getGroupApps(groupId: number): Promise<(App & { group_sort_order: number })[]> {
+  const result = await getDb().execute({
+    sql: `
+      SELECT a.*, agi.sort_order as group_sort_order
+      FROM apps a
+      JOIN app_group_items agi ON a.id = agi.app_id
+      WHERE agi.group_id = ?
+      ORDER BY agi.sort_order ASC, a.created_at ASC
+    `,
+    args: [groupId],
+  })
+  return result.rows as unknown as (App & { group_sort_order: number })[]
+}
+
+export async function addAppToGroup(groupId: number, appId: number, sortOrder: number = 0): Promise<number> {
+  const result = await getDb().execute({
+    sql: 'INSERT INTO app_group_items (group_id, app_id, sort_order) VALUES (?, ?, ?) ON CONFLICT (group_id, app_id) DO NOTHING RETURNING id',
+    args: [groupId, appId, sortOrder],
+  })
+  return (result.rows[0] as any)?.id as number || 0
+}
+
+export async function removeAppFromGroup(groupId: number, appId: number): Promise<void> {
+  await getDb().execute({ sql: 'DELETE FROM app_group_items WHERE group_id = ? AND app_id = ?', args: [groupId, appId] })
+}
+
+export async function updateGroupAppOrder(groupId: number, appId: number, sortOrder: number): Promise<void> {
+  await getDb().execute({
+    sql: 'UPDATE app_group_items SET sort_order = ? WHERE group_id = ? AND app_id = ?',
+    args: [sortOrder, groupId, appId],
+  })
+}
+
+export async function removeAllAppsFromGroup(groupId: number): Promise<void> {
+  await getDb().execute({ sql: 'DELETE FROM app_group_items WHERE group_id = ?', args: [groupId] })
+}
+
+export async function getAppGroupsWithApps(): Promise<(AppGroup & { apps: (App & { group_sort_order: number })[] })[]> {
+  const groups = await getAllAppGroups()
+  const result: (AppGroup & { apps: (App & { group_sort_order: number })[] })[] = []
+
+  for (const group of groups) {
+    const apps = await getGroupApps(group.id)
+    result.push({ ...group, apps })
+  }
+
+  return result
+}
+
+export async function getGroupAppCount(groupId: number): Promise<number> {
+  const result = await getDb().execute({
+    sql: 'SELECT COUNT(*) as count FROM app_group_items WHERE group_id = ?',
+    args: [groupId],
+  })
+  return parseInt((result.rows[0] as any).count) || 0
+}
+
+export async function isAppInGroup(groupId: number, appId: number): Promise<boolean> {
+  const result = await getDb().execute({
+    sql: 'SELECT 1 FROM app_group_items WHERE group_id = ? AND app_id = ?',
+    args: [groupId, appId],
+  })
+  return result.rows.length > 0
+}
+
+export async function getAppsNotInGroup(groupId: number, search?: string): Promise<App[]> {
+  let sql = `
+    SELECT a.* FROM apps a
+    WHERE a.id NOT IN (SELECT app_id FROM app_group_items WHERE group_id = ?)
+  `
+  const args: any[] = [groupId]
+
+  if (search) {
+    sql += ` AND (a.title ILIKE ? OR a.slug ILIKE ?)`
+    args.push(`%${search}%`, `%${search}%`)
+  }
+
+  sql += ` ORDER BY a.created_at DESC`
+
+  const result = await getDb().execute({ sql, args })
+  return result.rows as unknown as App[]
 }
