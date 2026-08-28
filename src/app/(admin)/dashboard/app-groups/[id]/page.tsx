@@ -66,7 +66,7 @@ export default function AppGroupDetailPage() {
       try {
         const [groupRes, appsRes, availableRes] = await Promise.all([
           fetch(`/api/app-groups/${groupId}`).then(r => r.json()),
-          fetch(`/api/app-groups/${groupId}/apps`).then(r => r.json()),
+          fetch(`/api/app-groups/${groupId}/apps?in_group=true`).then(r => r.json()),
         ])
 
         if (!groupRes.group) {
