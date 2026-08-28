@@ -538,15 +538,16 @@ export async function deleteAppGroup(id: number): Promise<void> {
 export async function getGroupApps(groupId: number): Promise<(App & { group_sort_order: number })[]> {
   const result = await getDb().execute({
     sql: `
-      SELECT a.*, agi.sort_order as group_sort_order
+      SELECT a.*, c.name as category_name, c.color as category_color, agi.sort_order as group_sort_order
       FROM apps a
+      LEFT JOIN categories c ON a.category_id = c.id
       JOIN app_group_items agi ON a.id = agi.app_id
       WHERE agi.group_id = ?
       ORDER BY agi.sort_order ASC, a.created_at ASC
     `,
     args: [groupId],
   })
-  return result.rows as unknown as (App & { group_sort_order: number })[]
+  return result.rows as unknown as (App & { group_sort_order: number; category_name: string | null; category_color: string | null })[]
 }
 
 export async function addAppToGroup(groupId: number, appId: number, sortOrder: number = 0): Promise<number> {
