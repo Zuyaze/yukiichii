@@ -58,6 +58,11 @@ export function HeroGalleryClient({ initialImages }: HeroGalleryClientProps) {
   const currentImage = images[0] || null
 
   const handleOpen = (image?: HeroImage) => {
+    // Cleanup previous blob URL if any
+    if (formData.image_url.startsWith('blob:')) {
+      URL.revokeObjectURL(formData.image_url)
+    }
+    
     if (image) {
       setEditing(image)
       setFormData({
@@ -88,6 +93,10 @@ export function HeroGalleryClient({ initialImages }: HeroGalleryClientProps) {
   }
 
   const handleClose = () => {
+    // Cleanup blob URL if exists
+    if (formData.image_url.startsWith('blob:')) {
+      URL.revokeObjectURL(formData.image_url)
+    }
     setOpen(false)
     setEditing(null)
     setError('')
@@ -120,11 +129,19 @@ export function HeroGalleryClient({ initialImages }: HeroGalleryClientProps) {
       return
     }
 
+    // Show local preview immediately
+    const localUrl = URL.createObjectURL(file)
+    setFormData(prev => ({ ...prev, image_url: localUrl }))
+
     setUploading(true)
     setError('')
 
     try {
       const url = await uploadToCloudinary(file)
+      // Cleanup local URL after successful upload
+      if (formData.image_url.startsWith('blob:')) {
+        URL.revokeObjectURL(formData.image_url)
+      }
       setFormData(prev => ({ ...prev, image_url: url }))
     } catch (err) {
       setError('Gagal upload gambar: ' + (err as Error).message)
@@ -287,7 +304,12 @@ export function HeroGalleryClient({ initialImages }: HeroGalleryClientProps) {
                         />
                         <button
                           type="button"
-                          onClick={() => setFormData(prev => ({ ...prev, image_url: '' }))}
+                          onClick={() => {
+                            if (formData.image_url.startsWith('blob:')) {
+                              URL.revokeObjectURL(formData.image_url)
+                            }
+                            setFormData(prev => ({ ...prev, image_url: '' }))
+                          }}
                           className="absolute top-1 right-1 w-6 h-6 rounded-full bg-destructive text-white flex items-center justify-center hover:bg-destructive/80"
                         >
                           <Trash2 className="w-3 h-3" />
