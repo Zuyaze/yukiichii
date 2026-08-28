@@ -132,14 +132,14 @@ export default async function HomePage() {
         <section className="py-8 border-t border-border">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <h2 className="text-2xl sm:text-3xl font-bold text-center text-foreground mb-8">Populer</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-2 gap-4 sm:gap-6">
               {appGroups.map(group => (
                 <Link
                   key={group.id}
-                  href={`/groups/${group.slug}`}
-                  className="group flex flex-col items-center p-6 rounded-2xl border border-border bg-background hover:border-primary/50 hover:bg-primary/5 transition-all"
+                  href={`/groups/${String(group.slug)}`}
+                  className="group flex flex-col items-center p-4 rounded-xl border border-border bg-background hover:border-primary/50 hover:bg-primary/5 transition-all"
                 >
-                  <div className="relative w-24 h-24 rounded-xl overflow-hidden mb-4 bg-muted transition-transform group-hover:scale-105">
+                  <div className="relative w-20 h-20 rounded-xl overflow-hidden mb-3 bg-muted transition-transform group-hover:scale-105">
                     {group.logo_url ? (
                       <img
                         src={group.logo_url}
@@ -148,16 +148,16 @@ export default async function HomePage() {
                       />
                     ) : (
                       <div className="flex items-center justify-center h-full bg-gradient-to-br from-primary/10 to-primary/5">
-                        <span className="text-3xl font-bold text-primary/60">{group.title.charAt(0).toUpperCase()}</span>
+                        <span className="text-2xl font-bold text-primary/60">{String(group.title).charAt(0).toUpperCase()}</span>
                       </div>
                     )}
                   </div>
-                  <h3 className="text-lg font-bold text-foreground group-hover:text-primary transition-colors text-center mb-1">{group.title}</h3>
+                  <h3 className="text-base font-bold text-foreground group-hover:text-primary transition-colors text-center mb-1">{String(group.title)}</h3>
                   {group.description && (
-                    <p className="text-sm text-muted-foreground text-center mb-2 line-clamp-2">{group.description}</p>
+                    <p className="text-xs text-muted-foreground text-center mb-2 line-clamp-2">{String(group.description)}</p>
                   )}
-                  <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary">
-                    Lihat aplikasi
+                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary">
+                    Lihat selengkapnya
                   </span>
                 </Link>
               ))}
