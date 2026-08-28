@@ -134,13 +134,14 @@ export default async function HomePage() {
             <h2 className="text-2xl sm:text-3xl font-bold text-center text-foreground mb-8">Populer</h2>
             <div className="grid grid-cols-2 gap-4 sm:gap-6">
               {appGroups.map(group => {
+                const id = typeof group.id === 'number' ? group.id : 0
                 const title = typeof group.title === 'string' ? group.title : ''
                 const description = typeof group.description === 'string' ? group.description : ''
                 const slug = typeof group.slug === 'string' ? group.slug : ''
                 const logoUrl = typeof group.logo_url === 'string' ? group.logo_url : ''
                 return (
                   <Link
-                    key={group.id}
+                    key={String(id)}
                     href={`/groups/${slug}`}
                     className="group flex flex-col items-center p-4 rounded-xl border border-border bg-background hover:border-primary/50 hover:bg-primary/5 transition-all"
                   >

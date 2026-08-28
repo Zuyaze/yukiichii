@@ -24,7 +24,7 @@ export default async function GroupPage({ params }: GroupPageProps) {
   unstable_noStore()
 
   const { slug } = await params
-  const group = await getAppGroupWithApps(parseInt(slug))
+  const group = await getAppGroupBySlug(slug)
 
   if (!group) notFound()
 
