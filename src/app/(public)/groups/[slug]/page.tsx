@@ -4,7 +4,6 @@ import Link from 'next/link'
 import { getAppGroupWithApps, getAppGroupBySlug } from '@/lib/db/queries'
 import { unstable_noStore } from 'next/cache'
 import { AppCard } from '@/components/app-card'
-import { ArrowRight } from 'lucide-react'
 
 interface GroupPageProps {
   params: Promise<{ slug: string }>
@@ -64,10 +63,10 @@ export default async function GroupPage({ params }: GroupPageProps) {
         </div>
       </div>
 
-      {/* Apps Horizontal Scroll - Same as Homepage */}
+      {/* Apps Grid - Vertical scroll grid */}
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         {group.apps.length > 0 ? (
-          <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-thin">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4 lg:gap-5">
             {group.apps.map(app => (
               <AppCard
                 key={app.slug}
@@ -80,19 +79,6 @@ export default async function GroupPage({ params }: GroupPageProps) {
                 variant="horizontal"
               />
             ))}
-
-            {/* Lihat Semua tile */}
-            <Link
-              href={`/apps?group=${group.slug}`}
-              className="group flex-shrink-0 w-28 flex flex-col"
-            >
-              <div className="relative aspect-square rounded-xl overflow-hidden bg-primary/5 border-2 border-dashed border-primary/30 group-hover:border-primary group-hover:bg-primary/10 transition-all flex items-center justify-center">
-                <span className="flex flex-col items-center gap-1 text-primary">
-                  <ArrowRight className="w-6 h-6 group-hover:translate-x-1 transition-transform" />
-                  <span className="text-[10px] font-bold">Lihat Semua</span>
-                </span>
-              </div>
-            </Link>
           </div>
         ) : (
           <p className="text-center text-sm text-muted-foreground py-12">Belum ada aplikasi di group ini</p>
