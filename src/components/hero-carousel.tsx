@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { useCallback, useEffect, useState, useRef } from 'react'
 import useEmblaCarousel from 'embla-carousel-react'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Plus } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 interface HeroImage {
@@ -28,11 +28,10 @@ export function HeroCarousel({
   pauseOnHover = true,
 }: HeroCarouselProps) {
   const shouldLoop = images.length > 2
-  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: shouldLoop, align: 'start', slidesToScroll: 1 })
+  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: shouldLoop, align: 'center', slidesToScroll: 1 })
   const [selectedIndex, setSelectedIndex] = useState(0)
   const [scrollSnaps, setScrollSnaps] = useState<number[]>([])
   const [isPlaying, setIsPlaying] = useState(true)
-  const [imagesLoaded, setImagesLoaded] = useState(0)
   const loadedCountRef = useRef(0)
 
   const scrollPrev = useCallback(() => {
@@ -50,17 +49,9 @@ export function HeroCarousel({
   useEffect(() => {
     if (!emblaApi) return
 
-    const onInit = () => {
-      const snaps = emblaApi.scrollSnapList()
-      setScrollSnaps(snaps)
-    }
-    const onSelect = () => {
-      setSelectedIndex(emblaApi.selectedScrollSnap())
-    }
-    const onReInit = () => {
-      const snaps = emblaApi.scrollSnapList()
-      setScrollSnaps(snaps)
-    }
+    const onInit = () => setScrollSnaps(emblaApi.scrollSnapList())
+    const onSelect = () => setSelectedIndex(emblaApi.selectedScrollSnap())
+    const onReInit = () => setScrollSnaps(emblaApi.scrollSnapList())
 
     emblaApi.on('init', onInit)
     emblaApi.on('select', onSelect)
@@ -105,31 +96,27 @@ export function HeroCarousel({
 
   const handleImageLoad = useCallback(() => {
     loadedCountRef.current += 1
-    setImagesLoaded(loadedCountRef.current)
     if (loadedCountRef.current === images.length && emblaApi) {
       emblaApi.reInit()
     }
   }, [images.length, emblaApi])
 
+  // Empty state - single placeholder card
   if (images.length === 0) {
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
-        {[1, 2, 3, 4].map(i => (
-          <div
-            key={i}
-            className="relative aspect-video rounded-2xl overflow-hidden bg-gradient-to-br from-primary/10 to-primary/5 ring-1 ring-border flex items-center justify-center"
-          >
-            <div className="text-center p-4 text-primary/60">
-              <span className="text-4xl font-bold">Y×Z</span>
-              <p className="text-xs mt-1">Demo Gallery</p>
-              <p className="text-[10px] text-muted-foreground">Tambah gambar di Admin → Hero Gallery</p>
-            </div>
+      <div className="relative aspect-video rounded-2xl overflow-hidden bg-gradient-to-br from-primary/10 to-primary/5 ring-1 ring-border flex items-center justify-center">
+        <Link href="/dashboard/hero-gallery" className="text-center p-8 hover:bg-primary/5 transition-colors w-full h-full flex flex-col items-center justify-center">
+          <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-4 mx-auto">
+            <Plus className="w-8 h-8 text-primary" />
           </div>
-        ))}
+          <h3 className="text-lg font-semibold text-foreground mb-1">Belum ada Hero Gallery</h3>
+          <p className="text-sm text-muted-foreground">Tambah gambar dari Admin → Hero Gallery</p>
+        </Link>
       </div>
     )
   }
 
+  // Single image - no carousel needed
   if (images.length === 1) {
     const image = images[0]
     return (
@@ -143,6 +130,7 @@ export function HeroCarousel({
     )
   }
 
+  // 2+ images - Carousel
   return (
     <div className="relative w-full" ref={emblaRef}>
       <div className="embla__viewport overflow-hidden">
@@ -169,7 +157,7 @@ export function HeroCarousel({
         </div>
       </div>
 
-      {showArrows && (
+      {showArrows && images.length > 1 && (
         <>
           <button
             type="button"
