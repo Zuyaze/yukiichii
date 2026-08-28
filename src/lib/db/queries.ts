@@ -430,8 +430,9 @@ export async function getAppGroupBySlug(slug: string): Promise<(AppGroup & { app
 
   const appsResult = await getDb().execute({
     sql: `
-      SELECT a.*, agi.sort_order as group_sort_order
+      SELECT a.*, c.name as category_name, c.color as category_color, agi.sort_order as group_sort_order
       FROM apps a
+      LEFT JOIN categories c ON a.category_id = c.id
       JOIN app_group_items agi ON a.id = agi.app_id
       WHERE agi.group_id = ?
       ORDER BY agi.sort_order ASC, a.created_at ASC
@@ -439,7 +440,7 @@ export async function getAppGroupBySlug(slug: string): Promise<(AppGroup & { app
     args: [group.id],
   })
 
-  return { ...group, apps: appsResult.rows as unknown as (App & { group_sort_order: number })[] }
+  return { ...group, apps: appsResult.rows as unknown as (App & { group_sort_order: number; category_name: string | null; category_color: string | null })[] }
 }
 
 export async function getAppGroupById(id: number): Promise<AppGroup | null> {
