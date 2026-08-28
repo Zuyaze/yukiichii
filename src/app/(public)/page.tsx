@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { ArrowRight, Download, AlertCircle } from 'lucide-react'
 import { unstable_noStore } from 'next/cache'
 import { SearchBar } from '@/components/search-bar'
+import { HeroCarousel } from '@/components/hero-carousel'
 
 export const metadata: Metadata = {
   title: 'Kumpulan Mod Apk & Loader Gratis',
@@ -88,7 +89,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Hero Section - Dynamic Gallery */}
+      {/* Hero Section - Dynamic Carousel */}
       <section className="relative overflow-hidden py-16 sm:py-20 lg:py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-10">
@@ -99,55 +100,10 @@ export default async function HomePage() {
             </h1>
           </div>
 
-          {/* Hero Gallery Grid */}
-          {heroImages.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
-              {heroImages.map((image, index) => (
-                <Link
-                  key={image.id}
-                  href="/apps"
-                  className="group block relative aspect-video rounded-2xl overflow-hidden bg-muted ring-1 ring-border hover:ring-primary/50 transition-all"
-                >
-                  <img
-                    src={image.image_url}
-                    alt={image.alt_text || `Hero ${index + 1}`}
-                    loading={index < 4 ? 'eager' : 'lazy'}
-                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
-                    <div className="w-full text-white">
-                      {image.alt_text && (
-                        <p className="text-sm sm:text-base font-medium mb-1">{image.alt_text}</p>
-                      )}
-                      <p className="text-xs sm:text-sm text-white/80">Jelajahi aplikasi →</p>
-                    </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
-              {/* Fallback placeholder images from public/hero/ */}
-              {[1, 2, 3, 4].map(i => (
-                <Link
-                  key={i}
-                  href="/apps"
-                  className="group block relative aspect-video rounded-2xl overflow-hidden ring-1 ring-border hover:ring-primary/50 transition-all"
-                >
-                  <img
-                    src={`/hero/hero-${i}.svg`}
-                    alt={`Hero Gallery Demo ${i}`}
-                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
-                    <div className="w-full text-white text-center">
-                      <p className="text-xs sm:text-sm text-white/80">Jelajahi aplikasi →</p>
-                    </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          )}
+          {/* Hero Carousel */}
+          <div className="max-w-5xl mx-auto group">
+            <HeroCarousel images={heroImages} autoPlayMs={5000} />
+          </div>
 
           {/* CTA Buttons */}
           <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
