@@ -35,7 +35,7 @@ export function HeroCarousel({
   const [isPlaying, setIsPlaying] = useState(true)
 
   useEffect(() => {
-    console.log('[HeroCarousel] scrollSnaps:', scrollSnaps, 'selectedIndex:', selectedIndex, 'emblaApi:', !!emblaApi)
+    console.log('[HeroCarousel] scrollSnaps changed:', scrollSnaps, 'selectedIndex:', selectedIndex, 'emblaApi exists:', !!emblaApi)
   }, [scrollSnaps, selectedIndex, emblaApi])
 
   const scrollPrev = useCallback(() => {
@@ -53,9 +53,21 @@ export function HeroCarousel({
   useEffect(() => {
     if (!emblaApi) return
 
-    const onInit = () => setScrollSnaps(emblaApi.scrollSnapList())
-    const onSelect = () => setSelectedIndex(emblaApi.selectedScrollSnap())
-    const onReInit = () => setScrollSnaps(emblaApi.scrollSnapList())
+    const onInit = () => {
+      const snaps = emblaApi.scrollSnapList()
+      console.log('[HeroCarousel] onInit - scrollSnapList:', snaps, 'length:', snaps.length)
+      setScrollSnaps(snaps)
+    }
+    const onSelect = () => {
+      const selected = emblaApi.selectedScrollSnap()
+      console.log('[HeroCarousel] onSelect - selectedScrollSnap:', selected)
+      setSelectedIndex(selected)
+    }
+    const onReInit = () => {
+      const snaps = emblaApi.scrollSnapList()
+      console.log('[HeroCarousel] onReInit - scrollSnapList:', snaps, 'length:', snaps.length)
+      setScrollSnaps(snaps)
+    }
 
     emblaApi.on('init', onInit)
     emblaApi.on('select', onSelect)
