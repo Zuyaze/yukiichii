@@ -6,8 +6,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { Plus, Edit, Trash2, Loader2, Image as ImageIcon, Check } from 'lucide-react'
+import { Plus, Edit, Trash2, Loader2, Image as ImageIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const CLOUDINARY_CLOUD_NAME = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME
@@ -56,6 +55,8 @@ export function HeroGalleryClient({ initialImages }: HeroGalleryClientProps) {
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState('')
 
+  const currentImage = images[0] || null
+
   const handleOpen = (image?: HeroImage) => {
     if (image) {
       setEditing(image)
@@ -65,12 +66,20 @@ export function HeroGalleryClient({ initialImages }: HeroGalleryClientProps) {
         sort_order: image.sort_order,
         is_active: image.is_active,
       })
+    } else if (currentImage) {
+      setEditing(currentImage)
+      setFormData({
+        image_url: currentImage.image_url,
+        alt_text: currentImage.alt_text || '',
+        sort_order: currentImage.sort_order,
+        is_active: currentImage.is_active,
+      })
     } else {
       setEditing(null)
       setFormData({
         image_url: '',
         alt_text: '',
-        sort_order: images.length,
+        sort_order: 0,
         is_active: true,
       })
     }
@@ -168,11 +177,12 @@ export function HeroGalleryClient({ initialImages }: HeroGalleryClientProps) {
     }
   }
 
-  const handleDelete = async (id: number) => {
-    if (!confirm('Yakin hapus gambar ini?')) return
+  const handleDelete = async () => {
+    if (!currentImage) return
+    if (!confirm('Yakin hapus gambar hero ini?')) return
 
     try {
-      const res = await fetch(`/api/hero-images/${id}`, { method: 'DELETE' })
+      const res = await fetch(`/api/hero-images/${currentImage.id}`, { method: 'DELETE' })
       if (!res.ok) throw new Error('Delete gagal')
       window.location.reload()
     } catch (error) {
@@ -185,98 +195,76 @@ export function HeroGalleryClient({ initialImages }: HeroGalleryClientProps) {
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Kelola Hero Gallery</h1>
-          <p className="text-muted-foreground mt-1">Kelola gambar hero section di homepage</p>
+          <p className="text-muted-foreground mt-1">Kelola gambar hero section di homepage (hanya 1 gambar)</p>
         </div>
-        <Button onClick={() => handleOpen()} className="gap-2 w-full sm:w-auto">
-          <Plus className="w-4 h-4" />
-          Tambah Gambar
-        </Button>
       </div>
 
-      <div className="rounded-lg border border-border bg-background overflow-x-auto">
-        <Table>
-          <TableHeader>
-            <tr>
-              <TableHead className="w-24">Preview</TableHead>
-              <TableHead>Alt Text</TableHead>
-              <TableHead className="w-24">Urutan</TableHead>
-              <TableHead className="w-24">Status</TableHead>
-              <TableHead className="w-48 text-right">Aksi</TableHead>
-            </tr>
-          </TableHeader>
-          <TableBody>
-            {images.map(image => (
-              <TableRow key={image.id}>
-                <TableCell>
-                  <div className="relative w-20 h-11 rounded-lg overflow-hidden bg-muted">
-                    <img
-                      src={image.image_url}
-                      alt={image.alt_text || ''}
-                      className="absolute inset-0 w-full h-full object-cover"
-                    />
-                  </div>
-                </TableCell>
-                <TableCell className="text-sm text-muted-foreground max-w-xs truncate">
-                  {image.alt_text || '-'}
-                </TableCell>
-                <TableCell className="text-sm text-muted-foreground">{image.sort_order}</TableCell>
-                <TableCell>
-                  <span
-                    className={cn(
-                      'inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium',
-                      image.is_active
-                        ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
-                        : 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400'
-                    )}
-                  >
-                    {image.is_active ? (
-                      <>
-                        <Check className="w-3 h-3" />
-                        Aktif
-                      </>
-                    ) : (
-                      'Nonaktif'
-                    )}
+      {/* Current Hero Image Display */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Gambar Hero Saat Ini</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {currentImage ? (
+            <div className="flex flex-col sm:flex-row gap-6 items-start">
+              <div className="relative w-64 h-36 flex-shrink-0 rounded-xl overflow-hidden bg-muted border border-border">
+                <img
+                  src={currentImage.image_url}
+                  alt={currentImage.alt_text || ''}
+                  className="absolute inset-0 w-full h-full object-cover"
+                />
+              </div>
+              <div className="flex-1 min-w-0 space-y-2">
+                <div>
+                  <Label className="text-sm font-medium">Alt Text</Label>
+                  <p className="text-sm text-muted-foreground mt-1">{currentImage.alt_text || '-'}</p>
+                </div>
+                <div>
+                  <Label className="text-sm font-medium">Status</Label>
+                  <span className={cn(
+                    'inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium',
+                    currentImage.is_active
+                      ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+                      : 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400'
+                  )}>
+                    {currentImage.is_active ? 'Aktif' : 'Nonaktif'}
                   </span>
-                </TableCell>
-                <TableCell className="text-right">
-                  <div className="flex items-center justify-end gap-2">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => handleOpen(image)}
-                      className="text-muted-foreground hover:text-foreground"
-                    >
-                      <Edit className="w-4 h-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => handleDelete(image.id)}
-                      className="text-muted-foreground hover:text-destructive"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
-                  </div>
-                </TableCell>
-              </TableRow>
-            ))}
-            {images.length === 0 && (
-              <TableRow>
-                <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
-                  Belum ada gambar hero gallery.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </div>
+                </div>
+                <div className="flex items-center gap-2 pt-2">
+                  <Button variant="outline" onClick={() => handleOpen(currentImage)} className="gap-2">
+                    <Edit className="w-4 h-4" />
+                    Ganti Gambar
+                  </Button>
+                  <Button variant="destructive" onClick={handleDelete} className="gap-2">
+                    <Trash2 className="w-4 h-4" />
+                    Hapus
+                  </Button>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="text-center py-12">
+              <div className="relative w-64 h-36 mx-auto rounded-xl overflow-hidden bg-gradient-to-br from-primary/10 to-primary/5 ring-1 ring-border flex items-center justify-center">
+                <div className="text-center p-4 text-primary/60">
+                  <Plus className="w-12 h-12 mx-auto mb-2" />
+                  <p className="text-sm">Belum ada gambar hero</p>
+                </div>
+              </div>
+              <Button onClick={() => handleOpen()} className="mt-4 gap-2">
+                <Plus className="w-4 h-4" />
+                Tambah Gambar Hero
+              </Button>
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
+      {/* Edit/Add Dialog */}
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-w-md">
           <form onSubmit={handleSubmit}>
             <DialogHeader>
-              <DialogTitle>{editing ? 'Edit Gambar' : 'Tambah Gambar Baru'}</DialogTitle>
+              <DialogTitle>{editing || currentImage ? 'Ganti Gambar Hero' : 'Tambah Gambar Hero'}</DialogTitle>
               <DialogDescription>Upload gambar dan atur informasinya</DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 py-4">
@@ -389,7 +377,7 @@ export function HeroGalleryClient({ initialImages }: HeroGalleryClientProps) {
                 Batal
               </Button>
               <Button type="submit" disabled={saving || uploading}>
-                {saving ? 'Menyimpan...' : uploading ? 'Mengupload...' : editing ? 'Update' : 'Simpan'}
+                {saving ? 'Menyimpan...' : uploading ? 'Mengupload...' : 'Simpan'}
               </Button>
             </DialogFooter>
           </form>

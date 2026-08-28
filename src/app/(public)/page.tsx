@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 import { ArrowRight, Download, AlertCircle } from 'lucide-react'
 import { unstable_noStore } from 'next/cache'
 import { SearchBar } from '@/components/search-bar'
-import { HeroCarousel } from '@/components/hero-carousel'
+import { HeroSingle } from '@/components/hero-single'
 
 export const metadata: Metadata = {
   title: 'Kumpulan Mod Apk & Loader Gratis',
@@ -101,9 +101,9 @@ export default async function HomePage() {
             </h1>
           </div>
 
-          {/* Hero Carousel */}
-          <div className="max-w-5xl mx-auto group">
-            <HeroCarousel images={heroImages} autoPlayMs={5000} />
+          {/* Hero Single Image */}
+          <div className="max-w-5xl mx-auto">
+            <HeroSingle images={heroImages} />
           </div>
 
           {/* CTA Buttons */}
