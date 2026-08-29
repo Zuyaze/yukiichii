@@ -1,4 +1,5 @@
 import { Metadata } from 'next'
+import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { getAppBySlug, recordClick } from '@/lib/db/queries'
 import { Badge } from '@/components/ui/badge'
