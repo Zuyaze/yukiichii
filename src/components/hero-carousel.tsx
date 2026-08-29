@@ -27,7 +27,6 @@ export function HeroCarousel({
   showDots = true,
   pauseOnHover = true,
 }: HeroCarouselProps) {
-  console.log('[HeroCarousel] images received:', images.map(i => ({ id: i.id, url: i.image_url?.substring(0, 50) })))
   const shouldLoop = images.length > 1
   const [emblaRef, emblaApi] = useEmblaCarousel({ 
     loop: shouldLoop, 
@@ -120,7 +119,7 @@ export function HeroCarousel({
   // Empty state - single clean placeholder
   if (images.length === 0) {
     return (
-      <div className="relative aspect-video rounded-2xl overflow-hidden bg-gradient-to-br from-primary/10 to-primary/5 ring-1 ring-border" />
+      <div className="relative aspect-video rounded-2xl overflow-hidden ring-1 ring-border bg-gradient-to-br from-primary/10 to-primary/5" />
     )
   }
 
@@ -141,7 +140,7 @@ export function HeroCarousel({
   // 2+ images - Carousel
   return (
     <div className="relative w-full" ref={emblaRef}>
-      <div className="embla__viewport overflow-hidden">
+      <div className="embla__viewport overflow-hidden rounded-2xl ring-1 ring-border">
         <div className="embla__container flex">
           {images.map((image, index) => (
             <div
@@ -150,7 +149,7 @@ export function HeroCarousel({
             >
               <Link
                 href="/apps"
-                className="block relative aspect-video rounded-2xl overflow-hidden ring-1 ring-border hover:ring-primary/50 transition-all"
+                className="block relative aspect-video rounded-2xl overflow-hidden hover:ring-2 hover:ring-primary/50 transition-all"
               >
                 <img
                   src={image.image_url}
