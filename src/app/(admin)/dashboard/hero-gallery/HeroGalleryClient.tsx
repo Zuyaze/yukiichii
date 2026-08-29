@@ -263,92 +263,94 @@ export function HeroGalleryClient({ initialImages }: HeroGalleryClientProps) {
             </div>
           ) : (
             <div className="space-y-3">
-              {images.map((image, index) => (
+{images.map((image, index) => (
                 <div
                   key={image.id}
-                  className="flex items-center gap-4 p-4 border border-border rounded-xl bg-background hover:bg-muted/50 transition-colors"
+                  className="flex items-center justify-between gap-4 p-4 border border-border rounded-xl bg-background hover:bg-muted/50 transition-colors"
                 >
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => moveImage(image.id, 'up')}
-                    disabled={index === 0}
-                    className="text-muted-foreground hover:text-foreground opacity-50 hover:opacity-100"
-                    aria-label="Geser ke atas"
-                  >
-                    <GripVertical className="w-5 h-5" />
-                  </Button>
+                  <div className="flex items-center gap-4 flex-1 min-w-0">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => moveImage(image.id, 'up')}
+                      disabled={index === 0}
+                      className="text-muted-foreground hover:text-foreground opacity-50 hover:opacity-100"
+                      aria-label="Geser ke atas"
+                    >
+                      <GripVertical className="w-5 h-5" />
+                    </Button>
 
-                  <div className="relative w-20 h-11 flex-shrink-0 rounded-lg overflow-hidden bg-muted border border-border">
-                    <img
-                      src={image.image_url}
-                      alt={image.alt_text || ''}
-                      className="absolute inset-0 w-full h-full object-cover"
-                    />
-                    {!image.is_active && (
-                      <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                        <EyeOff className="w-5 h-5 text-white" />
+                    <div className="relative w-20 h-11 flex-shrink-0 rounded-lg overflow-hidden bg-muted border border-border">
+                      <img
+                        src={image.image_url}
+                        alt={image.alt_text || ''}
+                        className="absolute inset-0 w-full h-full object-cover"
+                      />
+                      {!image.is_active && (
+                        <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                          <EyeOff className="w-5 h-5 text-white" />
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="flex-1 min-w-0 space-y-1">
+                      <p className="font-medium truncate">{image.alt_text || 'Tanpa alt text'}</p>
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                        <span>Urutan: {image.sort_order + 1}</span>
+                        <span className={cn(
+                          'px-2 py-0.5 rounded-full text-xs font-medium',
+                          image.is_active
+                            ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+                            : 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400'
+                        )}>
+                          {image.is_active ? 'Aktif' : 'Nonaktif'}
+                        </span>
                       </div>
-                    )}
+                    </div>
                   </div>
 
-                  <div className="flex-1 min-w-0 space-y-1">
-                    <p className="font-medium truncate">{image.alt_text || 'Tanpa alt text'}</p>
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                      <span>Urutan: {image.sort_order + 1}</span>
-                      <span className={cn(
-                        'px-2 py-0.5 rounded-full text-xs font-medium',
-                        image.is_active
-                          ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
-                          : 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400'
-                    )}>
-                      {image.is_active ? 'Aktif' : 'Nonaktif'}
-                    </span>
+                  <div className="flex items-center gap-1 flex-shrink-0">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleToggleActive(image.id, image.is_active)}
+                      className={cn(
+                        'text-muted-foreground hover:text-foreground',
+                        !image.is_active && 'opacity-50'
+                      )}
+                      aria-label={image.is_active ? 'Nonaktifkan' : 'Aktifkan'}
+                    >
+                      {image.is_active ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleOpen(image)}
+                      className="text-muted-foreground hover:text-foreground"
+                    >
+                      <Edit className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleDelete(image.id)}
+                      className="text-muted-foreground hover:text-destructive"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => moveImage(image.id, 'down')}
+                      disabled={index === images.length - 1}
+                      className="text-muted-foreground hover:text-foreground opacity-50 hover:opacity-100"
+                      aria-label="Geser ke bawah"
+                    >
+                      <GripVertical className="w-5 h-5" />
+                    </Button>
                   </div>
                 </div>
-
-                <div className="flex items-center gap-1">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => handleToggleActive(image.id, image.is_active)}
-                    className={cn(
-                      'text-muted-foreground hover:text-foreground',
-                      !image.is_active && 'opacity-50'
-                    )}
-                    aria-label={image.is_active ? 'Nonaktifkan' : 'Aktifkan'}
-                  >
-                    {image.is_active ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => handleOpen(image)}
-                    className="text-muted-foreground hover:text-foreground"
-                  >
-                    <Edit className="w-4 h-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => handleDelete(image.id)}
-                    className="text-muted-foreground hover:text-destructive"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => moveImage(image.id, 'down')}
-                    disabled={index === images.length - 1}
-                    className="text-muted-foreground hover:text-foreground opacity-50 hover:opacity-100"
-                    aria-label="Geser ke bawah"
-                  >
-                    <GripVertical className="w-5 h-5" />
-                  </Button>
-                </div>
-              </div>
-            ))}
+              ))}
           </div>
         )}
       </CardContent>

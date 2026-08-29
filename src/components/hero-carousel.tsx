@@ -27,7 +27,7 @@ export function HeroCarousel({
   showDots = true,
   pauseOnHover = true,
 }: HeroCarouselProps) {
-  const shouldLoop = images.length > 2
+  const shouldLoop = images.length > 1
   const [emblaRef, emblaApi] = useEmblaCarousel({ 
     loop: shouldLoop, 
     align: 'center', 
