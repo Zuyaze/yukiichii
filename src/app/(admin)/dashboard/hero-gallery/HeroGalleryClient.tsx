@@ -6,6 +6,8 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { Badge } from '@/components/ui/badge'
 import { Plus, Edit, Trash2, Loader2, Image as ImageIcon, GripVertical, Eye, EyeOff } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -262,99 +264,112 @@ export function HeroGalleryClient({ initialImages }: HeroGalleryClientProps) {
               </Button>
             </div>
           ) : (
-            <div className="space-y-3">
-{images.map((image, index) => (
-                <div
-                  key={image.id}
-                  className="flex items-center justify-between gap-4 p-4 border border-border rounded-xl bg-background hover:bg-muted/50 transition-colors"
-                >
-                  <div className="flex items-center gap-4 flex-1 min-w-0">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => moveImage(image.id, 'up')}
-                      disabled={index === 0}
-                      className="text-muted-foreground hover:text-foreground opacity-50 hover:opacity-100"
-                      aria-label="Geser ke atas"
-                    >
-                      <GripVertical className="w-5 h-5" />
-                    </Button>
-
-                    <div className="relative w-20 h-11 flex-shrink-0 rounded-lg overflow-hidden bg-muted border border-border">
-                      <img
-                        src={image.image_url}
-                        alt={image.alt_text || ''}
-                        className="absolute inset-0 w-full h-full object-cover"
-                      />
-                      {!image.is_active && (
-                        <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                          <EyeOff className="w-5 h-5 text-white" />
+            <div className="rounded-lg border border-border bg-background overflow-x-auto">
+              <Table className="min-w-[700px]">
+                <TableHeader>
+                  <tr>
+                    <TableHead className="w-12">Ur</TableHead>
+                    <TableHead className="w-24">Preview</TableHead>
+                    <TableHead>Alt Text</TableHead>
+                    <TableHead className="w-32">Urutan</TableHead>
+                    <TableHead className="w-32">Status</TableHead>
+                    <TableHead className="w-48 text-right">Aksi</TableHead>
+                  </tr>
+                </TableHeader>
+                <TableBody>
+                  {images.map((image, index) => (
+                    <TableRow key={image.id}>
+                      <TableCell className="text-center text-sm text-muted-foreground">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => moveImage(image.id, 'up')}
+                          disabled={index === 0}
+                          className="text-muted-foreground hover:text-foreground opacity-50 hover:opacity-100"
+                          aria-label="Geser ke atas"
+                        >
+                          <GripVertical className="w-4 h-4" />
+                        </Button>
+                      </TableCell>
+                      <TableCell>
+                        <div className="relative w-20 h-11 flex-shrink-0 rounded-lg overflow-hidden bg-muted border border-border">
+                          <img
+                            src={image.image_url}
+                            alt={image.alt_text || ''}
+                            className="absolute inset-0 w-full h-full object-cover"
+                          />
+                          {!image.is_active && (
+                            <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                              <EyeOff className="w-4 h-4 text-white" />
+                            </div>
+                          )}
                         </div>
-                      )}
-                    </div>
-
-                    <div className="flex-1 min-w-0 space-y-1">
-                      <p className="font-medium truncate">{image.alt_text || 'Tanpa alt text'}</p>
-                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                        <span>Urutan: {image.sort_order + 1}</span>
-                        <span className={cn(
-                          'px-2 py-0.5 rounded-full text-xs font-medium',
+                      </TableCell>
+                      <TableCell>
+                        <p className="font-medium truncate max-w-xs">{image.alt_text || 'Tanpa alt text'}</p>
+                      </TableCell>
+                      <TableCell className="text-center text-sm text-muted-foreground">
+                        {image.sort_order + 1}
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <Badge variant="secondary" className={cn(
                           image.is_active
                             ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
                             : 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400'
                         )}>
                           {image.is_active ? 'Aktif' : 'Nonaktif'}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-1 flex-shrink-0">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => handleToggleActive(image.id, image.is_active)}
-                      className={cn(
-                        'text-muted-foreground hover:text-foreground',
-                        !image.is_active && 'opacity-50'
-                      )}
-                      aria-label={image.is_active ? 'Nonaktifkan' : 'Aktifkan'}
-                    >
-                      {image.is_active ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => handleOpen(image)}
-                      className="text-muted-foreground hover:text-foreground"
-                    >
-                      <Edit className="w-4 h-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => handleDelete(image.id)}
-                      className="text-muted-foreground hover:text-destructive"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => moveImage(image.id, 'down')}
-                      disabled={index === images.length - 1}
-                      className="text-muted-foreground hover:text-foreground opacity-50 hover:opacity-100"
-                      aria-label="Geser ke bawah"
-                    >
-                      <GripVertical className="w-5 h-5" />
-                    </Button>
-                  </div>
-                </div>
-              ))}
-          </div>
-        )}
-      </CardContent>
-    </Card>
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex items-center justify-end gap-1">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleToggleActive(image.id, image.is_active)}
+                            className={cn(
+                              'text-muted-foreground hover:text-foreground',
+                              !image.is_active && 'opacity-50'
+                            )}
+                            aria-label={image.is_active ? 'Nonaktifkan' : 'Aktifkan'}
+                          >
+                            {image.is_active ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleOpen(image)}
+                            className="text-muted-foreground hover:text-foreground"
+                          >
+                            <Edit className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleDelete(image.id)}
+                            className="text-muted-foreground hover:text-destructive"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => moveImage(image.id, 'down')}
+                            disabled={index === images.length - 1}
+                            className="text-muted-foreground hover:text-foreground opacity-50 hover:opacity-100"
+                            aria-label="Geser ke bawah"
+                          >
+                            <GripVertical className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
+</TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
     {/* Edit/Add Dialog */}
     <Dialog open={open} onOpenChange={setOpen}>
