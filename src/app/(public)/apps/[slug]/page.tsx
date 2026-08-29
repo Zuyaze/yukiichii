@@ -31,7 +31,7 @@ export default async function AppDetailPage({ params }: AppDetailPageProps) {
 
   await recordClick(app.id, null, null)
 
-  const screenshots = (app as any).screenshots || []
+  const screenshots = Array.isArray((app as any).screenshots) ? (app as any).screenshots : []
   const iconUrl = (app as any).icon_url || null
 
   return (
@@ -158,7 +158,7 @@ export default async function AppDetailPage({ params }: AppDetailPageProps) {
               <dt className="text-muted-foreground">Harga</dt>
               <dd className="font-medium text-green-600 dark:text-green-400">Gratis</dd>
             </div>
-            {app.tags?.length > 0 && (
+            {Array.isArray(app.tags) && app.tags.length > 0 && (
               <div className="flex justify-between items-start py-2.5 text-sm gap-4">
                 <dt className="text-muted-foreground flex-shrink-0">Tag</dt>
                 <dd className="flex flex-wrap gap-1 justify-end">
@@ -169,7 +169,7 @@ export default async function AppDetailPage({ params }: AppDetailPageProps) {
                       className="text-xs"
                       style={{ backgroundColor: `${tag.color}20`, color: tag.color }}
                     >
-                      {tag.name}
+                      {String(tag.name)}
                     </Badge>
                   ))}
                 </dd>
