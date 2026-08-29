@@ -1,11 +1,11 @@
 import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
-import Link from 'next/link'
 import { getAppBySlug, recordClick } from '@/lib/db/queries'
 import { Badge } from '@/components/ui/badge'
-import { Download, ArrowLeft, Calendar, ShieldCheck, Zap } from 'lucide-react'
+import { Download, Calendar, ShieldCheck, Zap } from 'lucide-react'
 import { formatDate } from '@/lib/utils'
 import { ScreenshotGallery } from '@/components/screenshot-gallery'
+import { AppDetailBackButton } from '@/components/app-detail-back-button'
 
 interface AppDetailPageProps {
   params: Promise<{ slug: string }>
@@ -36,15 +36,9 @@ export default async function AppDetailPage({ params }: AppDetailPageProps) {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Back link */}
+      {/* Back button */}
       <div className="mx-auto max-w-3xl px-4 pt-6 sm:px-6">
-          <Link
-            href="/apps"
-            className="inline-flex items-center gap-1.5 px-3 py-2 -ml-3 text-sm font-medium text-muted-foreground hover:text-primary rounded-lg hover:bg-muted transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Kembali
-          </Link>
+          <AppDetailBackButton />
       </div>
 
       <div className="mx-auto max-w-3xl px-4 pb-16 pt-4 sm:px-6">
