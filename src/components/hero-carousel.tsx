@@ -27,6 +27,7 @@ export function HeroCarousel({
   showDots = true,
   pauseOnHover = true,
 }: HeroCarouselProps) {
+  console.log('[HeroCarousel] images received:', images.map(i => ({ id: i.id, url: i.image_url?.substring(0, 50) })))
   const shouldLoop = images.length > 1
   const [emblaRef, emblaApi] = useEmblaCarousel({ 
     loop: shouldLoop, 
