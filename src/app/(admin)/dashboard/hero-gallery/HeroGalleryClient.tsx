@@ -199,7 +199,7 @@ export function HeroGalleryClient({ initialImages }: HeroGalleryClientProps) {
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Kelola Hero Gallery</h1>
-          <p className="text-muted-foreground mt-1">Kelola gambar hero section di homepage (hanya 1 gambar)</p>
+          <p className="text-muted-foreground mt-1">Kelola gambar hero carousel di homepage (carousel otomatis 5 detik, bisa di-swipe)</p>
         </div>
       </div>
 
@@ -252,6 +252,7 @@ export function HeroGalleryClient({ initialImages }: HeroGalleryClientProps) {
                 <div className="text-center p-4 text-primary/60">
                   <Plus className="w-12 h-12 mx-auto mb-2" />
                   <p className="text-sm">Belum ada gambar hero</p>
+                  <p className="text-xs text-muted-foreground mt-1">Carousel otomatis 5 detik, bisa di-swipe</p>
                 </div>
               </div>
               <Button onClick={() => handleOpen()} className="mt-4 gap-2">

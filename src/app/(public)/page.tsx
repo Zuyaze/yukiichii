@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 import { ArrowRight, Download, AlertCircle } from 'lucide-react'
 import { unstable_noStore } from 'next/cache'
 import { SearchBar } from '@/components/search-bar'
-import { HeroSingle } from '@/components/hero-single'
+import { HeroCarousel } from '@/components/hero-carousel'
 import { AppCard } from '@/components/app-card'
 
 export const metadata: Metadata = {
@@ -106,9 +106,9 @@ export default async function HomePage() {
             </h1>
           </div>
 
-          {/* Hero Single Image */}
+          {/* Hero Carousel */}
           <div className="max-w-5xl mx-auto">
-            <HeroSingle images={heroImages} />
+            <HeroCarousel images={heroImages} autoPlayMs={5000} />
           </div>
 
           {/* CTA Buttons */}
