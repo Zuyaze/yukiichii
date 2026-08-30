@@ -32,10 +32,19 @@ export async function POST(request: Request) {
       return Response.json({ error: 'URL gambar harus dimulai dengan https://' }, { status: 400 })
     }
 
+    // Auto-assign sort_order if not provided
+    let finalSortOrder = sort_order
+    if (finalSortOrder === undefined || finalSortOrder === null || finalSortOrder === '') {
+      const maxResult = await getDb().execute({
+        sql: 'SELECT COALESCE(MAX(sort_order), -1) + 1 as next_order FROM hero_images',
+      })
+      finalSortOrder = (maxResult.rows[0] as any)?.next_order ?? 0
+    }
+
     const id = await createHeroImage({
       image_url,
       alt_text: alt_text ?? null,
-      sort_order: sort_order ?? 0,
+      sort_order: finalSortOrder,
       is_active: is_active ?? true,
     })
 

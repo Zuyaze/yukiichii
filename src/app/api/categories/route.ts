@@ -21,20 +21,29 @@ export async function POST(request: Request) {
 
   try {
     await ensureSchema()
-    const { name, slug, color, icon, sort_order } = await request.json()
+    const { name, slug, color, sort_order } = await request.json()
 
     if (!name || !slug) {
       return Response.json({ error: 'Nama dan slug wajib diisi' }, { status: 400 })
     }
 
+    // Auto-assign sort_order if not provided (max + 1)
+    let finalSortOrder = sort_order
+    if (finalSortOrder === undefined || finalSortOrder === null || finalSortOrder === '') {
+      const maxResult = await getDb().execute({
+        sql: 'SELECT COALESCE(MAX(sort_order), -1) + 1 as next_order FROM categories',
+      })
+      finalSortOrder = (maxResult.rows[0] as any)?.next_order ?? 0
+    }
+
     const result = await getDb().execute({
       sql: `
-        INSERT INTO categories (name, slug, color, icon, sort_order)
-        VALUES (?, ?, ?, ?, ?)
+        INSERT INTO categories (name, slug, color, sort_order)
+        VALUES (?, ?, ?, ?)
         ON CONFLICT (slug) DO NOTHING
         RETURNING id
       `,
-      args: [name, slug, color || '#3b82f6', icon || null, sort_order || 0],
+      args: [name, slug, color || '#3b82f6', finalSortOrder],
     })
 
     return Response.json({ success: true, id: (result.rows[0] as any)?.id ?? null })

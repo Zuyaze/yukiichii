@@ -15,7 +15,7 @@ interface CategoryClientProps {
 export function CategoryClient({ categories }: CategoryClientProps) {
   const [open, setOpen] = useState(false)
   const [editing, setEditing] = useState<any>(null)
-  const [formData, setFormData] = useState({ name: '', slug: '', color: '#3b82f6', icon: '', sort_order: 0 })
+  const [formData, setFormData] = useState({ name: '', slug: '', color: '#3b82f6', sort_order: 0 })
   const [saving, setSaving] = useState(false)
 
   const handleOpen = (category?: any) => {
@@ -25,12 +25,11 @@ export function CategoryClient({ categories }: CategoryClientProps) {
         name: category.name,
         slug: category.slug,
         color: category.color,
-        icon: category.icon || '',
         sort_order: category.sort_order,
       })
     } else {
       setEditing(null)
-      setFormData({ name: '', slug: '', color: '#3b82f6', icon: '', sort_order: categories.length })
+      setFormData({ name: '', slug: '', color: '#3b82f6', sort_order: categories.length })
     }
     setOpen(true)
   }
@@ -94,7 +93,6 @@ export function CategoryClient({ categories }: CategoryClientProps) {
               <TableHead className="w-12">Warna</TableHead>
               <TableHead>Nama</TableHead>
               <TableHead>Slug</TableHead>
-              <TableHead>Icon</TableHead>
               <TableHead>Urutan</TableHead>
               <TableHead className="w-48 text-right">Aksi</TableHead>
             </tr>
@@ -107,13 +105,6 @@ export function CategoryClient({ categories }: CategoryClientProps) {
                 </TableCell>
                 <TableCell className="font-medium">{category.name}</TableCell>
                 <TableCell className="text-sm text-muted-foreground font-mono">{category.slug}</TableCell>
-                <TableCell className="text-center">
-                  {category.icon ? (
-                    <span className="text-lg">{category.icon}</span>
-                  ) : (
-                    <span className="text-muted-foreground">-</span>
-                  )}
-                </TableCell>
                 <TableCell className="text-sm text-muted-foreground">{category.sort_order}</TableCell>
                 <TableCell className="text-right">
                   <Button variant="ghost" size="icon" onClick={() => handleOpen(category)} className="text-muted-foreground hover:text-foreground">
@@ -127,7 +118,7 @@ export function CategoryClient({ categories }: CategoryClientProps) {
             ))}
             {categories.length === 0 && (
               <TableRow>
-                <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
                   Belum ada kategori.
                 </TableCell>
               </TableRow>
@@ -158,10 +149,6 @@ export function CategoryClient({ categories }: CategoryClientProps) {
                   <input type="color" id="color" value={formData.color} onChange={e => setFormData({ ...formData, color: e.target.value })} className="w-10 h-10 rounded border cursor-pointer" />
                   <Input id="color-hex" value={formData.color} onChange={e => setFormData({ ...formData, color: e.target.value })} className="flex-1 font-mono" />
                 </div>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="icon">Icon (Emoji)</Label>
-                <Input id="icon" name="icon" value={formData.icon} onChange={e => setFormData({ ...formData, icon: e.target.value })} placeholder="📱" maxLength={4} />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="sort_order">Urutan</Label>

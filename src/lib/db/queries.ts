@@ -222,11 +222,11 @@ export async function createCategory(data: {
 
 export async function updateCategory(
   id: number,
-  data: { name: string; slug: string; color: string; icon: string | null; sort_order: number }
+  data: { name: string; slug: string; color: string; sort_order: number }
 ): Promise<void> {
   await getDb().execute({
-    sql: 'UPDATE categories SET name = ?, slug = ?, color = ?, icon = ?, sort_order = ? WHERE id = ?',
-    args: [data.name, data.slug, data.color, data.icon, data.sort_order, id],
+    sql: 'UPDATE categories SET name = ?, slug = ?, color = ?, sort_order = ? WHERE id = ?',
+    args: [data.name, data.slug, data.color, data.sort_order, id],
   })
 }
 

@@ -10,13 +10,13 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   const { id } = await params
 
   try {
-    const { name, slug, color, icon, sort_order } = await request.json()
+    const { name, slug, color, sort_order } = await request.json()
     
     if (!name || !slug) {
       return Response.json({ error: 'Nama dan slug wajib diisi' }, { status: 400 })
     }
 
-    await updateCategory(parseInt(id), { name, slug, color: color || '#3b82f6', icon: icon || null, sort_order: sort_order || 0 })
+    await updateCategory(parseInt(id), { name, slug, color: color || '#3b82f6', sort_order: sort_order ?? 0 })
     return Response.json({ success: true })
   } catch (error) {
     console.error('Update category error:', error)
