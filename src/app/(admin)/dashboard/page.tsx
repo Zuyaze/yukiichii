@@ -69,7 +69,6 @@ export default async function DashboardPage() {
               <tr>
                 <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Aplikasi</th>
                 <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Kategori</th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Download</th>
                 <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">Aksi</th>
               </tr>
             </thead>
@@ -81,7 +80,6 @@ export default async function DashboardPage() {
                     <div className="text-sm text-muted-foreground truncate max-w-xs">{app.slug}</div>
                   </td>
                   <td className="px-4 py-3 text-sm text-muted-foreground">{app.category_name || '-'}</td>
-                  <td className="px-4 py-3 text-sm font-medium text-foreground">{app.click_count || 0}</td>
                   <td className="px-4 py-3 text-right">
                     <Link href={`/dashboard/apps/${app.id}`} className="text-sm text-primary hover:underline">Edit</Link>
                   </td>
@@ -89,7 +87,7 @@ export default async function DashboardPage() {
               ))}
               {appsWithStats.length === 0 && (
                 <tr>
-                  <td colSpan={4} className="px-4 py-8 text-center text-muted-foreground">
+                  <td colSpan={3} className="px-4 py-8 text-center text-muted-foreground">
                     Belum ada aplikasi.{' '}
                     <Link href="/dashboard/apps/new" className="text-primary hover:underline">
                       Tambah yang pertama
