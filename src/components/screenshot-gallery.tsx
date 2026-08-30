@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef, useCallback } from 'react'
 import { cn } from '@/lib/utils'
 
 interface ScreenshotGalleryProps {
@@ -10,6 +10,7 @@ interface ScreenshotGalleryProps {
 
 export function ScreenshotGallery({ screenshots, title }: ScreenshotGalleryProps) {
   const [active, setActive] = useState(0)
+  const scrollRef = useRef<HTMLDivElement>(null)
 
   if (screenshots.length === 0) return null
 
@@ -27,12 +28,40 @@ export function ScreenshotGallery({ screenshots, title }: ScreenshotGalleryProps
     )
   }
 
+  const scrollToIndex = useCallback((index: number) => {
+    if (scrollRef.current) {
+      const scrollContainer = scrollRef.current
+      const itemWidth = scrollContainer.clientWidth
+      scrollContainer.scrollTo({
+        left: index * itemWidth,
+        behavior: 'smooth'
+      })
+    }
+    setActive(index)
+  }, [])
+
+  const handleScroll = useCallback(() => {
+    if (!scrollRef.current) return
+    const scrollContainer = scrollRef.current
+    const itemWidth = scrollContainer.clientWidth
+    if (itemWidth === 0) return
+    const newIndex = Math.round(scrollContainer.scrollLeft / itemWidth)
+    if (newIndex !== active) {
+      setActive(newIndex)
+    }
+  }, [active])
+
   // Multiple images - horizontal scroll gallery
   return (
     <div className="space-y-3">
       {/* Main image - horizontal scroll */}
       <div className="relative aspect-video rounded-xl overflow-hidden bg-muted">
-        <div className="flex h-full overflow-x-auto scroll-snap-x snap-mandatory scrollbar-hide -ml-2 pb-2" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+        <div
+          ref={scrollRef}
+          onScroll={handleScroll}
+          className="flex h-full overflow-x-auto scroll-snap-x snap-mandatory scrollbar-hide -ml-2 pb-2"
+          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+        >
           {screenshots.map((url, i) => (
             <div key={i} className="flex-[0_0_100%] snap-start min-w-0 px-2" style={{ minWidth: '100%' }}>
               <img
@@ -49,7 +78,7 @@ export function ScreenshotGallery({ screenshots, title }: ScreenshotGalleryProps
           {screenshots.map((_, i) => (
             <button
               key={i}
-              onClick={() => setActive(i)}
+              onClick={() => scrollToIndex(i)}
               aria-label={`Screenshot ${i + 1}`}
               className={cn(
                 'w-2 h-2 rounded-full transition-colors',
@@ -65,7 +94,7 @@ export function ScreenshotGallery({ screenshots, title }: ScreenshotGalleryProps
         {screenshots.map((url, i) => (
           <button
             key={i}
-            onClick={() => setActive(i)}
+            onClick={() => scrollToIndex(i)}
             className={cn(
               'relative aspect-video rounded-lg overflow-hidden border-2 transition-all',
               i === active
