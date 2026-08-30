@@ -4,7 +4,7 @@ import { getCategories, getTags, getAllAppsWithStats } from '@/lib/db/queries'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
-import { Plus, Box, Tag, FolderOpen, TrendingUp, ArrowRight } from 'lucide-react'
+import { Plus, Box, Tag, FolderOpen, ArrowRight } from 'lucide-react'
 
 export default async function DashboardPage() {
   const [categories, tags, appsWithStats] = await Promise.all([
@@ -14,13 +14,11 @@ export default async function DashboardPage() {
   ])
 
   const totalApps = appsWithStats.length
-  const totalClicks = appsWithStats.reduce((sum, app) => sum + Number(app.click_count || 0), 0)
 
   const stats = [
     { name: 'Total Aplikasi', value: totalApps, icon: Box, href: '/dashboard/apps' },
     { name: 'Total Kategori', value: categories.length, icon: FolderOpen, href: '/dashboard/categories' },
     { name: 'Total Tag', value: tags.length, icon: Tag, href: '/dashboard/tags' },
-    { name: 'Total Download', value: totalClicks, icon: TrendingUp, href: '/dashboard/apps' },
   ]
 
   return (

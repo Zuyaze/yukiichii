@@ -145,7 +145,6 @@ export default async function AppsListPage({ searchParams }: AppsListPageProps) 
               <TableHead>Judul</TableHead>
               <TableHead>Kategori</TableHead>
               <TableHead>Dibuat</TableHead>
-              <TableHead className="w-32 text-right">Download</TableHead>
               <TableHead className="w-32 text-right">Aksi</TableHead>
             </tr>
           </TableHeader>
@@ -168,9 +167,6 @@ export default async function AppsListPage({ searchParams }: AppsListPageProps) 
                     )}
                   </TableCell>
                   <TableCell className="text-sm text-muted-foreground">{formatDate(app.created_at)}</TableCell>
-                  <TableCell className="text-right text-sm font-medium text-foreground">
-                    {Number(app.click_count || 0).toLocaleString('id-ID')}
-                  </TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-2">
                       <Link href={`/dashboard/apps/${app.id}`}>
@@ -186,7 +182,7 @@ export default async function AppsListPage({ searchParams }: AppsListPageProps) 
             })}
             {paginated.length === 0 && (
               <TableRow>
-                <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+                <TableCell colSpan={4} className="text-center py-8 text-muted-foreground">
                   {query || categoryFilter ? (
                     'Tidak ada hasil yang cocok.'
                   ) : (
