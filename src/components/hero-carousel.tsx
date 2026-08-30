@@ -27,6 +27,7 @@ export function HeroCarousel({
   showDots = true,
   pauseOnHover = true,
 }: HeroCarouselProps) {
+  console.log('[HeroCarousel] images received:', images.map(i => ({ id: i.id, url: i.image_url?.substring(0, 50) })))
   const shouldLoop = images.length > 1
   const [emblaRef, emblaApi] = useEmblaCarousel({ 
     loop: shouldLoop, 
@@ -57,11 +58,13 @@ export function HeroCarousel({
 
     const onInit = () => {
       const snaps = emblaApi.scrollSnapList()
+      console.log('[HeroCarousel] onInit scrollSnaps:', snaps, 'slides:', emblaApi.slideNodes().length)
       setScrollSnaps(snaps)
     }
     const onSelect = () => setSelectedIndex(emblaApi.selectedScrollSnap())
     const onReInit = () => {
       const snaps = emblaApi.scrollSnapList()
+      console.log('[HeroCarousel] onReInit scrollSnaps:', snaps)
       setScrollSnaps(snaps)
     }
 
