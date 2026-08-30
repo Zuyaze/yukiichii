@@ -58,13 +58,17 @@ export function HeroCarousel({
 
     const onInit = () => {
       const snaps = emblaApi.scrollSnapList()
-      console.log('[HeroCarousel] onInit scrollSnaps:', snaps, 'slides:', emblaApi.slideNodes().length)
+      const nodes = emblaApi.slideNodes()
+      console.log('[HeroCarousel] onInit scrollSnaps:', snaps, 'slides:', nodes.length)
+      nodes.forEach((n, i) => console.log(`  slide ${i}:`, n.getBoundingClientRect()))
       setScrollSnaps(snaps)
     }
     const onSelect = () => setSelectedIndex(emblaApi.selectedScrollSnap())
     const onReInit = () => {
       const snaps = emblaApi.scrollSnapList()
-      console.log('[HeroCarousel] onReInit scrollSnaps:', snaps)
+      const nodes = emblaApi.slideNodes()
+      console.log('[HeroCarousel] onReInit scrollSnaps:', snaps, 'slides:', nodes.length)
+      nodes.forEach((n, i) => console.log(`  slide ${i}:`, n.getBoundingClientRect()))
       setScrollSnaps(snaps)
     }
 
