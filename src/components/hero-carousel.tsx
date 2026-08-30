@@ -163,7 +163,7 @@ export function HeroCarousel({
                 <img
                   src={image.image_url}
                   alt={image.alt_text || `Hero ${index + 1}`}
-                  loading={index === 0 ? 'eager' : 'lazy'}
+                  loading="eager"
                   onLoad={handleImageLoad}
                   className="absolute inset-0 w-full h-full object-cover"
                 />
