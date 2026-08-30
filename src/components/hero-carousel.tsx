@@ -30,7 +30,7 @@ export function HeroCarousel({
   const shouldLoop = images.length > 1
   const [emblaRef, emblaApi] = useEmblaCarousel({ 
     loop: shouldLoop, 
-    align: 'center', 
+    align: 'start', 
     slidesToScroll: 1,
     draggable: true,
   })
@@ -70,6 +70,8 @@ export function HeroCarousel({
     emblaApi.on('reInit', onReInit)
 
     onInit()
+    // Force reInit after mount to ensure correct slide calculation with loop
+    setTimeout(() => emblaApi.reInit(), 0)
 
     return () => {
       emblaApi.off('init', onInit)
