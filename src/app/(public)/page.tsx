@@ -2,7 +2,7 @@ import { Metadata } from 'next'
 import Link from 'next/link'
 import { getApps, getCategories, getAppGroups } from '@/lib/db/queries'
 import { Button } from '@/components/ui/button'
-import { ArrowRight, Download, AlertCircle, Info } from 'lucide-react'
+import { ArrowRight, Download, AlertCircle } from 'lucide-react'
 import { unstable_noStore } from 'next/cache'
 import { SearchBar } from '@/components/search-bar'
 import { AppCard } from '@/components/app-card'
@@ -90,66 +90,29 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Hero Section - Text Description */}
-      <section className="relative overflow-hidden py-16 sm:py-20 lg:py-24">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-10">
-            <h1 className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl md:text-6xl lg:text-7xl">
-              <span className="text-primary">Yukii</span>Chii
-              <span className="mx-2 text-lg font-light text-muted-foreground/60 align-middle">×</span>
-              <span className="text-foreground">Zuyaze</span>
-            </h1>
-          </div>
-
-          {/* Hero Description */}
-          <div className="max-w-3xl mx-auto text-center">
-            <div className="bg-primary/5 border border-primary/20 rounded-2xl p-8 sm:p-12">
-              <div className="flex items-center justify-center gap-3 mb-6">
-                <div className="p-3 rounded-xl bg-primary/10 text-primary">
-                  <Info className="w-8 h-8" />
-                </div>
-              </div>
-              <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-4">
-                Kumpulan Mod Apk & Loader Gratis Terbaru
-              </h2>
-              <p className="text-lg text-muted-foreground mb-6 max-w-2xl mx-auto leading-relaxed">
-                YukiiChii × Zuyaze menyediakan koleksi mod apk dan loader gratis yang aman, 
-                terupdate, dan mudah diunduh. Semua aplikasi diverifikasi dan bebas iklan mengganggu.
-              </p>
-              <div className="grid grid-cols-2 gap-4 mb-8 text-sm text-muted-foreground">
-                <div className="flex items-center justify-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-green-500" />
-                  <span>Download Cepat & Aman</span>
-                </div>
-                <div className="flex items-center justify-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-green-500" />
-                  <span>Update Teratur</span>
-                </div>
-                <div className="flex items-center justify-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-green-500" />
-                  <span>Tanpa Iklan Mengganggu</span>
-                </div>
-                <div className="flex items-center justify-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-green-500" />
-                  <span>Verifikasi Manual</span>
-                </div>
-              </div>
-
-              {/* CTA Buttons */}
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                <Link href="/apps">
-                  <Button size="lg" className="w-full sm:w-auto gap-2">
-                    <Download className="w-5 h-5" />
-                    Jelajahi Aplikasi
-                  </Button>
-                </Link>
-                <Link href="/categories">
-                  <Button size="lg" variant="outline" className="w-full sm:w-auto">
-                    Lihat Kategori
-                  </Button>
-                </Link>
-              </div>
-            </div>
+{/* Hero Section - Clean Text */}
+      <section className="py-16 sm:py-20 lg:py-24">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center">
+          <h1 className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl md:text-6xl lg:text-7xl">
+            <span className="text-primary">Yukii</span>Chii
+            <span className="mx-2 text-lg font-light text-muted-foreground/60 align-middle">×</span>
+            <span className="text-foreground">Zuyaze</span>
+          </h1>
+          <p className="mt-6 text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+            Kumpulan mod apk & loader gratis terbaru. Aman, cepat, update teratur, tanpa iklan mengganggu.
+          </p>
+          <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
+            <Link href="/apps">
+              <Button size="lg" className="w-full sm:w-auto gap-2">
+                <Download className="w-5 h-5" />
+                Jelajahi Aplikasi
+              </Button>
+            </Link>
+            <Link href="/categories">
+              <Button size="lg" variant="outline" className="w-full sm:w-auto">
+                Lihat Kategori
+              </Button>
+            </Link>
           </div>
         </div>
       </section>
