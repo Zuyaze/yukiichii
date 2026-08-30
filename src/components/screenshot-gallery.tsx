@@ -43,6 +43,21 @@ export function ScreenshotGallery({ screenshots, title }: ScreenshotGalleryProps
             </div>
           ))}
         </div>
+
+        {/* Dots indicator */}
+        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
+          {screenshots.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => setActive(i)}
+              aria-label={`Screenshot ${i + 1}`}
+              className={cn(
+                'w-2 h-2 rounded-full transition-colors',
+                i === active ? 'bg-white' : 'bg-white/40'
+              )}
+            />
+          ))}
+        </div>
       </div>
 
       {/* Thumbnails */}
