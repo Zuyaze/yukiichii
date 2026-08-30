@@ -111,7 +111,7 @@ export default async function AppDetailPage({ params }: AppDetailPageProps) {
 
         {/* ===== Single Download Box ===== */}
         <section className="mt-6 rounded-2xl border border-green-500/30 bg-gradient-to-b from-green-500/10 to-transparent p-5 sm:p-6">
-          <a href={app.download_url} target="_blank" rel="noopener noreferrer" className="block group/dl">
+          <a href={`/api/download/${app.id}`} target="_blank" rel="noopener noreferrer" className="block group/dl">
             <button className="relative w-full min-h-[72px] py-4 bg-gradient-to-b from-green-500 to-emerald-600 text-white rounded-2xl shadow-lg shadow-green-500/40 hover:shadow-xl hover:shadow-green-500/50 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all cursor-pointer border-0 overflow-hidden">
               {/* shine effect */}
               <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/25 to-transparent -translate-x-full group-hover/dl:translate-x-full transition-transform duration-700" />
