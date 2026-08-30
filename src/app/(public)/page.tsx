@@ -98,8 +98,8 @@ export default async function HomePage() {
             <span className="mx-2 text-lg font-light text-muted-foreground/60 align-middle">×</span>
             <span className="text-foreground">Zuyaze</span>
           </h1>
-          <p className="mt-6 text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-            Kumpulan mod apk & loader gratis terbaru. Download cepat, aman, update otomatis, dan bebas iklan mengganggu.
+<p className="mt-6 text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+            Website ini menyediakan koleksi Mod Apk dan Loader game terupdate yang bisa diunduh secara gratis. Website ini dirancang khusus untuk mempermudah pengguna dalam menemukan file modifikasi game populer.
           </p>
           <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link href="/apps">
