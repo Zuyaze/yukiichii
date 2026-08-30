@@ -99,7 +99,7 @@ export default async function HomePage() {
             <span className="text-foreground">Zuyaze</span>
           </h1>
           <p className="mt-6 text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-            Kumpulan mod apk & loader gratis terbaru. Aman, cepat, update teratur, tanpa iklan mengganggu.
+            Kumpulan mod apk & loader gratis terbaru. Setiap aplikasi berbeda—bagian aman & cepat, sebagian mungkin ada iklan. Silakan pilih yang cocok.
           </p>
           <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link href="/apps">
