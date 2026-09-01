@@ -28,11 +28,12 @@ export async function POST(request: Request) {
     }
 
     const isHttpsUrl = (u: unknown) => typeof u === 'string' && u.startsWith('https://')
+    const isBlobUrl = (u: unknown) => typeof u === 'string' && u.startsWith('blob:')
     if (!isHttpsUrl(link_url)) {
       return Response.json({ error: 'Link harus dimulai dengan https://' }, { status: 400 })
     }
-    if (icon_url && !isHttpsUrl(icon_url)) {
-      return Response.json({ error: 'URL icon harus dimulai dengan https://' }, { status: 400 })
+    if (icon_url && !isHttpsUrl(icon_url) && !isBlobUrl(icon_url)) {
+      return Response.json({ error: 'URL icon harus dimulai dengan https:// atau upload file' }, { status: 400 })
     }
 
     const id = await createFeedbackCTA({

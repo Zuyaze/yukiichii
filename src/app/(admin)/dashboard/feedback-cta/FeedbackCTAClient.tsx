@@ -84,12 +84,13 @@ export function FeedbackCTAClient({ initialCTAs }: FeedbackCTAClientProps) {
     }
 
     const isHttpsUrl = (u: string) => u.startsWith('https://')
+    const isBlobUrl = (u: string) => u.startsWith('blob:')
     if (!formData.link_url.startsWith('https://')) {
       setError('Link harus dimulai dengan https://')
       return
     }
-    if (formData.icon_url && !formData.icon_url.startsWith('https://')) {
-      setError('URL icon harus dimulai dengan https://')
+    if (formData.icon_url && !isHttpsUrl(formData.icon_url) && !isBlobUrl(formData.icon_url)) {
+      setError('URL icon harus dimulai dengan https:// atau upload file')
       return
     }
 

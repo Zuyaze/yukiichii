@@ -44,11 +44,12 @@ export async function POST(
     }
 
     const isHttpsUrl = (u: unknown) => typeof u === 'string' && u.startsWith('https://')
+    const isBlobUrl = (u: unknown) => typeof u === 'string' && u.startsWith('blob:')
     if (link_url !== undefined && !isHttpsUrl(link_url)) {
       return Response.json({ error: 'Link harus dimulai dengan https://' }, { status: 400 })
     }
-    if (icon_url !== undefined && icon_url && !isHttpsUrl(icon_url)) {
-      return Response.json({ error: 'URL icon harus dimulai dengan https://' }, { status: 400 })
+    if (icon_url !== undefined && icon_url && !isHttpsUrl(icon_url) && !isBlobUrl(icon_url)) {
+      return Response.json({ error: 'URL icon harus dimulai dengan https:// atau upload file' }, { status: 400 })
     }
 
     await updateFeedbackCTA(parseInt(id), {
