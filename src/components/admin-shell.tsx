@@ -4,7 +4,7 @@ import { ReactNode, useEffect, useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
-import { LayoutDashboard, Box, Tag, LogOut, Menu, X, ChevronDown, ArrowLeft, FolderOpen } from 'lucide-react'
+import { LayoutDashboard, Box, Tag, LogOut, Menu, X, ChevronDown, ArrowLeft, FolderOpen, MessageSquare } from 'lucide-react'
 import { signOut } from 'next-auth/react'
 import { Button } from '@/components/ui/button'
 import {
@@ -22,6 +22,7 @@ const navigation = [
   { name: 'Group Aplikasi', href: '/dashboard/app-groups', icon: FolderOpen },
   { name: 'Kategori', href: '/dashboard/categories', icon: Tag },
   { name: 'Tag', href: '/dashboard/tags', icon: Tag },
+  { name: 'Feedback CTA', href: '/dashboard/feedback-cta', icon: MessageSquare },
 ]
 
 interface AdminShellProps {

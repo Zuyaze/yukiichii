@@ -7,6 +7,7 @@ import { Download, Calendar, ShieldCheck, Zap } from 'lucide-react'
 import { formatDate } from '@/lib/utils'
 import { ScreenshotGallery } from '@/components/screenshot-gallery'
 import { AppDetailBackButton } from '@/components/app-detail-back-button'
+import { FeedbackCTA } from '@/components/feedback-cta'
 
 interface AppDetailPageProps {
   params: Promise<{ slug: string }>
@@ -130,6 +131,9 @@ export default async function AppDetailPage({ params }: AppDetailPageProps) {
             <span>✓ Link Aktif</span>
           </div>
         </section>
+
+        {/* ===== Feedback CTA ===== */}
+        <FeedbackCTA telegramUrl="https://t.me/+a3KcPUIk3UxlZjk1" />
 
         {/* ===== Deskripsi ===== */}
         {app.description && (

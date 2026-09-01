@@ -629,3 +629,111 @@ export async function getAppsNotInGroup(groupId: number, search?: string): Promi
   const result = await getDb().execute({ sql, args })
   return result.rows as unknown as App[]
 }
+
+// ===== Feedback CTA =====
+
+export interface FeedbackCTA {
+  id: number
+  title: string
+  link_url: string
+  icon_url: string | null
+  is_active: boolean
+  sort_order: number
+  created_at: string
+  updated_at: string
+}
+
+export async function getFeedbackCTA(): Promise<FeedbackCTA | null> {
+  const result = await getDb().execute({
+    sql: 'SELECT * FROM feedback_cta WHERE is_active = true ORDER BY sort_order ASC LIMIT 1',
+  })
+  return (result.rows[0] as unknown as FeedbackCTA) || null
+}
+
+export async function getAllFeedbackCTA(): Promise<FeedbackCTA[]> {
+  const result = await getDb().execute({
+    sql: 'SELECT * FROM feedback_cta ORDER BY sort_order ASC, created_at ASC',
+  })
+  return result.rows as unknown as FeedbackCTA[]
+}
+
+export async function getFeedbackCTAById(id: number): Promise<FeedbackCTA | null> {
+  const result = await getDb().execute({
+    sql: 'SELECT * FROM feedback_cta WHERE id = ?',
+    args: [id],
+  })
+  return (result.rows[0] as unknown as FeedbackCTA) || null
+}
+
+export async function createFeedbackCTA(data: {
+  title: string
+  link_url: string
+  icon_url?: string | null
+  is_active?: boolean
+  sort_order?: number
+}): Promise<number> {
+  // Auto-assign sort_order if not provided
+  let finalSortOrder = data.sort_order
+  if (finalSortOrder === undefined || finalSortOrder === null || finalSortOrder === '') {
+    const maxResult = await getDb().execute({
+      sql: 'SELECT COALESCE(MAX(sort_order), -1) + 1 as next_order FROM feedback_cta',
+    })
+    finalSortOrder = (maxResult.rows[0] as any)?.next_order ?? 0
+  }
+
+  const result = await getDb().execute({
+    sql: 'INSERT INTO feedback_cta (title, link_url, icon_url, is_active, sort_order) VALUES (?, ?, ?, ?, ?) RETURNING id',
+    args: [data.title, data.link_url, data.icon_url ?? null, data.is_active ?? true, finalSortOrder],
+  })
+  return (result.rows[0] as any).id as number
+}
+
+export async function updateFeedbackCTA(
+  id: number,
+  data: {
+    title?: string
+    link_url?: string
+    icon_url?: string | null
+    is_active?: boolean
+    sort_order?: number
+  }
+): Promise<void> {
+  const db = getDb()
+  const updates: string[] = []
+  const args: any[] = []
+
+  if (data.title !== undefined) {
+    updates.push('title = ?')
+    args.push(data.title)
+  }
+  if (data.link_url !== undefined) {
+    updates.push('link_url = ?')
+    args.push(data.link_url)
+  }
+  if (data.icon_url !== undefined) {
+    updates.push('icon_url = ?')
+    args.push(data.icon_url)
+  }
+  if (data.is_active !== undefined) {
+    updates.push('is_active = ?')
+    args.push(data.is_active)
+  }
+  if (data.sort_order !== undefined) {
+    updates.push('sort_order = ?')
+    args.push(data.sort_order)
+  }
+
+  if (updates.length === 0) return
+
+  updates.push('updated_at = CURRENT_TIMESTAMP')
+  args.push(id)
+
+  await db.execute({
+    sql: `UPDATE feedback_cta SET ${updates.join(', ')} WHERE id = ?`,
+    args,
+  })
+}
+
+export async function deleteFeedbackCTA(id: number): Promise<void> {
+  await getDb().execute({ sql: 'DELETE FROM feedback_cta WHERE id = ?', args: [id] })
+}

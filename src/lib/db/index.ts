@@ -149,6 +149,16 @@ const SCHEMA_STATEMENTS = [
   `CREATE INDEX IF NOT EXISTS idx_app_groups_slug ON app_groups(slug)`,
   `CREATE INDEX IF NOT EXISTS idx_app_group_items_group ON app_group_items(group_id)`,
   `CREATE INDEX IF NOT EXISTS idx_app_group_items_app ON app_group_items(app_id)`,
+  `CREATE TABLE IF NOT EXISTS feedback_cta (
+    id SERIAL PRIMARY KEY,
+    title TEXT NOT NULL,
+    link_url TEXT NOT NULL,
+    icon_url TEXT,
+    is_active BOOLEAN DEFAULT true,
+    sort_order INTEGER DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  )`,
 ]
 
 export async function initDb() {
