@@ -58,9 +58,6 @@ export function FeedbackCTA({ telegramUrl = 'https://t.me/+a3KcPUIk3UxlZjk1', ti
         )}
         onClick={() => {}}
       >
-        <span className="flex items-center gap-2 text-base sm:text-lg font-semibold leading-tight">
-          {cta.title}
-        </span>
         <span className="flex-shrink-0">
           {cta.icon_url ? (
             <img
@@ -71,6 +68,9 @@ export function FeedbackCTA({ telegramUrl = 'https://t.me/+a3KcPUIk3UxlZjk1', ti
           ) : (
             <Send className="w-6 h-6 sm:w-7 sm:h-7" aria-hidden="true" />
           )}
+        </span>
+        <span className="flex items-center gap-2 text-base sm:text-lg font-semibold leading-tight">
+          {cta.title}
         </span>
       </Link>
     </section>
