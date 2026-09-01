@@ -10,6 +10,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Plus, Edit, Trash2, Loader2, Image as ImageIcon, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
+const CLOUDINARY_CLOUD_NAME = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME
+const CLOUDINARY_UPLOAD_PRESET = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET
+
 interface FeedbackCTA {
   id: number
   title: string
@@ -23,6 +26,41 @@ interface FeedbackCTA {
 
 interface FeedbackCTAClientProps {
   initialCTAs: FeedbackCTA[]
+}
+
+function validateImageFile(file: File): { valid: boolean; error?: string } {
+  const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/avif']
+  const maxSize = 5 * 1024 * 1024
+
+  if (!['image/jpeg', 'image/png', 'image/webp', 'image/avif'].includes(file.type)) {
+    return { valid: false, error: 'Format tidak didukung. Gunakan JPG, PNG, WebP, atau AVIF.' }
+  }
+
+  if (file.size > 5 * 1024 * 1024) {
+    return { valid: false, error: 'Ukuran file maksimal 5MB.' }
+  }
+
+  return { valid: true }
+}
+
+const uploadToCloudinary = async (file: File): Promise<string> => {
+  const fd = new FormData()
+  fd.append('file', file)
+  fd.append('upload_preset', CLOUDINARY_UPLOAD_PRESET!)
+  fd.append('folder', 'yukiichii/feedback-cta')
+
+  const res = await fetch(
+    `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
+    { method: 'POST', body: fd }
+  )
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}))
+    throw new Error(err.error?.message || 'Upload gagal')
+  }
+
+  const data = await res.json()
+  return data.secure_url
 }
 
 export function FeedbackCTAClient({ initialCTAs }: FeedbackCTAClientProps) {
@@ -89,7 +127,7 @@ export function FeedbackCTAClient({ initialCTAs }: FeedbackCTAClientProps) {
       setError('Link harus dimulai dengan https://')
       return
     }
-    if (formData.icon_url && !isHttpsUrl(formData.icon_url) && !isBlobUrl(formData.icon_url)) {
+    if (formData.icon_url && !formData.icon_url.startsWith('https://') && !formData.icon_url.startsWith('blob:')) {
       setError('URL icon harus dimulai dengan https:// atau upload file')
       return
     }
@@ -145,20 +183,15 @@ export function FeedbackCTAClient({ initialCTAs }: FeedbackCTAClientProps) {
     const file = e.target.files?.[0]
     if (!file) return
 
-    if (!['image/jpeg', 'image/png', 'image/webp', 'image/avif'].includes(file.type)) {
-      alert('Format tidak didukung. Gunakan JPG, PNG, WebP, atau AVIF.')
-      return
-    }
-    if (file.size > 5 * 1024 * 1024) {
-      alert('Ukuran file maksimal 5MB.')
+    const validation = validateImageFile(file)
+    if (!validation.valid) {
+      alert(validation.error)
       return
     }
 
     setUploading(true)
     try {
-      // For now, we'll just use a placeholder URL since we don't have upload endpoint
-      // In production, you'd upload to Cloudinary or similar
-      const url = URL.createObjectURL(file)
+      const url = await uploadToCloudinary(file)
       setFormData(prev => ({ ...prev, icon_url: url }))
     } catch (err) {
       alert('Gagal upload icon: ' + (err as Error).message)
