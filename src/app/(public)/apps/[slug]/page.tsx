@@ -1,7 +1,7 @@
 import { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { getAppBySlug, recordClick } from '@/lib/db/queries'
+import { getAppBySlug, recordClick, getFeedbackCTA } from '@/lib/db/queries'
 import { Badge } from '@/components/ui/badge'
 import { Download, Calendar, ShieldCheck, Zap } from 'lucide-react'
 import { formatDate } from '@/lib/utils'
@@ -27,7 +27,10 @@ export async function generateMetadata({ params }: AppDetailPageProps): Promise<
 
 export default async function AppDetailPage({ params }: AppDetailPageProps) {
   const { slug } = await params
-  const app = await getAppBySlug(slug)
+  const [app, cta] = await Promise.all([
+    getAppBySlug(slug),
+    getFeedbackCTA()
+  ])
 
   if (!app) notFound()
 
@@ -133,7 +136,7 @@ export default async function AppDetailPage({ params }: AppDetailPageProps) {
         </section>
 
         {/* ===== Feedback CTA ===== */}
-        <FeedbackCTA telegramUrl="https://t.me/+a3KcPUIk3UxlZjk1" />
+        <FeedbackCTA cta={cta} />
 
         {/* ===== Deskripsi ===== */}
         {app.description && (

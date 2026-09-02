@@ -5,17 +5,27 @@ import Link from 'next/link'
 import { Send } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
+interface FeedbackCTAData {
+  title: string
+  link_url: string
+  icon_url: string | null
+}
+
 interface FeedbackCTAProps {
+  cta?: FeedbackCTAData | null
   telegramUrl?: string
   title?: string
   iconUrl?: string
 }
 
-export function FeedbackCTA({ telegramUrl = 'https://t.me/+a3KcPUIk3UxlZjk1', title = 'No Feedback No Update Mods', iconUrl }: FeedbackCTAProps) {
-  const [cta, setCta] = useState<{ title: string; link_url: string; icon_url: string | null } | null>(null)
-  const [loading, setLoading] = useState(true)
+export function FeedbackCTA({ cta, telegramUrl = 'https://t.me/+a3KcPUIk3UxlZjk1', title = 'No Feedback No Update Mods', iconUrl }: FeedbackCTAProps) {
+  const [clientCta, setClientCta] = useState<FeedbackCTAData | null>(null)
+  const [loading, setLoading] = useState(!cta)
 
   useEffect(() => {
+    // Only fetch client-side if no cta prop was provided
+    if (cta) return
+
     async function fetchCTA() {
       try {
         const res = await fetch('/api/feedback-cta', { cache: 'no-store' })
@@ -24,7 +34,7 @@ export function FeedbackCTA({ telegramUrl = 'https://t.me/+a3KcPUIk3UxlZjk1', ti
           if (data.ctas && data.ctas.length > 0) {
             const activeCTA = data.ctas.find((c: any) => c.is_active)
             if (activeCTA) {
-              setCta({
+              setClientCta({
                 title: activeCTA.title,
                 link_url: activeCTA.link_url,
                 icon_url: activeCTA.icon_url,
@@ -42,12 +52,15 @@ export function FeedbackCTA({ telegramUrl = 'https://t.me/+a3KcPUIk3UxlZjk1', ti
     fetchCTA()
   }, [])
 
-  if (loading || !cta) return null
+  // Use server-side cta if provided, otherwise use client-fetched
+  const activeCTA = cta ?? clientCta
+
+  if (loading || !activeCTA) return null
 
   return (
     <section className="mt-6 rounded-2xl bg-[#0088cc]/10 border border-[#0088cc]/20 p-4 sm:p-5">
       <Link
-        href={cta.link_url}
+        href={activeCTA.link_url}
         target="_blank"
         rel="noopener noreferrer"
         className={cn(
@@ -59,9 +72,9 @@ export function FeedbackCTA({ telegramUrl = 'https://t.me/+a3KcPUIk3UxlZjk1', ti
         onClick={() => {}}
       >
         <span className="flex-shrink-0">
-          {cta.icon_url ? (
+          {activeCTA.icon_url ? (
             <img
-              src={cta.icon_url}
+              src={activeCTA.icon_url}
               alt="Telegram"
               className="w-6 h-6 sm:w-7 sm:h-7 rounded"
             />
@@ -70,7 +83,7 @@ export function FeedbackCTA({ telegramUrl = 'https://t.me/+a3KcPUIk3UxlZjk1', ti
           )}
         </span>
         <span className="flex items-center gap-2 text-base sm:text-lg font-semibold leading-tight">
-          {cta.title}
+          {activeCTA.title}
         </span>
       </Link>
     </section>
